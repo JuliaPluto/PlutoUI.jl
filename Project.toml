@@ -1,0 +1,7 @@
+name = "PlutoUI"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+authors = ["Fons van der Plas <fonsvdplas@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
