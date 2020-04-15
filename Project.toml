@@ -4,4 +4,3 @@ authors = ["Fons van der Plas <fonsvdplas@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
