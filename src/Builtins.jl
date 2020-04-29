@@ -5,7 +5,7 @@ struct Slider
 end
 
 function show(io::IO, ::MIME"text/html", slider::Slider)
-    print(io, """<input type="range" min="$(slider.range.start)" max="$(slider.range.stop)" value="$(slider.range.start)">""")
+    print(io, """<input type="range" min="$(first(slider.range))" step="$(step(slider.range))" max="$(last(slider.range))" value="$(first(slider.range))">""")
 end
 
 peek(slider::Slider) = first(slider.range)
@@ -13,7 +13,7 @@ peek(slider::Slider) = first(slider.range)
 
 
 struct Button
-    label::String
+    label::AbstractString
 end
 Button() = Button("Click")
 
