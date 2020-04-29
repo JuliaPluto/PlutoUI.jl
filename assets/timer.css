@@ -1,0 +1,94 @@
+timer {
+    display: flex;
+    flex-direction: row;
+}
+
+timer>* {
+    align-self: center;
+    margin-right: .3rem;
+}
+
+clock {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    width: 20px;
+    height: 20px;
+}
+
+clock>* {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+clock>*>svg {
+    width: 100%;
+    height: 100%;
+}
+
+timer clock front,
+timer clock zoof {
+    position: absolute;
+    left: 0;
+    top: 0;
+    animation: 1s linear 🔁 infinite;
+}
+
+timer.stopped clock front {
+    animation-play-state: paused;
+}
+
+timer.stopped clock zoof {
+    display: none;
+}
+
+timer input {
+    width: 3rem;
+}
+
+timer span {
+    font-family: "Roboto Mono", monospace;
+    font-size: .75rem;
+    word-spacing: -.2rem;
+}
+
+timer span#unit {
+    font-style: italic;
+    cursor: pointer;
+}
+
+timer span#unit::after {
+    content: "secs / tick";
+}
+
+timer.inverted span#unit::after {
+    content: "ticks / sec";
+}
+
+timer button {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+timer button::after {
+    content: "Stop";
+}
+
+timer.stopped button::after {
+    content: "Start";
+}
+
+timer.fixed span,
+timer.fixed input {
+    display: none;
+}
+
+@keyframes 🔁 {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
