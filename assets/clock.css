@@ -1,14 +1,14 @@
-timer {
+clock {
     display: flex;
     flex-direction: row;
 }
 
-timer>* {
+clock>* {
     align-self: center;
     margin-right: .3rem;
 }
 
-clock {
+analog {
     display: block;
     position: relative;
     overflow: hidden;
@@ -16,71 +16,71 @@ clock {
     height: 20px;
 }
 
-clock>* {
+analog>* {
     display: block;
     width: 100%;
     height: 100%;
 }
 
-clock>*>svg {
+analog>*>svg {
     width: 100%;
     height: 100%;
 }
 
-timer clock front,
-timer clock zoof {
+clock analog front,
+clock analog zoof {
     position: absolute;
     left: 0;
     top: 0;
     animation: 1s linear 🔁 infinite;
 }
 
-timer.stopped clock front {
+clock.stopped analog front {
     animation-play-state: paused;
 }
 
-timer.stopped clock zoof {
+clock.stopped analog zoof {
     display: none;
 }
 
-timer input {
+clock input {
     width: 3rem;
 }
 
-timer span {
+clock span {
     font-family: "Roboto Mono", monospace;
     font-size: .75rem;
     word-spacing: -.2rem;
 }
 
-timer span#unit {
+clock span#unit {
     font-style: italic;
     cursor: pointer;
 }
 
-timer span#unit::after {
+clock span#unit::after {
     content: "secs / tick";
 }
 
-timer.inverted span#unit::after {
+clock.inverted span#unit::after {
     content: "ticks / sec";
 }
 
-timer button {
+clock button {
     margin-left: 1rem;
     margin-right: 1rem;
 }
 
-timer button::after {
+clock button::after {
     content: "Stop";
 }
 
-timer.stopped button::after {
+clock.stopped button::after {
     content: "Start";
 }
 
-timer.fixed span,
-timer.fixed input {
+clock.fixed span,
+clock.fixed input {
     display: none;
 }
 
