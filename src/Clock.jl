@@ -36,4 +36,4 @@ function show(io::IO, ::MIME"text/html", clock::Clock)
     write(io, result)
 end
 
-peek(clock::Clock) = 1
+get(clock::Clock) = 1

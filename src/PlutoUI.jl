@@ -1,6 +1,6 @@
 module PlutoUI
 
-import Base: show, peek
+import Base: show, get
 import Markdown: htmlesc
 
 const PKG_ROOT_DIR = normpath(joinpath(@__DIR__, ".."))

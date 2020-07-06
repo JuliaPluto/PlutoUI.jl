@@ -11,7 +11,7 @@ function show(io::IO, ::MIME"text/html", slider::Slider)
     print(io, """<input type="range" min="$(first(slider.range))" step="$(step(slider.range))" max="$(last(slider.range))" value="$(slider.default)">""")
 end
 
-peek(slider::Slider) = slider.default
+get(slider::Slider) = slider.default
 
 
 struct NumberField
@@ -25,7 +25,7 @@ function show(io::IO, ::MIME"text/html", numberfield::NumberField)
     print(io, """<input type="number" min="$(first(numberfield.range))" step="$(step(numberfield.range))" max="$(last(numberfield.range))" value="$(numberfield.default)">""")
 end
 
-peek(numberfield::NumberField) = numberfield.default
+get(numberfield::NumberField) = numberfield.default
 
 
 
@@ -38,7 +38,7 @@ function show(io::IO, ::MIME"text/html", button::Button)
     print(io, """<input type="button" value="$(htmlesc(button.label))">""")
 end
 
-peek(button::Button) = button.label
+get(button::Button) = button.label
 
 
 
@@ -52,7 +52,7 @@ function show(io::IO, ::MIME"text/html", button::CheckBox)
     print(io, """<input type="checkbox"$(button.default ? " checked" : "")>""")
 end
 
-peek(checkbox::CheckBox) = checkbox.default
+get(checkbox::CheckBox) = checkbox.default
 
 
 """A text input (`<input type="text">`) - the user can type text, the text is return as `String` via `@bind`.
@@ -68,10 +68,10 @@ See the [Mozilla docs about `<input type="text">`](https://developer.mozilla.org
 
 `TextField((30,5); default="Hello\nJuliaCon!")`"""
 struct TextField
-    dims::Union{Tuple{Integer, Integer}, Nothing}
+    dims::Union{Tuple{Integer,Integer},Nothing}
     default::AbstractString
 end
-TextField(dims::Union{Tuple{Integer, Integer}, Nothing}=nothing; default::AbstractString="") = TextField(dims, default)
+TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="") = TextField(dims, default)
 
 function show(io::IO, ::MIME"text/html", textfield::TextField)
     if textfield.dims === nothing
@@ -81,7 +81,7 @@ function show(io::IO, ::MIME"text/html", textfield::TextField)
     end
 end
 
-peek(textfield::TextField) = textfield.default
+get(textfield::TextField) = textfield.default
 
 
 """A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s. 
@@ -95,9 +95,9 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 
 `Select(["potato" => image_of_🥔, "carrot" => image_of_🥕])`"""
 struct Select
-    options::Array{Pair{AbstractString, Any}, 1}
+    options::Array{Pair{AbstractString,Any},1}
 end
-Select(options::Array{<:AbstractString, 1}) = Select([o => o for o in options])
+Select(options::Array{<:AbstractString,1}) = Select([o => o for o in options])
 
 function show(io::IO, ::MIME"text/html", select::Select)
     println(io, """<select>""")
@@ -113,4 +113,4 @@ function show(io::IO, ::MIME"text/html", select::Select)
     println(io, """</select>""")
 end
 
-peek(select::Select) = first(select.options).first
+get(select::Select) = first(select.options).first
