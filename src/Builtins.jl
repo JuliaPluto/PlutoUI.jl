@@ -1,4 +1,4 @@
-export Slider, NumberField, Button, CheckBox, TextField, Select
+export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker
 
 struct Slider
     range::AbstractRange
@@ -93,7 +93,7 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 # Examples
 `Select(["potato", "carrot"])`
 
-`Select(["potato" => image_of_🥔, "carrot" => image_of_🥕])`"""
+`Select(["potato" => "🥔", "carrot" => "🥕"])`"""
 struct Select
     options::Array{Pair{AbstractString,Any},1}
 end
@@ -114,3 +114,17 @@ function show(io::IO, ::MIME"text/html", select::Select)
 end
 
 get(select::Select) = first(select.options).first
+
+
+struct FilePicker
+    accept::Array{String,1}
+end
+FilePicker() = FilePicker(String[])
+
+function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
+    print(io, """<input type='file' accept='""")
+    join(io, filepicker.accept, ",")
+    print(io, "'>")
+end
+
+get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
