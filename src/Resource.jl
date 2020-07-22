@@ -1,7 +1,7 @@
 import Base64
 import Markdown
 
-export Resource, RemoteResource, LocalResource
+export Resource, RemoteResource, LocalResource, DownloadButton
 
 """
     Resource(src::String, mime=mime_from_filename(src)[, html_attributes::Pair...])
