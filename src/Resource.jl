@@ -153,5 +153,5 @@ end
 
 const imagemimes = [MIME"image/svg+xml"(), MIME"image/png"(), MIME"image/webp"(), MIME"image/tiff"(), MIME"image/jpg"(), MIME"image/jpeg"(), MIME"image/bmp"(), MIME"image/gif"()]
 const audiomimes = [MIME"audio/mpeg"(), MIME"audio/wav"(), MIME"audio/aac"(), MIME"audio/ogg"(), MIME"audio/opus"(), MIME"audio/webm"()]
-const videomimes = [MIME"video/mpeg"(), MIME"video/ogg"(), MIME"video/webm"()]
+const videomimes = [MIME"video/mpeg"(), MIME"video/ogg"(), MIME"video/webm"(), MIME"video/mp4"()]
 
