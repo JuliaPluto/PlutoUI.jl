@@ -3,12 +3,15 @@ export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker
 struct Slider
     range::AbstractRange
     default::Number
+    output::Bool
 end
 
-Slider(range::AbstractRange; default=missing) = Slider(range, (default === missing) ? first(range) : default)
+Slider(range::AbstractRange; default=missing, output=false) = Slider(range, (default === missing) ? first(range) : default, output)
 
 function show(io::IO, ::MIME"text/html", slider::Slider)
-    print(io, """<input type="range" min="$(first(slider.range))" step="$(step(slider.range))" max="$(last(slider.range))" value="$(slider.default)">""")
+    print(io, """<input type="range" min="$(first(slider.range))" step="$(step(slider.range))" max="$(last(slider.range))" value="$(slider.default)"
+                        oninput="this.nextElementSibling.value=this.value">""")
+    print(io, """<output>$(slider.default)</output>""")
 end
 
 get(slider::Slider) = slider.default
@@ -84,7 +87,7 @@ end
 get(textfield::TextField) = textfield.default
 
 
-"""A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s. 
+"""A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
 
 `options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
 
