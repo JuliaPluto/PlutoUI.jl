@@ -1,4 +1,6 @@
-export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker
+import Random: randstring
+
+export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker, Radio
 
 struct Slider
     range::AbstractRange
@@ -128,3 +130,46 @@ function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
 end
 
 get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
+
+struct Radio
+    options::Array{Pair{AbstractString,Any},1}
+    default::AbstractString
+end
+Radio(options::Array{<:AbstractString,1}; default::AbstractString="") = Radio([o => o for o in options], default)
+
+function show(io::IO, ::MIME"text/html", radio::Radio)
+    groupname = randstring(12)
+    println(io, """<form id="$(groupname)">""")
+    for o in radio.options
+        println(io, """<input type="radio" id="$(htmlesc(o.first))" name="$(groupname)" value="$(htmlesc(o.first))" $(htmlesc(radio.default) == htmlesc(o.first) ? "checked" : "")>""")
+        println(io, """<label for=$(htmlesc(o.first))>""")
+        if showable(MIME("text/html"), o.second)
+            show(io, MIME("text/html"), o.second)
+        else
+            print(io, o.second)
+        end
+        println(io, """</label><br>""")
+    end
+    println(io, """</form>""")
+    println(io, """<script>""")
+    println(io, """const form = this.querySelector('#$(groupname)')""")
+    println(io, """const radios = form.querySelectorAll('input[name=$(groupname)]')""")
+    println(io, """
+        for (let i = 0; i < radios.length; i++) {
+            if (radios[i].checked === true) {
+            form.value = radios[i].value
+            }
+        }
+        
+        if (radios) {
+            for (let i = 0; i < radios.length; i++) {
+            radios[i].addEventListener("click", function onchange() {
+                let selected = this.value
+                form.value = selected
+                form.dispatchEvent(new CustomEvent("input"))
+            })
+            }
+        }
+    """)
+    println(io, """</script""")
+end
