@@ -3,15 +3,23 @@ export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker
 struct Slider
     range::AbstractRange
     default::Number
-    output::Bool
+    show_value::Bool
 end
 
-Slider(range::AbstractRange; default=missing, output=false) = Slider(range, (default === missing) ? first(range) : default, output)
+Slider(range::AbstractRange; default=missing, show_value=false) = Slider(range, (default === missing) ? first(range) : default, show_value)
 
 function show(io::IO, ::MIME"text/html", slider::Slider)
-    print(io, """<input type="range" min="$(first(slider.range))" step="$(step(slider.range))" max="$(last(slider.range))" value="$(slider.default)"
-                        oninput="this.nextElementSibling.value=this.value">""")
-    print(io, """<output>$(slider.default)</output>""")
+    print(io, """<input 
+        type="range" 
+        min="$(first(slider.range))" 
+        step="$(step(slider.range))" 
+        max="$(last(slider.range))" 
+        value="$(slider.default)"
+        oninput="this.nextElementSibling.value=this.value">""")
+    
+    if slider.show_value
+        print(io, """<output>$(slider.default)</output>""")
+    end
 end
 
 get(slider::Slider) = slider.default
