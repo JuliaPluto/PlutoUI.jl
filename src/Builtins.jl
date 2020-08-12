@@ -66,9 +66,9 @@ Use `default` to set the initial value.
 See the [Mozilla docs about `<input type="text">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text) and [`<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea)
 
 # Examples
-`TextField()`
+`@bind poem TextField()`
 
-`TextField((30,5); default="Hello\nJuliaCon!")`"""
+`@bind poem TextField((30,5); default="Hello\nJuliaCon!")`"""
 struct TextField
     dims::Union{Tuple{Integer,Integer},Nothing}
     default::AbstractString
@@ -93,29 +93,35 @@ get(textfield::TextField) = textfield.default
 See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select)
 
 # Examples
-`Select(["potato", "carrot"])`
+`@bind veg Select(["potato", "carrot"])`
 
-`Select(["potato" => "🥔", "carrot" => "🥕"])`"""
+`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
+
+`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`"""
 struct Select
-    options::Array{Pair{AbstractString,Any},1}
+    options::Array{Pair{<:AbstractString,<:Any},1}
+    default::Union{Missing, AbstractString}
 end
-Select(options::Array{<:AbstractString,1}) = Select([o => o for o in options])
+Select(options::Array{<:AbstractString,1}; default=missing) = Select([o => o for o in options], default)
+Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Select(options, default)
 
 function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select) do
         for o in select.options
-            withtag(io, :option, value=>o.first) do
+            print(io, """<option value="$(htmlesc(o.first))"$(radio.default === o.first ? " selected" : "")>""")
+            withtag(io, :option, :value=>o.first) do
                 if showable(MIME"text/html"(), o.second)
                     show(io, MIME"text/html"(), o.second)
                 else
                     print(io, o.second)
                 end
             end
+            print(io, "</option>")
         end
     end
 end
 
-get(select::Select) = first(select.options).first
+get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
 
 
 struct FilePicker
@@ -131,18 +137,32 @@ end
 
 get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
 
+"""A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
+
+`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
+
+
+# Examples
+`@bind veg Radio(["potato", "carrot"])`
+
+`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"])`
+
+`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
+
+"""
 struct Radio
-    options::Array{Pair{AbstractString,Any},1}
-    default::AbstractString
+    options::Array{Pair{<:AbstractString,<:Any},1}
+    default::Union{Missing, AbstractString}
 end
-Radio(options::Array{<:AbstractString,1}; default::AbstractString="") = Radio([o => o for o in options], default)
+Radio(options::Array{<:AbstractString,1}; default=missing) = Radio([o => o for o in options], default)
+Radio(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Radio(options, default)
 
 function show(io::IO, ::MIME"text/html", radio::Radio)
-    groupname = randstring(12)
-    withtag(io, :form, id=>groupname) do
+    groupname = randstring('a':'z')
+    withtag(io, :form, :id=>groupname) do
         for o in radio.options
             withtag(io, :div) do
-                print(io, """<input type="radio" id="$(htmlesc(groupname * o.first))" name="$(groupname)" value="$(htmlesc(o.first))"$(radio.default == o.first ? " checked" : "")>""")
+                print(io, """<input type="radio" id="$(htmlesc(groupname * o.first))" name="$(groupname)" value="$(htmlesc(o.first))"$(radio.default === o.first ? " checked" : "")>""")
 
                 withtag(io, :label, :for=>(groupname * o.first)) do
                     if showable(MIME"text/html"(), o.second)
@@ -171,3 +191,5 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
         """)
     end
 end
+
+get(radio::Radio) = radio.default
