@@ -169,7 +169,7 @@ Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Sele
 function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select) do
         for o in select.options
-            print(io, """<option value="$(htmlesc(o.first))"$(radio.default === o.first ? " selected" : "")>""")
+            print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "")>""")
             withtag(io, :option, :value=>o.first) do
                 if showable(MIME"text/html"(), o.second)
                     show(io, MIME"text/html"(), o.second)
