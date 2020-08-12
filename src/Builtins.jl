@@ -141,35 +141,32 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
     groupname = randstring(12)
     println(io, """<form id="$(groupname)">""")
     for o in radio.options
-        println(io, """<input type="radio" id="$(htmlesc(o.first))" name="$(groupname)" value="$(htmlesc(o.first))" $(htmlesc(radio.default) == htmlesc(o.first) ? "checked" : "")>""")
-        println(io, """<label for=$(htmlesc(o.first))>""")
-        if showable(MIME("text/html"), o.second)
-            show(io, MIME("text/html"), o.second)
+        print(io, "<div>")
+        print(io, """<input type="radio" id="$(groupname * htmlesc(o.first))" name="$(groupname)" value="$(htmlesc(o.first))" $(radio.default == o.first ? "checked" : "")>""")
+        print(io, """<label for="$(groupname * htmlesc(o.first))">""")
+        if showable(MIME"text/html"(), o.second)
+            show(io, MIME"text/html"(), o.second)
         else
             print(io, o.second)
         end
-        println(io, """</label><br>""")
+        print(io, """</label>""")
+        println(io, """</div>""")
     end
     println(io, """</form>""")
     println(io, """<script>""")
-    println(io, """const form = this.querySelector('#$(groupname)')""")
-    println(io, """const radios = form.querySelectorAll('input[name=$(groupname)]')""")
     println(io, """
-        for (let i = 0; i < radios.length; i++) {
-            if (radios[i].checked === true) {
-            form.value = radios[i].value
-            }
-        }
-        
-        if (radios) {
-            for (let i = 0; i < radios.length; i++) {
-            radios[i].addEventListener("click", function onchange() {
-                let selected = this.value
-                form.value = selected
-                form.dispatchEvent(new CustomEvent("input"))
-            })
-            }
-        }
+    const form = this.querySelector('#w7qQcdzzKNuF')
+
+    form.oninput = (e) => {
+        form.value = e.target.value
+        // and bubble upwards
+    }
+
+    // set initial value:
+    const selected_radio = form.querySelector('input[checked]')
+    if(selected_radio != null){
+        form.value = selected_radio.value
+    }
     """)
-    println(io, """</script""")
+    println(io, """</script>""")
 end
