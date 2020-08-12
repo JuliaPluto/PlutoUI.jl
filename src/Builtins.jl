@@ -102,17 +102,17 @@ end
 Select(options::Array{<:AbstractString,1}) = Select([o => o for o in options])
 
 function show(io::IO, ::MIME"text/html", select::Select)
-    println(io, """<select>""")
-    for o in select.options
-        print(io, """<option value="$(htmlesc(o.first))">""")
-        if showable(MIME("text/html"), o.second)
-            show(io, MIME("text/html"), o.second)
-        else
-            print(io, o.second)
+    withtag(io, :select) do
+        for o in select.options
+            withtag(io, :option, value=>o.first) do
+                if showable(MIME"text/html"(), o.second)
+                    show(io, MIME"text/html"(), o.second)
+                else
+                    print(io, o.second)
+                end
+            end
         end
-        print(io, """</option>""")
     end
-    println(io, """</select>""")
 end
 
 get(select::Select) = first(select.options).first
@@ -139,34 +139,35 @@ Radio(options::Array{<:AbstractString,1}; default::AbstractString="") = Radio([o
 
 function show(io::IO, ::MIME"text/html", radio::Radio)
     groupname = randstring(12)
-    println(io, """<form id="$(groupname)">""")
-    for o in radio.options
-        print(io, "<div>")
-        print(io, """<input type="radio" id="$(groupname * htmlesc(o.first))" name="$(groupname)" value="$(htmlesc(o.first))" $(radio.default == o.first ? "checked" : "")>""")
-        print(io, """<label for="$(groupname * htmlesc(o.first))">""")
-        if showable(MIME"text/html"(), o.second)
-            show(io, MIME"text/html"(), o.second)
-        else
-            print(io, o.second)
+    withtag(io, :form, id=>groupname) do
+        for o in radio.options
+            withtag(io, :div) do
+                print(io, """<input type="radio" id="$(htmlesc(groupname * o.first))" name="$(groupname)" value="$(htmlesc(o.first))"$(radio.default == o.first ? " checked" : "")>""")
+
+                withtag(io, :label, :for=>(groupname * o.first)) do
+                    if showable(MIME"text/html"(), o.second)
+                        show(io, MIME"text/html"(), o.second)
+                    else
+                        print(io, o.second)
+                    end
+                end
+            end
         end
-        print(io, """</label>""")
-        println(io, """</div>""")
     end
-    println(io, """</form>""")
-    println(io, """<script>""")
-    println(io, """
-    const form = this.querySelector('#w7qQcdzzKNuF')
+    withtag(io, :script) do
+        print(io, """
+        const form = this.querySelector('#$(groupname)')
 
-    form.oninput = (e) => {
-        form.value = e.target.value
-        // and bubble upwards
-    }
+        form.oninput = (e) => {
+            form.value = e.target.value
+            // and bubble upwards
+        }
 
-    // set initial value:
-    const selected_radio = form.querySelector('input[checked]')
-    if(selected_radio != null){
-        form.value = selected_radio.value
-    }
-    """)
-    println(io, """</script>""")
+        // set initial value:
+        const selected_radio = form.querySelector('input[checked]')
+        if(selected_radio != null){
+            form.value = selected_radio.value
+        }
+        """)
+    end
 end
