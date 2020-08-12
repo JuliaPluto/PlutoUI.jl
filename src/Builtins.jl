@@ -8,6 +8,16 @@ struct Slider
     show_value::Bool
 end
 
+"""A Slider on the given `range`.
+
+## Examples
+`@bind x Slider(1:10)`
+
+`@bind x Slider(0.00 : 0.01 : 0.30)`
+
+`@bind x Slider(1:10; default=8, show_value=true)`
+
+"""
 Slider(range::AbstractRange; default=missing, show_value=false) = Slider(range, (default === missing) ? first(range) : default, show_value)
 
 function show(io::IO, ::MIME"text/html", slider::Slider)
@@ -26,7 +36,16 @@ end
 
 get(slider::Slider) = slider.default
 
+"""A box where you can type in a number, within a specific range.
 
+## Examples
+`@bind x NumberField(1:10)`
+
+`@bind x NumberField(0.00 : 0.01 : 0.30)`
+
+`@bind x NumberField(1:10; default=8)`
+
+"""
 struct NumberField
     range::AbstractRange
     default::Number
@@ -41,7 +60,29 @@ end
 get(numberfield::NumberField) = numberfield.default
 
 
+"""A button that sends back the same value every time that it is clicked.
 
+You can use it to _trigger reactive cells_.
+
+## Examples
+
+In one cell:
+
+```julia
+@bind go Button("Go!")
+```
+
+and in a second cell:
+
+```julia
+begin
+    # reference the bound variable - clicking the button will run this cell
+    go
+
+    md"My favorite number is $(rand())!"
+end
+```
+"""
 struct Button
     label::AbstractString
 end
@@ -54,7 +95,16 @@ end
 get(button::Button) = button.label
 
 
+"""A checkbox to choose a Boolean value `true`/`false`.
 
+## Examples
+
+`@bind programming_is_fun CheckBox()`
+
+`@bind julia_is_fun CheckBox(default=true)`
+
+`md"Would you like the thing? \$(@bind enable_thing CheckBox())"`
+"""
 struct CheckBox
     default::Bool
 end
@@ -134,15 +184,32 @@ end
 
 get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
 
+"""A file upload box. The chosen file will be read by the browser, and the bytes are sent back to Julia.
 
+The optional `accept` argument can be an array of `MIME`s. The user can only select files with these MIME. If only `image/*` MIMEs are allowed, then smartphone browsers will open the camera instead of a file browser.
+
+## Examples
+
+`@bind file_data FilePicker()`
+
+`file_data["data"]`
+
+You can limit the allowed MIME types:
+
+```julia
+@bind image_data FilePicker([MIME("image/jpg"), MIME("image/png")])
+# and use MIME groups:
+@bind image_data FilePicker([MIME("image/*")])
+```
+"""
 struct FilePicker
-    accept::Array{String,1}
+    accept::Array{MIME,1}
 end
-FilePicker() = FilePicker(String[])
+FilePicker() = FilePicker(MIME[])
 
 function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
     print(io, """<input type='file' accept='""")
-    join(io, filepicker.accept, ",")
+    join(io, string.(filepicker.accept), ",")
     print(io, "'>")
 end
 
