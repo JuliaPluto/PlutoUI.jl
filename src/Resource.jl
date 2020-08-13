@@ -143,7 +143,7 @@ function mime_fromfilename(filename; default=nothing, filename_maxlength=2000)
 	if length(filename) > filename_maxlength
 		default
     else
-		get(mimepairs, '.' * split(split(filename, '#')[1], '.')[end], default)
+		get(mimepairs, '.' * split(split(split(filename, '?')[1], '#')[1], '.')[end], default)
 	end
 end
 
