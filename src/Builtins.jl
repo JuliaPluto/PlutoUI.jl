@@ -146,6 +146,7 @@ end
 
 get(textfield::TextField) = textfield.default
 
+abstract type AbstractSelect end
 
 """A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
 
@@ -159,7 +160,7 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 `@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
 
 `@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`"""
-struct Select
+struct Select <: AbstractSelect
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractString}
 end
@@ -182,7 +183,44 @@ function show(io::IO, ::MIME"text/html", select::Select)
     end
 end
 
-get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
+get(select::AbstractSelect) = ismissing(select.default) ? first(select.options).first : select.default
+
+
+"""A multi-selector (`<select multi>`) - the user can choose one or more of the `options`, an array of `Strings.
+
+`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
+
+See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select)
+
+# Examples
+`@bind veg MultiSelect(["potato", "carrot"])`
+
+`@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"])`
+
+`@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`"""
+struct MultiSelect <: AbstractSelect
+    options::Array{Pair{<:AbstractString,<:Any},1}
+    default::Union{Missing, AbstractVector{AbstractString}}
+end
+MultiSelect(options::Array{<:AbstractString,1}; default=missing) = MultiSelect([o => o for o in options], default)
+MultiSelect(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = MultiSelect(options, default)
+
+function show(io::IO, ::MIME"text/html", select::MultiSelect)
+    withtag(io, Symbol("select multiple")) do
+        @show select.options
+        for o in select.options
+            @show o
+            print(io, """<option value="$(htmlesc(o.first))"$(!ismissing(select.default) && o.first ∈ select.default ? " selected" : "")>""")
+            if showable(MIME"text/html"(), o.second)
+                show(io, MIME"text/html"(), o.second)
+            else
+                print(io, o.second)
+            end
+            print(io, "</option>")
+        end
+    end
+end
+
 
 """A file upload box. The chosen file will be read by the browser, and the bytes are sent back to Julia.
 
