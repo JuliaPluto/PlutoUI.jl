@@ -171,12 +171,10 @@ function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select) do
         for o in select.options
             print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "")>""")
-            withtag(io, :option, :value=>o.first) do
-                if showable(MIME"text/html"(), o.second)
-                    show(io, MIME"text/html"(), o.second)
-                else
-                    print(io, o.second)
-                end
+            if showable(MIME"text/html"(), o.second)
+                show(io, MIME"text/html"(), o.second)
+            else
+                print(io, o.second)
             end
             print(io, "</option>")
         end
