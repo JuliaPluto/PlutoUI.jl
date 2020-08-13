@@ -207,9 +207,7 @@ MultiSelect(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) =
 
 function show(io::IO, ::MIME"text/html", select::MultiSelect)
     withtag(io, Symbol("select multiple")) do
-        @show select.options
         for o in select.options
-            @show o
             print(io, """<option value="$(htmlesc(o.first))"$(!ismissing(select.default) && o.first ∈ select.default ? " selected" : "")>""")
             if showable(MIME"text/html"(), o.second)
                 show(io, MIME"text/html"(), o.second)
