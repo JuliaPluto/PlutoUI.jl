@@ -146,9 +146,9 @@ end
 
 get(textfield::TextField) = textfield.default
 
-abstract type AbstractSelect end
-
 """A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
+
+See [`MultiSelect`](@ref) for a version that allows multiple selected items.
 
 `options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
 
@@ -160,7 +160,7 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 `@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
 
 `@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`"""
-struct Select <: AbstractSelect
+struct Select
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractString}
 end
@@ -181,10 +181,12 @@ function show(io::IO, ::MIME"text/html", select::Select)
     end
 end
 
-get(select::AbstractSelect) = ismissing(select.default) ? first(select.options).first : select.default
+get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
 
 
 """A multi-selector (`<select multi>`) - the user can choose one or more of the `options`, an array of `Strings.
+
+See [`Select`](@ref) for a version that allows only one selected item.
 
 `options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
 
@@ -196,7 +198,7 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 `@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"])`
 
 `@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`"""
-struct MultiSelect <: AbstractSelect
+struct MultiSelect
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractVector{AbstractString}}
 end
@@ -217,6 +219,7 @@ function show(io::IO, ::MIME"text/html", select::MultiSelect)
     end
 end
 
+get(select::MultiSelect) = ismissing(select.default) ? Any[] : select.default
 
 """A file upload box. The chosen file will be read by the browser, and the bytes are sent back to Julia.
 
