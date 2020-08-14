@@ -27,7 +27,8 @@ function show(io::IO, ::MIME"text/html", slider::Slider)
         step="$(step(slider.range))" 
         max="$(last(slider.range))" 
         value="$(slider.default)"
-        oninput="this.nextElementSibling.value=this.value">""")
+        $(slider.show_value ? "oninput=\"this.nextElementSibling.value=this.value\"" : "")
+        >""")
     
     if slider.show_value
         print(io, """<output>$(slider.default)</output>""")
