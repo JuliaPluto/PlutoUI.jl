@@ -1,6 +1,6 @@
 import Random: randstring
 
-export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker, Radio
+export Slider, NumberField, Button, CheckBox, TextField, Select, MultiSelect, Radio, FilePicker
 
 struct Slider
     range::AbstractRange
