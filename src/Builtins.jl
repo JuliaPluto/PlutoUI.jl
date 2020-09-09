@@ -309,3 +309,105 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
 end
 
 get(radio::Radio) = radio.default
+
+
+"""Generate Table of Contents using Markdown cells. Headers h1-h6 are used. 
+
+`title` is the custom Title header to this element. 
+`indent` aligns header elements in a heirarchy.
+
+# Examples
+`@bind TableOfContents()`
+
+`@bind TableOfContents(indent=True)`
+
+`@bind TableOfContents(title="Table of Contents")`
+
+"""
+struct TableOfContents
+    title::AbstractString
+    indent::Bool
+end
+TableOfContents(;title::AbstractString="", indent::Bool=false) = TableOfContents(title, indent)
+
+function show(io::IO, ::MIME"text/html", toc::TableOfContents)
+
+    if length(toc.title) > 0
+        print(io, """<div class="title">$(toc.title)</div>""")
+    end
+
+    withtag(io, :script) do
+        print(io, """
+            const elementsOfType = (type) => Array.from(
+                document.querySelectorAll(
+                    "pluto-notebook pluto-output " + type
+                )
+            ).map(el => {
+                const parentCellId = function(el) {
+                    while (el.nodeName != 'PLUTO-CELL') {
+                        el = el.parentNode;
+                        if (!el) return null;
+                    }
+                    return el.id;
+                }            
+                return {
+                    "el": el,
+                    "parentCellId": parentCellId(el)
+                }
+            })
+            
+            const plutoCellIds = Array.from(
+                document.querySelectorAll(
+                    "pluto-notebook pluto-cell"
+                )
+            ).map(el => el.id)
+            
+            const headers = [...elementsOfType("h1"), ...elementsOfType("h2"),...elementsOfType("h3"),...elementsOfType("h4"), ...elementsOfType("h5"),...elementsOfType("h6")] 
+            headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId)-plutoCellIds.indexOf(b.parentCellId))
+
+            return html`\${headers.map(h => html`<div><a class="\${h.el.nodeName}" href="#\${h.parentCellId}">\${h.el.innerText}</a></div>`)}`
+        """)
+    end
+
+    withtag(io, :style) do        
+        print(io, """
+            a {
+                text-decoration: none;
+            }
+            .title{
+                display: block;
+                font-size: 2em;
+                margin-top: 0.67em;
+                margin-bottom: 0.67em;
+                margin-left: 0;
+                margin-right: 0;
+                font-weight: bold;
+            }
+            """)
+
+        if toc.indent 
+            print(io, """
+                .H1 {
+                    padding: 0px 0px;
+                }
+                .H2 {
+                    padding: 0px 10px;
+                }
+                .H3 {
+                    padding: 0px 20px;
+                }
+                .H4 {
+                    padding: 0px 30px;
+                }
+                .H5 {
+                    padding: 0px 40px;
+                }
+                .H6 {
+                    padding: 0px 50px;
+                }"""        
+            )
+        end
+    end
+end
+
+get(toc::TableOfContents) = toc.default
