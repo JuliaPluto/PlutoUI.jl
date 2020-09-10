@@ -32,6 +32,8 @@ const _stderr_css="""
 
 Capture the `output` and `stderr` streams for the given expression,
 return a tuple of stdout and stderr.
+
+Taken from Suppressor.jl and modified. 
 """
 macro capture(block)
     quote
@@ -79,8 +81,6 @@ Wrap code output into HTML <pre> element.
 """
 function format_output(code_output)
     output=""
-    @warn code_output[1]
-    @warn code_output[2]
     if length(code_output[1])>0
         output="""$(_stdout_css)<div class='stdout'><pre>"""*code_output[1]*"""</pre></div>"""
     end
