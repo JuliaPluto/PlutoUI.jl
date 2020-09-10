@@ -1,80 +1,94 @@
-export @with_stdout, @cond, @cond_with_stdout, @bind_cond, stdout_style, stdout_styles
+export @with_output, @cond, @capture
+
+
+const _stdout_css="""
+<style>
+    div.stdout {}
+    div.stdout pre {
+      color: #000;
+      border-radius: 3px;
+      background-color: #efe;
+      border: 1px solid #ddd;
+      font-size: 65%;
+    }
+</style>"""
+
+const _stderr_css="""
+<style>
+    div.stderr {}
+    div.stderr pre {
+      color: #000;
+      border-radius: 3px;
+      background-color: #fee;
+      border: 1px solid #ddd;
+      font-size: 65%;
+   }
+</style>"""
+
+
 
 """
-     Dict containing predefined style sheets for `div.stdout`
+    @capture expr
+
+Capture the `output` and `stderr` streams for the given expression,
+return a tuple of stdout and stderr.
 """
-_predefined_css=Dict(
+macro capture(block)
+    quote
+        if ccall(:jl_generating_output, Cint, ()) == 0
+            original_stdout = stdout
+            out_rd, out_wr = redirect_stdout()
+            out_reader = @async read(out_rd, String)
 
-    :default =>"""<style>
-         div.stdout {}
-         div.stdout pre {
-                color: #000;
-                    border-radius: 1px;
-                background-color: #dfd;
-                    border: 0px solid #ddd;
-                font-size: 65%;
-          }
-           </style>""",
+            original_stderr = stderr
+            err_rd, err_wr = redirect_stderr()
+            err_reader = @async read(err_rd, String)
+            
+            # approach adapted from https://github.com/JuliaLang/IJulia.jl/pull/667/files
+            logstate = Base.CoreLogging._global_logstate
+            logger = logstate.logger
+            new_logstate = Base.CoreLogging.LogState(typeof(logger)(err_wr, logger.min_level))
+            Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), new_logstate))
+        end
+        
+        try
+            $(esc(block))
+        finally
+            if ccall(:jl_generating_output, Cint, ()) == 0
+                redirect_stdout(original_stdout)
+                close(out_wr)
 
-    :nowrap =>"""<style>
-         div.stdout {}
-         div.stdout pre {
-                color: #000;
-                border-radius: 1px;
-                background-color: #dfd;
-                border: 0px solid #ddd;
-                font-size: 65%;
-                word-break: normal !important;
-                word-wrap: normal !important;
-                white-space: pre !important;
-      	        overflow: auto;
-          }
-           </style>""",
+                redirect_stderr(original_stderr)
+                close(err_wr)
+                Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), logstate))
+            end
+        end
 
-    :vintage =>"""<style>
-              div.stdout {}
-              div.stdout pre {
-                color: #2f2;
-                border-radius: 10px;
-                background-color: #333;
-                border: 5px solid #aaa;
-                font-size: 65%;
-          }
-          </style>""")
-
-# Initialize with default css
-_stdout_css=_predefined_css[:default]
-
-"""
-   Set style sheet for output of stdout. Either one of
-   $(keys(_predefined_css)) or a string containing a css style sheet.
-"""
-function stdout_style(s)
-    global _stdout_css
-    if s in keys(_predefined_css)
-        _stdout_css=_predefined_css[s]
-    else
-        _stdout_css=s
+        if ccall(:jl_generating_output, Cint, ()) == 0
+            (fetch(out_reader),fetch(err_reader))
+        else
+            ("","")
+        end
     end
 end
 
-
-"""
-    Return current stdout css style string
-"""
-stdout_style()=_stdout_css
-
-"""
-    List predefined stdout css styles
-"""
-stdout_styles()=keys(_predefined_css)
 
 
 """
 Wrap code output into HTML <pre> element.
 """
-format_stdout(code_output)=HTML("""$(_stdout_css)<div class='stdout'><pre>"""*code_output*"""</pre></div>""")
-
+function format_output(code_output)
+    output=""
+    @warn code_output[1]
+    @warn code_output[2]
+    if length(code_output[1])>0
+        output="""$(_stdout_css)<div class='stdout'><pre>"""*code_output[1]*"""</pre></div>"""
+    end
+    if length(code_output[2])>0
+        output=output*"""$(_stderr_css)<div class='stderr'><pre>"""*code_output[2]*"""</pre></div>"""
+    end
+    HTML(output)
+end
 
 """
 Run code, grab output from println, show etc and return it in a html string as <pre>.
@@ -82,43 +96,20 @@ Run code, grab output from println, show etc and return it in a html string as <
 Example:
 
 ````
-@with_stdout begin
+@with_output begin
     x=1+1
     println(x)
 end 
 ````
            
 """
-macro with_stdout(expr)
+macro with_output(expr)
     quote
-	format_stdout(Suppressor.@capture_out($(esc(expr))))
+	format_output(@capture($(esc(expr))))
     end
 end
 
 
-"""
-Conditionally run code, grab output from println, show etc and return it in a html string as <pre>.
-
-Example:
-
-````
-md"### Test Example \$(@bind test_example CheckBox(default=false))"
-
-@with_stdout test_example begin
-    x=1+1
-    println(x)
-end 
-````
-           
-"""
-macro cond_with_stdout(run,expr)
-    # after an Idea of Benjamin Lungwitz
-    quote
-	if $(esc(run))
-	    format_stdout(Suppressor.@capture_out($(esc(expr))))
-	end
-    end
-end
 
 """
 Conditionally run code
@@ -143,14 +134,3 @@ macro cond(run,expr)
     end
 end
 
-
-"""
-Wanted:
-
-Bind condition variable to checkbox and display it prefixed with label
-
-Example: 
-````
-@bind_cont test_example "### Test Example"
-````
-"""
