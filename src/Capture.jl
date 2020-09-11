@@ -31,46 +31,31 @@ const _stderr_css="""
     @capture expr
 
 Capture the `output` and `stderr` streams for the given expression,
-return a tuple of stdout and stderr.
-
-Taken from Suppressor.jl and modified. 
+return a tuple of stdout and stderr results collected while executing
+`expr`
 """
-macro capture(block)
+macro capture(expr)
     quote
-        if ccall(:jl_generating_output, Cint, ()) == 0
-            original_stdout = stdout
-            out_rd, out_wr = redirect_stdout()
-            out_reader = @async read(out_rd, String)
-
-            original_stderr = stderr
-            err_rd, err_wr = redirect_stderr()
-            err_reader = @async read(err_rd, String)
-            
-            # approach adapted from https://github.com/JuliaLang/IJulia.jl/pull/667/files
-            logstate = Base.CoreLogging._global_logstate
-            logger = logstate.logger
-            new_logstate = Base.CoreLogging.LogState(typeof(logger)(err_wr, logger.min_level))
-            Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), new_logstate))
-        end
-        
-        try
-            $(esc(block))
-        finally
-            if ccall(:jl_generating_output, Cint, ()) == 0
-                redirect_stdout(original_stdout)
-                close(out_wr)
-
-                redirect_stderr(original_stderr)
-                close(err_wr)
-                Core.eval(Base.CoreLogging, Expr(:(=), :(_global_logstate), logstate))
-            end
-        end
-
-        if ccall(:jl_generating_output, Cint, ()) == 0
-            (fetch(out_reader),fetch(err_reader))
-        else
-            ("","")
-        end
+        original_stdout = stdout
+        out_rd, out_wr = redirect_stdout()
+        original_stderr = stderr
+        err_rd, err_wr = redirect_stderr()
+        # write just one character into the streams in order to
+        # prevent readavailable from blocking if they would stay empty
+        print(stderr," ")
+	print(stdout," ")
+        logger=SimpleLogger()
+	with_logger(logger) do	
+	    $(esc(expr))
+	end
+        result_out=String(readavailable(out_rd))
+        result_err=String(readavailable(err_rd))
+	redirect_stdout(original_stdout)
+	redirect_stderr(original_stderr)
+        close(out_wr)
+	close(err_wr)
+        # ignore the first character...
+        (result_out[2:end],result_err[2:end])
     end
 end
 
