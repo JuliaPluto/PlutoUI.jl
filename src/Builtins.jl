@@ -313,15 +313,20 @@ get(radio::Radio) = radio.default
 
 """Generate Table of Contents using Markdown cells. Headers h1-h6 are used. 
 
-`title` is the custom Title header to this element. 
-`indent` aligns header elements in a heirarchy.
+`title` header to this element, defaults to "Table of Contents"
+`depth` value to limit the header elements, in range 1 to 6, defaults to 3
+`aside` fix the element to right, defaults to true
+`indent` flag indicating whether to vertically align elements as per heirarchy
+
 
 # Examples
 `@bind TableOfContents()`
 
-`@bind TableOfContents(indent=True)`
+`@bind TableOfContents(title="Experiments", depth=1)`
 
-`@bind TableOfContents(title="Table of Contents")`
+`@bind TableOfContents(title="విషయసూచిక", indent=true)`
+
+`@bind TableOfContents(aside=false)`
 
 """
 struct TableOfContents
@@ -340,24 +345,26 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :script) do
         print(io, """
-            const addParentCellId = (el => {
-                const parentCellId = function(el) {
-                    // Traverse up the DOM tree until you reach a pluto-cell
-                    while (el.nodeName != 'PLUTO-CELL') {
-                        el = el.parentNode;
-                        if (!el) return null;
-                    }
-                    return el.id;
-                }            
-				el["parentCellId"] = parentCellId(el)
-				return el;
-            })
+            const getParentCellId = el => {
+                // Traverse up the DOM tree until you reach a pluto-cell
+                while (el.nodeName != 'PLUTO-CELL') {
+                    el = el.parentNode;
+                    if (!el) return null;
+                }
+                return el.id;
+            }     
 
-            const getElementsByNodename = (nodeName) => Array.from(
+            const getElementsByNodename = nodeName => Array.from(
                 document.querySelectorAll(
                     "pluto-notebook pluto-output " + nodeName
                 )
-            ).map(el => addParentCellId(el))
+            ).map(el => {
+                {
+                    "nodeName" : el.nodeName,
+                    "parentCellId": getParentCellId(el),
+                    "innerText": el.innerText
+                }
+            })
             
             const plutoCellIds = Array.from(
                 document.querySelectorAll(
@@ -367,17 +374,20 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             
             const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
             const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
-            var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s..], [h2s..], ..]
+            var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
             headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
 
             return html`<div class="toc">
                             <div class="markdown">
                                 <div class="admonition hint">
-                                    <p class="admonition-title">$(toc.title)</p>
+                                    <p class="admonition-title">\$(toc.title)</p>
                                     <p class="toc-content">
                                         \${headers.map(h => html`
                                             <div>
-                                                <a class="\${h.nodeName}" href="#\${h.parentCellId}">
+                                                <a class="\${h.nodeName}" 
+                                                    href="#\${h.parentCellId}" 
+                                                    onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('onhover')})()" 
+                                                    onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('onhover')})()">
                                                     \${h.innerText}
                                                 </a>
                                             </div>`
@@ -393,7 +403,14 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
         print(io, """
             a {
                 text-decoration: none;
+				font-weight: normal;
+				color: gray;
             }
+
+            a:hover {
+                color: black;
+            }
+
             .title{
                 display: block;
                 font-size: 2em;
