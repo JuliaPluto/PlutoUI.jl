@@ -326,9 +326,11 @@ get(radio::Radio) = radio.default
 """
 struct TableOfContents
     title::AbstractString
+    depth::Int
+    aside::Bool
     indent::Bool
 end
-TableOfContents(;title::AbstractString="", indent::Bool=false) = TableOfContents(title, indent)
+TableOfContents(;title::AbstractString="Table of Contents", depth::Int=3, aside::Bool=true, indent::Bool=true) = TableOfContents(title, depth, aside, indent)
 
 function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
@@ -338,11 +340,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :script) do
         print(io, """
-            const elementsOfType = (type) => Array.from(
-                document.querySelectorAll(
-                    "pluto-notebook pluto-output " + type
-                )
-            ).map(el => {
+            const getParentCell = (el => {
                 const parentCellId = function(el) {
                     while (el.nodeName != 'PLUTO-CELL') {
                         el = el.parentNode;
@@ -355,6 +353,12 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                     "parentCellId": parentCellId(el)
                 }
             })
+
+            const elementsOfType = (type) => Array.from(
+                document.querySelectorAll(
+                    "pluto-notebook pluto-output " + type
+                )
+            ).map(el => getParentCell(el))
             
             const plutoCellIds = Array.from(
                 document.querySelectorAll(
@@ -362,10 +366,21 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 )
             ).map(el => el.id)
             
-            const headers = [...elementsOfType("h1"), ...elementsOfType("h2"),...elementsOfType("h3"),...elementsOfType("h4"), ...elementsOfType("h5"),...elementsOfType("h6")] 
+            const depth = Math.min(6, Math.max(1, $(toc.depth))) // should be in range 1:6
+            const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
+            var headers = [].concat.apply([], range.map(i => elementsOfType("h"+i)))
+            
             headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId)-plutoCellIds.indexOf(b.parentCellId))
-
-            return html`\${headers.map(h => html`<div><a class="\${h.el.nodeName}" href="#\${h.parentCellId}">\${h.el.innerText}</a></div>`)}`
+            return html`<div class="toc">
+                            <div class="markdown">
+                                <div class="admonition hint">
+                                    <p class="admonition-title">TOC</p>
+                                    <p class="toc-content">
+                                        \${headers.map(h => html`<div><a class="\${h.el.nodeName}" href="#\${h.parentCellId}">\${h.el.innerText}</a></div>`)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>`
         """)
     end
 
@@ -383,26 +398,45 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 margin-right: 0;
                 font-weight: bold;
             }
+
+            .toc-content {
+                filter: blur(0.0em)!
+            }
             """)
+
+        if toc.aside
+            print(io, """
+                @media screen and (max-width: 1081px) {
+                    .toc {
+                    }
+                }
+
+                @media screen and (min-width: 1081px) {
+                    .toc {
+                        position:fixed; right:20px; top:60px; width:25%; 
+                    }
+                }
+            """)   
+        end
 
         if toc.indent 
             print(io, """
-                .H1 {
+                a.H1 {
                     padding: 0px 0px;
                 }
-                .H2 {
+                a.H2 {
                     padding: 0px 10px;
                 }
-                .H3 {
+                a.H3 {
                     padding: 0px 20px;
                 }
-                .H4 {
+                a.H4 {
                     padding: 0px 30px;
                 }
-                .H5 {
+                a.H5 {
                     padding: 0px 40px;
                 }
-                .H6 {
+                a.H6 {
                     padding: 0px 50px;
                 }"""        
             )
