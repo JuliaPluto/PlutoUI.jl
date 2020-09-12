@@ -382,7 +382,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
             return html`<div class="toc">
                             <div class="markdown">
-                                <div class="admonition hint">
+                                <div class="admonition">
                                     <p class="admonition-title">\$(toc.title)</p>
                                     <p class="toc-content">
                                         \${headers.map(h => html`
@@ -422,10 +422,6 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 margin-left: 0;
                 margin-right: 0;
                 font-weight: bold;
-            }
-
-            .toc-content {
-                filter: none !important;
             }
             """)
 
