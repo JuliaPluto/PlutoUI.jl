@@ -314,8 +314,11 @@ get(radio::Radio) = radio.default
 """Generate Table of Contents using Markdown cells. Headers h1-h6 are used. 
 
 `title` header to this element, defaults to "Table of Contents"
+
 `depth` value to limit the header elements, in range 1 to 6, defaults to 3
+
 `aside` fix the element to right, defaults to true
+
 `indent` flag indicating whether to vertically align elements as per heirarchy
 
 
@@ -324,7 +327,7 @@ get(radio::Radio) = radio.default
 
 `@bind TableOfContents(title="Experiments", depth=1)`
 
-`@bind TableOfContents(title="విషయసూచిక", indent=true)`
+`@bind TableOfContents(title="సూ చి క", indent=true)`
 
 `@bind TableOfContents(aside=false)`
 
@@ -359,7 +362,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                     "pluto-notebook pluto-output " + nodeName
                 )
             ).map(el => {
-                {
+                return {
                     "nodeName" : el.nodeName,
                     "parentCellId": getParentCellId(el),
                     "innerText": el.innerText
@@ -386,8 +389,8 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                                             <div>
                                                 <a class="\${h.nodeName}" 
                                                     href="#\${h.parentCellId}" 
-                                                    onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('onhover')})()" 
-                                                    onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('onhover')})()">
+                                                    onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('pluto-shoulder-hover')})()" 
+                                                    onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('pluto-shoulder-hover')})()">
                                                     \${h.innerText}
                                                 </a>
                                             </div>`
