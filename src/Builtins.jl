@@ -340,25 +340,24 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :script) do
         print(io, """
-            const getParentCell = (el => {
+            const addParentCellId = (el => {
                 const parentCellId = function(el) {
+                    // Traverse up the DOM tree until you reach a pluto-cell
                     while (el.nodeName != 'PLUTO-CELL') {
                         el = el.parentNode;
                         if (!el) return null;
                     }
                     return el.id;
                 }            
-                return {
-                    "el": el,
-                    "parentCellId": parentCellId(el)
-                }
+				el["parentCellId"] = parentCellId(el)
+				return el;
             })
 
-            const elementsOfType = (type) => Array.from(
+            const getElementsByNodename = (nodeName) => Array.from(
                 document.querySelectorAll(
-                    "pluto-notebook pluto-output " + type
+                    "pluto-notebook pluto-output " + nodeName
                 )
-            ).map(el => getParentCell(el))
+            ).map(el => addParentCellId(el))
             
             const plutoCellIds = Array.from(
                 document.querySelectorAll(
@@ -366,17 +365,23 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 )
             ).map(el => el.id)
             
-            const depth = Math.min(6, Math.max(1, $(toc.depth))) // should be in range 1:6
+            const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
             const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
-            var headers = [].concat.apply([], range.map(i => elementsOfType("h"+i)))
-            
-            headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId)-plutoCellIds.indexOf(b.parentCellId))
+            var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s..], [h2s..], ..]
+            headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
+
             return html`<div class="toc">
                             <div class="markdown">
                                 <div class="admonition hint">
-                                    <p class="admonition-title">TOC</p>
+                                    <p class="admonition-title">$(toc.title)</p>
                                     <p class="toc-content">
-                                        \${headers.map(h => html`<div><a class="\${h.el.nodeName}" href="#\${h.parentCellId}">\${h.el.innerText}</a></div>`)}
+                                        \${headers.map(h => html`
+                                            <div>
+                                                <a class="\${h.nodeName}" href="#\${h.parentCellId}">
+                                                    \${h.innerText}
+                                                </a>
+                                            </div>`
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -400,7 +405,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             }
 
             .toc-content {
-                filter: blur(0.0em)!
+                filter: none !important;
             }
             """)
 
