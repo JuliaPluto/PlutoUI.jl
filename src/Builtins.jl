@@ -334,11 +334,11 @@ get(radio::Radio) = radio.default
 """
 struct TableOfContents
     title::AbstractString
-    depth::Int
+    depth::UInt
     aside::Bool
     indent::Bool
 end
-TableOfContents(;title::AbstractString="Table of Contents", depth::Int=3, aside::Bool=true, indent::Bool=true) = TableOfContents(title, depth, aside, indent)
+TableOfContents(;title::AbstractString="Table of Contents", depth::UInt=3, aside::Bool=true, indent::Bool=true) = TableOfContents(title, depth, aside, indent)
 
 function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
@@ -348,6 +348,11 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :script) do
         print(io, """
+
+            if (document.getElementById("toc") !== null){
+                return html`<div>TableOfContents already added. Cannot add another</div>`
+            }
+
             const getParentCellId = el => {
                 // Traverse up the DOM tree until you reach a pluto-cell
                 while (el.nodeName != 'PLUTO-CELL') {
@@ -380,7 +385,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
             headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
 
-            return html`<div class="toc">
+            return html`<div class="toc" id="toc">
                             <div class="markdown">
                                 <p class="toc-title">\$(toc.title)</p>
                                 <p class="toc-content">
@@ -410,23 +415,15 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :style) do        
         print(io, """
-            .toc {
-
-            }
-
             .toc-title{
                 display: block;
-                font-size: 2em;
+                font-size: 1.5em;
                 margin-top: 0.67em;
                 margin-bottom: 0.67em;
                 margin-left: 0;
                 margin-right: 0;
                 font-weight: bold;
                 border-bottom: 2px solid rgba(0, 0, 0, 0.15);
-            }
-
-            .toc-content {
-                
             }
 
             .toc-row {
@@ -437,10 +434,8 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
             a {
                 text-decoration: none;
-				font-weight: normal;
+                font-weight: normal;
                 color: gray;
-                display: inline-block;
-                width: 100%;
             }
 
             a:hover {
@@ -457,7 +452,10 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             print(io, """
                 @media screen and (min-width: 1081px) {
                     .toc {
-                        position:fixed; right:20px; top:70px; width:25%; 
+                        position:fixed; 
+                        right: 1rem;
+                        top: 5rem; 
+                        width:25%; 
                         padding: 10px;
                         border: 3px solid rgba(0, 0, 0, 0.15);
                         border-radius: 10px;
