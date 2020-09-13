@@ -389,7 +389,15 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                                             <a class="\${h.nodeName}" 
                                                 href="#\${h.parentCellId}" 
                                                 onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('pluto-shoulder-hover')})()" 
-                                                onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('pluto-shoulder-hover')})()">
+                                                onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('pluto-shoulder-hover')})()"
+                                                onclick="((e)=>{
+                                                    e.preventDefault();
+                                                    document.getElementById('\${h.parentCellId}').scrollIntoView({
+                                                        behavior: 'smooth', 
+                                                        block: 'center'
+                                                    });
+                                                })(event)"
+                                                >                                                
                                                 \${h.innerText}
                                             </a>
                                         </div>`
