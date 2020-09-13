@@ -388,8 +388,8 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                                         <div class="toc-row">
                                             <a class="\${h.nodeName}" 
                                                 href="#\${h.parentCellId}" 
-                                                onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('pluto-shoulder-hover')})()" 
-                                                onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('pluto-shoulder-hover')})()"
+                                                onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('highlight-pluto-cell-shoulder')})()" 
+                                                onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('highlight-pluto-cell-shoulder')})()"
                                                 onclick="((e)=>{
                                                     e.preventDefault();
                                                     document.getElementById('\${h.parentCellId}').scrollIntoView({
@@ -443,6 +443,11 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
             a:hover {
                 color: black;
+            }
+
+            .highlight-pluto-cell-shoulder {
+                background: rgba(0, 0, 0, 0.05);
+                background-clip: padding-box;
             }
             """)
 
