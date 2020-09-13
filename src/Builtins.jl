@@ -379,24 +379,29 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
             var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
             headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
-
+			const limitText = (text) => {
+				const limit = 50
+				if (text !== null && text.length > limit){
+					text = text.substring(0, limit) + " ... "
+				}
+				return text
+            }
+            
             return html`<div class="toc">
                             <div class="markdown">
-                                <div class="admonition">
-                                    <p class="admonition-title">\$(toc.title)</p>
-                                    <p class="toc-content">
-                                        \${headers.map(h => html`
-                                            <div>
-                                                <a class="\${h.nodeName}" 
-                                                    href="#\${h.parentCellId}" 
-                                                    onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('pluto-shoulder-hover')})()" 
-                                                    onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('pluto-shoulder-hover')})()">
-                                                    \${h.innerText}
-                                                </a>
-                                            </div>`
-                                        )}
-                                    </p>
-                                </div>
+                                <p class="toc-title">\$(toc.title)</p>
+                                <p class="toc-content">
+                                    \${headers.map(h => html`
+                                        <div>
+                                            <a class="\${h.nodeName}" 
+                                                href="#\${h.parentCellId}" 
+                                                onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('pluto-shoulder-hover')})()" 
+                                                onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('pluto-shoulder-hover')})()">
+                                                \${limitText(h.innerText)}
+                                            </a>
+                                        </div>`
+                                    )}
+                                </p>
                             </div>
                         </div>`
         """)
@@ -414,7 +419,11 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 color: black;
             }
 
-            .title{
+            .toc {
+
+            }
+
+            .toc-title{
                 display: block;
                 font-size: 2em;
                 margin-top: 0.67em;
@@ -422,6 +431,11 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 margin-left: 0;
                 margin-right: 0;
                 font-weight: bold;
+                border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+            }
+
+            .toc-content {
+                
             }
             """)
 
@@ -434,7 +448,11 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
                 @media screen and (min-width: 1081px) {
                     .toc {
-                        position:fixed; right:20px; top:60px; width:25%; 
+                        position:fixed; right:20px; top:70px; width:25%; 
+                        padding: 10px;
+                        border: 3px solid rgba(0, 0, 0, 0.15);
+                        border-radius: 10px;
+                        box-shadow: 0 0 11px 0px #00000010;
                     }
                 }
             """)   
