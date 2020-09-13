@@ -379,25 +379,18 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
             var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
             headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
-			const limitText = (text) => {
-				const limit = 50
-				if (text !== null && text.length > limit){
-					text = text.substring(0, limit) + " ... "
-				}
-				return text
-            }
-            
+
             return html`<div class="toc">
                             <div class="markdown">
                                 <p class="toc-title">\$(toc.title)</p>
                                 <p class="toc-content">
                                     \${headers.map(h => html`
-                                        <div>
+                                        <div class="toc-row">
                                             <a class="\${h.nodeName}" 
                                                 href="#\${h.parentCellId}" 
                                                 onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('pluto-shoulder-hover')})()" 
                                                 onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('pluto-shoulder-hover')})()">
-                                                \${limitText(h.innerText)}
+                                                \${h.innerText}
                                             </a>
                                         </div>`
                                     )}
@@ -409,16 +402,6 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :style) do        
         print(io, """
-            a {
-                text-decoration: none;
-				font-weight: normal;
-				color: gray;
-            }
-
-            a:hover {
-                color: black;
-            }
-
             .toc {
 
             }
@@ -437,15 +420,26 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             .toc-content {
                 
             }
+
+            .toc-row {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            a {
+                text-decoration: none;
+				font-weight: normal;
+                color: gray;
+            }
+
+            a:hover {
+                color: black;
+            }
             """)
 
         if toc.aside
             print(io, """
-                @media screen and (max-width: 1081px) {
-                    .toc {
-                    }
-                }
-
                 @media screen and (min-width: 1081px) {
                     .toc {
                         position:fixed; right:20px; top:70px; width:25%; 
@@ -453,6 +447,8 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                         border: 3px solid rgba(0, 0, 0, 0.15);
                         border-radius: 10px;
                         box-shadow: 0 0 11px 0px #00000010;
+                        max-height: 500px;
+                        overflow: auto;
                     }
                 }
             """)   
