@@ -439,6 +439,8 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 text-decoration: none;
 				font-weight: normal;
                 color: gray;
+                display: inline-block;
+                width: 100%;
             }
 
             a:hover {
