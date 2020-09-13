@@ -1,10 +1,10 @@
 export @with_output, @cond, @capture
 
 
-const _stdout_css="""
+const _output_css="""
 <style>
-    div.stdout {}
-    div.stdout pre {
+    div.output {}
+    div.output pre {
       color: #000;
       border-radius: 3px;
       background-color: #efe;
@@ -13,17 +13,6 @@ const _stdout_css="""
     }
 </style>"""
 
-const _stderr_css="""
-<style>
-    div.stderr {}
-    div.stderr pre {
-      color: #000;
-      border-radius: 3px;
-      background-color: #fee;
-      border: 1px solid #ddd;
-      font-size: 65%;
-   }
-</style>"""
 
 
 
@@ -31,31 +20,25 @@ const _stderr_css="""
     @capture expr
 
 Capture the `output` and `stderr` streams for the given expression,
-return a tuple of stdout and stderr results collected while executing
-`expr`
+return results collected while executing `expr`
 """
 macro capture(expr)
     quote
         original_stdout = stdout
         out_rd, out_wr = redirect_stdout()
-        original_stderr = stderr
-        err_rd, err_wr = redirect_stderr()
-        # write just one character into the streams in order to
-        # prevent readavailable from blocking if they would stay empty
-        print(stderr," ")
-	print(stdout," ")
-        logger=SimpleLogger()
-	with_logger(logger) do	
-	    $(esc(expr))
+        # Write just one character into the streams in order to
+        # prevent readavailable from blocking if if stays empty
+        print(stdout," ")
+        # Redirect both logging output and print(stderr,...)
+        # to stdout
+	with_logger(SimpleLogger(stdout)) do	
+	    redirect_stderr(()->$(esc(expr)),stdout)
 	end
         result_out=String(readavailable(out_rd))
-        result_err=String(readavailable(err_rd))
 	redirect_stdout(original_stdout)
-	redirect_stderr(original_stderr)
         close(out_wr)
-	close(err_wr)
         # ignore the first character...
-        (result_out[2:end],result_err[2:end])
+        result_out[2:end]
     end
 end
 
@@ -66,11 +49,8 @@ Wrap code output into HTML <pre> element.
 """
 function format_output(code_output)
     output=""
-    if length(code_output[1])>0
-        output="""$(_stdout_css)<div class='stdout'><pre>"""*code_output[1]*"""</pre></div>"""
-    end
-    if length(code_output[2])>0
-        output=output*"""$(_stderr_css)<div class='stderr'><pre>"""*code_output[2]*"""</pre></div>"""
+    if length(code_output)>0
+        output="""$(_output_css)<div class='output'><pre>"""*code_output*"""</pre></div>"""
     end
     HTML(output)
 end
