@@ -315,39 +315,42 @@ get(radio::Radio) = radio.default
 
 `title` header to this element, defaults to "Table of Contents"
 
-`depth` value to limit the header elements, in range 1 to 6, defaults to 3
+`indent` flag indicating whether to vertically align elements by hierarchy
 
-`aside` fix the element to right, defaults to true
+`depth` value to limit the header elements, should be in range 1 to 6 (default = 3)
 
-`indent` flag indicating whether to vertically align elements as per heirarchy
+`aside` fix the element to right of page, defaults to true
 
+# Examples:
 
-# Examples
-`@bind TableOfContents()`
+`TableOfContents()`
 
-`@bind TableOfContents(title="Experiments", depth=1)`
+`TableOfContents("Experiments 🔬")`
 
-`@bind TableOfContents(title="సూ చి క", indent=true)`
-
-`@bind TableOfContents(aside=false)`
-
+`TableOfContents("📚 Table of Contents", true, 4, true)`
 """
 struct TableOfContents
     title::AbstractString
+    indent::Bool
     depth::Int
     aside::Bool
-    indent::Bool
 end
-TableOfContents(;title::AbstractString="Table of Contents", depth::Int=3, aside::Bool=true, indent::Bool=true) = TableOfContents(title, depth, aside, indent)
+TableOfContents(title::AbstractString; indent::Bool=true, depth::Int=3, aside::Bool=true) = TableOfContents(title, indent, depth, aside)
+TableOfContents() = TableOfContents("Table of Contents", true, 3, true)
 
 function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
-    if length(toc.title) > 0
-        print(io, """<div class="title">$(toc.title)</div>""")
+    if toc.title === nothing || toc.title === missing 
+        toc.title = ""
     end
 
     withtag(io, :script) do
         print(io, """
+
+            if (document.getElementById("toc") !== null){
+                return html`<div>TableOfContents already added. Cannot add another.</div>`
+            }
+
             const getParentCellId = el => {
                 // Traverse up the DOM tree until you reach a pluto-cell
                 while (el.nodeName != 'PLUTO-CELL') {
@@ -380,9 +383,16 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
             headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
 
-            return html`<div class="toc">
+            const registerWithNotebook = (target) => {
+                target.value = {
+                    message: "Hi from TOC"
+                }
+                target.dispatchEvent(new CustomEvent("input"))
+            }
+            
+            return html`<div class="toc" id="toc">
                             <div class="markdown">
-                                <p class="toc-title">\$(toc.title)</p>
+                                <p class="toc-title">$(toc.title)</p>
                                 <p class="toc-content">
                                     \${headers.map(h => html`
                                         <div class="toc-row">
@@ -410,23 +420,15 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :style) do        
         print(io, """
-            .toc {
-
-            }
-
             .toc-title{
                 display: block;
-                font-size: 2em;
+                font-size: 1.5em;
                 margin-top: 0.67em;
                 margin-bottom: 0.67em;
                 margin-left: 0;
                 margin-right: 0;
                 font-weight: bold;
                 border-bottom: 2px solid rgba(0, 0, 0, 0.15);
-            }
-
-            .toc-content {
-                
             }
 
             .toc-row {
@@ -437,10 +439,8 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
             a {
                 text-decoration: none;
-				font-weight: normal;
+                font-weight: normal;
                 color: gray;
-                display: inline-block;
-                width: 100%;
             }
 
             a:hover {
@@ -457,7 +457,10 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             print(io, """
                 @media screen and (min-width: 1081px) {
                     .toc {
-                        position:fixed; right:20px; top:70px; width:25%; 
+                        position:fixed; 
+                        right: 1rem;
+                        top: 5rem; 
+                        width:25%; 
                         padding: 10px;
                         border: 3px solid rgba(0, 0, 0, 0.15);
                         border-radius: 10px;
