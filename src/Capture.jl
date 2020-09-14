@@ -1,4 +1,4 @@
-export @with_output, @cond, @capture
+export @with_output, @cond, @capture, @xcapture
 
 
 const _output_css="""
@@ -26,19 +26,15 @@ macro capture(expr)
     quote
         original_stdout = stdout
         out_rd, out_wr = redirect_stdout()
-        # Write just one character into the streams in order to
-        # prevent readavailable from blocking if if stays empty
-        print(stdout," ")
+        reader = @async read(out_rd)
         # Redirect both logging output and print(stderr,...)
         # to stdout
 	with_logger(SimpleLogger(stdout)) do	
 	    redirect_stderr(()->$(esc(expr)),stdout)
 	end
-        result_out=String(readavailable(out_rd))
 	redirect_stdout(original_stdout)
         close(out_wr)
-        # ignore the first character...
-        result_out[2:end]
+        String(fetch(reader))
     end
 end
 
