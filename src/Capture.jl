@@ -1,4 +1,4 @@
-export @with_output, @cond, @capture, @xcapture
+export @with_output, @cond, @capture
 
 
 const _output_css="""
@@ -26,18 +26,18 @@ macro capture(expr)
     quote
         original_stdout = stdout
         out_rd, out_wr = redirect_stdout()
-        reader = @async read(out_rd)
+        reader = @async read(out_rd, String)
         try
             # Redirect both logging output and print(stderr,...)
             # to stdout
-	    with_logger(SimpleLogger(stdout)) do	
+	    with_logger(ConsoleLogger(stdout)) do	
 	        redirect_stderr(()->$(esc(expr)),stdout)
 	    end
         finally
 	    redirect_stdout(original_stdout)
             close(out_wr)
         end
-        String(fetch(reader))
+        fetch(reader)
     end
 end
 
@@ -49,7 +49,7 @@ Wrap code output into HTML <pre> element.
 function format_output(code_output)
     output=""
     if length(code_output)>0
-        output="""$(_output_css)<div class='output'><pre>"""*code_output*"""</pre></div>"""
+        output=_output_css*"""<div class='output'><pre>"""*code_output*"""</pre></div>"""
     end
     HTML(output)
 end
