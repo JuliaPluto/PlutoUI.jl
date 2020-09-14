@@ -27,13 +27,16 @@ macro capture(expr)
         original_stdout = stdout
         out_rd, out_wr = redirect_stdout()
         reader = @async read(out_rd)
-        # Redirect both logging output and print(stderr,...)
-        # to stdout
-	with_logger(SimpleLogger(stdout)) do	
-	    redirect_stderr(()->$(esc(expr)),stdout)
-	end
-	redirect_stdout(original_stdout)
-        close(out_wr)
+        try
+            # Redirect both logging output and print(stderr,...)
+            # to stdout
+	    with_logger(SimpleLogger(stdout)) do	
+	        redirect_stderr(()->$(esc(expr)),stdout)
+	    end
+        finally
+	    redirect_stdout(original_stdout)
+            close(out_wr)
+        end
         String(fetch(reader))
     end
 end
