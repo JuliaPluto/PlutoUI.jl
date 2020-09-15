@@ -383,13 +383,6 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
             headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
 
-            const registerWithNotebook = (target) => {
-                target.value = {
-                    message: "Hi from TOC"
-                }
-                target.dispatchEvent(new CustomEvent("input"))
-            }
-            
             return html`<div class="toc" id="toc">
                             <div class="markdown">
                                 <p class="toc-title">$(toc.title)</p>
