@@ -372,7 +372,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 }
             })
             
-            const plutoCellIds = Array.from(
+            const getPlutoCellIds = () => Array.from(
                 document.querySelectorAll(
                     "pluto-notebook pluto-cell"
                 )
@@ -390,6 +390,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
                 const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
                 let headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
+                const plutoCellIds = getPlutoCellIds()
                 headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
                 return headers
             }
