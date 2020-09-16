@@ -378,17 +378,23 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 )
             ).map(el => el.id)
             
-            const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
-            const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
-            var headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
-            headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
+            const isSelf = el => {
+                try {
+                    return el.childNodes[1].id === "toc"
+                } catch {                    
+                }
+                return false
+            }
 
-            return html`<div class="toc" id="toc">
-                            <div class="markdown">
-                                <p class="toc-title">$(toc.title)</p>
-                                <p class="toc-content">
-                                    \${headers.map(h => html`
-                                        <div class="toc-row">
+            const getHeaders = () => {
+                const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
+                const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
+                let headers = [].concat.apply([], range.map(i => getElementsByNodename("h"+i))); // flatten [[h1s...], [h2s...], ...]
+                headers.sort((a,b) => plutoCellIds.indexOf(a.parentCellId) - plutoCellIds.indexOf(b.parentCellId)); // sort in the order of appearance
+                return headers
+            }
+
+            const render = (el) => `\${el.map(h => `<div class="toc-row">
                                             <a class="\${h.nodeName}" 
                                                 href="#\${h.parentCellId}" 
                                                 onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('highlight-pluto-cell-shoulder')})()" 
@@ -400,12 +406,23 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                                                         block: 'center'
                                                     });
                                                 })(event)"
-                                                >                                                
-                                                \${h.innerText}
-                                            </a>
-                                        </div>`
-                                    )}
-                                </p>
+                                                > \${h.innerText}</a>
+                                        </div>`).join('')}`
+
+            const updateCallback = e => {
+                if (isSelf(e.detail.cell)) return
+                document.getElementById('toc-content').innerHTML = render(getHeaders())                
+            }
+
+            // TODO: when to call removeEventListener? its needed if TOC cell is run more than once
+            window.addEventListener('cell_output_changed', updateCallback)
+
+            return html`<div class="toc" id="toc">
+                            <div class="markdown">
+                                <p class="toc-title">$(toc.title)</p>
+                                <div class="toc-content" id="toc-content">
+                                        \${render(getHeaders())}
+                                </div>
                             </div>
                         </div>`
         """)
@@ -428,6 +445,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                padding-bottom: 2px;
             }
 
             a {
