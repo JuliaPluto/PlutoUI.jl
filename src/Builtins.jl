@@ -2,7 +2,7 @@ import Random: randstring
 
 export Slider, NumberField, Button, CheckBox, TextField, Select, MultiSelect, Radio, FilePicker
 
-mkattr(kwargs) = join(["$k=\"$v\"" for (k, v) in kwargs], " ")
+mkattr(kwargs) = join(["$(htmlesc(k))=\"$(htmlesc(v))\"" for (k, v) in kwargs], " ")
 
 struct Slider
     range::AbstractRange
@@ -179,9 +179,9 @@ Select(options::Array{<:AbstractString,1}; default=missing, kwargs...) = Select(
 Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Select(options, default)
 
 function show(io::IO, ::MIME"text/html", select::Select)
-    withtag(io, :select) do
+    withtag(io, :select, select.attributes...) do
         for o in select.options
-            print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "") $(mkattr(select.attributes))>""")
+            print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "")>""")
             if showable(MIME"text/html"(), o.second)
                 show(io, MIME"text/html"(), o.second)
             else
