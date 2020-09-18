@@ -2,10 +2,13 @@ import Random: randstring
 
 export Slider, NumberField, Button, CheckBox, TextField, Select, MultiSelect, Radio, FilePicker
 
+mkattr(kwargs) = join(["$k=\"$v\"" for (k, v) in kwargs], " ")
+
 struct Slider
     range::AbstractRange
     default::Number
     show_value::Bool
+    attributes::Dict
 end
 
 """A Slider on the given `range`.
@@ -18,7 +21,7 @@ end
 `@bind x Slider(1:10; default=8, show_value=true)`
 
 """
-Slider(range::AbstractRange; default=missing, show_value=false) = Slider(range, (default === missing) ? first(range) : default, show_value)
+Slider(range::AbstractRange; default=missing, show_value=false, kwargs...) = Slider(range, (default === missing) ? first(range) : default, show_value, kwargs)
 
 function show(io::IO, ::MIME"text/html", slider::Slider)
     print(io, """<input 
@@ -27,6 +30,7 @@ function show(io::IO, ::MIME"text/html", slider::Slider)
         step="$(step(slider.range))" 
         max="$(last(slider.range))" 
         value="$(slider.default)"
+        $(mkattr(slider.attributes))
         $(slider.show_value ? "oninput=\"this.nextElementSibling.value=this.value\"" : "")
         >""")
     
@@ -50,12 +54,13 @@ get(slider::Slider) = slider.default
 struct NumberField
     range::AbstractRange
     default::Number
+    attributes::Dict
 end
 
-NumberField(range::AbstractRange; default=missing) = NumberField(range, (default === missing) ? first(range) : default)
+NumberField(range::AbstractRange; default=missing, kwargs...) = NumberField(range, (default === missing) ? first(range) : default, kwargs)
 
 function show(io::IO, ::MIME"text/html", numberfield::NumberField)
-    print(io, """<input type="number" min="$(first(numberfield.range))" step="$(step(numberfield.range))" max="$(last(numberfield.range))" value="$(numberfield.default)">""")
+    print(io, """<input type="number" min="$(first(numberfield.range))" step="$(step(numberfield.range))" max="$(last(numberfield.range))" value="$(numberfield.default)" $(mkattr(numberfield.attributes))>""")
 end
 
 get(numberfield::NumberField) = numberfield.default
@@ -86,11 +91,13 @@ end
 """
 struct Button
     label::AbstractString
+    attributes::Dict
 end
-Button() = Button("Click")
+Button(; kwargs...) = Button("Click", kwargs)
+Button(label; kwargs...) = Button(label, kwargs)
 
 function show(io::IO, ::MIME"text/html", button::Button)
-    print(io, """<input type="button" value="$(htmlesc(button.label))">""")
+    print(io, """<input type="button" value="$(htmlesc(button.label))" $(mkattr(button.attributes))>""")
 end
 
 get(button::Button) = button.label
@@ -108,12 +115,13 @@ get(button::Button) = button.label
 """
 struct CheckBox
     default::Bool
+    attributes::Dict
 end
 
-CheckBox(;default::Bool=false) = CheckBox(default)
+CheckBox(;default::Bool=false, kwargs...) = CheckBox(default, kwargs)
 
 function show(io::IO, ::MIME"text/html", button::CheckBox)
-    print(io, """<input type="checkbox"$(button.default ? " checked" : "")>""")
+    print(io, """<input type="checkbox"$(button.default ? " checked" : "") $(mkattr(button.attributes))>""")
 end
 
 get(checkbox::CheckBox) = checkbox.default
@@ -134,14 +142,15 @@ See the [Mozilla docs about `<input type="text">`](https://developer.mozilla.org
 struct TextField
     dims::Union{Tuple{Integer,Integer},Nothing}
     default::AbstractString
+    attributes::Dict
 end
-TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="") = TextField(dims, default)
+TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="", kwargs...) = TextField(dims, default, kwargs)
 
 function show(io::IO, ::MIME"text/html", textfield::TextField)
     if textfield.dims === nothing
-        print(io, """<input type="text" value="$(htmlesc(textfield.default))">""")
+        print(io, """<input type="text" value="$(htmlesc(textfield.default))" $(mkattr(textfield.attributes))>""")
     else
-        print(io, """<textarea cols="$(textfield.dims[1])" rows="$(textfield.dims[2])">$(htmlesc(textfield.default))</textarea>""")
+        print(io, """<textarea cols="$(textfield.dims[1])" rows="$(textfield.dims[2])" $(mkattr(textfield.attributes))>$(htmlesc(textfield.default))</textarea>""")
     end
 end
 
@@ -164,14 +173,15 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 struct Select
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractString}
+    attributes::Dict
 end
-Select(options::Array{<:AbstractString,1}; default=missing) = Select([o => o for o in options], default)
+Select(options::Array{<:AbstractString,1}; default=missing, kwargs...) = Select([o => o for o in options], default, kwargs)
 Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Select(options, default)
 
 function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select) do
         for o in select.options
-            print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "")>""")
+            print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "") $(mkattr(select.attributes))>""")
             if showable(MIME"text/html"(), o.second)
                 show(io, MIME"text/html"(), o.second)
             else
@@ -202,14 +212,15 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 struct MultiSelect
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractVector{AbstractString}}
+    attributes::Dict
 end
-MultiSelect(options::Array{<:AbstractString,1}; default=missing) = MultiSelect([o => o for o in options], default)
-MultiSelect(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = MultiSelect(options, default)
+MultiSelect(options::Array{<:AbstractString,1}; default=missing, kwargs...) = MultiSelect([o => o for o in options], default, kwargs)
+MultiSelect(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing, kwargs...) = MultiSelect(options, default, kwargs)
 
 function show(io::IO, ::MIME"text/html", select::MultiSelect)
     withtag(io, Symbol("select multiple")) do
         for o in select.options
-            print(io, """<option value="$(htmlesc(o.first))"$(!ismissing(select.default) && o.first ∈ select.default ? " selected" : "")>""")
+            print(io, """<option value="$(htmlesc(o.first))"$(!ismissing(select.default) && o.first ∈ select.default ? " selected" : "") $(mkattr(select.attributes))>""")
             if showable(MIME"text/html"(), o.second)
                 show(io, MIME"text/html"(), o.second)
             else
@@ -242,13 +253,15 @@ You can limit the allowed MIME types:
 """
 struct FilePicker
     accept::Array{MIME,1}
+    attributes::Dict
 end
-FilePicker() = FilePicker(MIME[])
+FilePicker(; kwargs...) = FilePicker(MIME[], kwargs)
+FilePicker(accept; kwargs...) = FilePicker(accept, kwargs)
 
 function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
     print(io, """<input type='file' accept='""")
     join(io, string.(filepicker.accept), ",")
-    print(io, "'>")
+    print(io, "' $(mkattr(filepicker.attributes))>")
 end
 
 get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
@@ -269,16 +282,17 @@ get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
 struct Radio
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractString}
+    attributes::Dict
 end
-Radio(options::Array{<:AbstractString,1}; default=missing) = Radio([o => o for o in options], default)
-Radio(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Radio(options, default)
+Radio(options::Array{<:AbstractString,1}; default=missing, kwargs...) = Radio([o => o for o in options], default, kwargs)
+Radio(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing, kwargs...) = Radio(options, default, kwargs)
 
 function show(io::IO, ::MIME"text/html", radio::Radio)
     groupname = randstring('a':'z')
     withtag(io, :form, :id=>groupname) do
         for o in radio.options
             withtag(io, :div) do
-                print(io, """<input type="radio" id="$(htmlesc(groupname * o.first))" name="$(groupname)" value="$(htmlesc(o.first))"$(radio.default === o.first ? " checked" : "")>""")
+                print(io, """<input type="radio" id="$(htmlesc(groupname * o.first))" name="$(groupname)" value="$(htmlesc(o.first))"$(radio.default === o.first ? " checked" : "") $(mkattr(radio.attributes))>""")
 
                 withtag(io, :label, :for=>(groupname * o.first)) do
                     if showable(MIME"text/html"(), o.second)
