@@ -1,6 +1,7 @@
 export with_terminal
 
 import Suppressor: @color_output, @capture_out, @capture_err
+import Logging:  ConsoleLogger, with_logger
 import Markdown: htmlesc
 
 const terminal_css = """
@@ -33,16 +34,23 @@ Example:
 with_terminal() do
     x=1+1
     println(x)
+    @warn "Oopsie!"
 end 
+```
+
+```julia
+with_terminal(dump, [1,2,[3,4]])
 ```
            
 """
-function with_terminal(f::Function)
+function with_terminal(f::Function, args...; kwargs...)
     local spam_out, spam_err
 	@color_output false begin
 		spam_out = @capture_out begin
-			spam_err = @capture_err begin
-				f()
+            spam_err = @capture_err begin
+	            with_logger(ConsoleLogger(stdout)) do	
+                    f(args...; kwargs...)
+                end
 			end
 		end
     end

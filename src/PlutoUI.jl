@@ -2,7 +2,6 @@ module PlutoUI
 
 import Base: show, get
 import Markdown: htmlesc, withtag
-import Logging:  ConsoleLogger, with_logger
 
 const PKG_ROOT_DIR = normpath(joinpath(@__DIR__, ".."))
 
