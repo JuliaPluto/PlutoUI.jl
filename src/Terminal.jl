@@ -16,6 +16,9 @@ div.PlutoUI_terminal pre {
     color: #ddd;
     background-color: transparent;
     margin-block-end: 0;
+    height: auto;
+    max-height: 400px;
+    overflow: auto;
 }
 div.PlutoUI_terminal pre.err {
     color: #ff5f5f;
