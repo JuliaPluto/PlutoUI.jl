@@ -7,7 +7,7 @@ import Markdown: htmlesc
 const terminal_css = """
 <style>
 div.PlutoUI_terminal {
-    border: 5px solid pink;
+    border: 10px solid #cedbd0;
     border-radius: 12px;
     font-size: .65rem;
     background-color: #333;
@@ -17,9 +17,15 @@ div.PlutoUI_terminal pre {
     background-color: transparent;
     margin-block-end: 0;
     height: auto;
-    max-height: 400px;
+    max-height: 300px;
     overflow: auto;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column-reverse;
+    white-space: pre-wrap;       
+    word-wrap: break-word;      
 }
+
 div.PlutoUI_terminal pre.err {
     color: #ff5f5f;
 }
