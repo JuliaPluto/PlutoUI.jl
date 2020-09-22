@@ -3,12 +3,26 @@ export with_terminal
 import Suppressor: @color_output, @capture_out, @capture_err
 import Logging:  ConsoleLogger, with_logger
 import Markdown: htmlesc
+import Base: show
+
+struct WithTerminalOutput
+    stdout::String
+    stderr::String
+    value::Any
+end
+function show(io::IO, mime::MIME"text/html", with_terminal::WithTerminalOutput)
+	show(io, mime, HTML("""
+		$(terminal_css)
+        <div class="PlutoUI_terminal">
+            <pre>$(htmlesc(with_terminal.stdout))</pre>
+            $(isempty(with_terminal.stderr) ? "" : "<pre class='err'>" * htmlesc(with_terminal.stderr) * "</pre>")
+        </div>
+    """))
+end
 
 const terminal_css = """
 <style>
 div.PlutoUI_terminal {
-    border: 5px solid pink;
-    border-radius: 12px;
     font-size: .65rem;
     background-color: #333;
 }
@@ -44,22 +58,15 @@ with_terminal(dump, [1,2,[3,4]])
            
 """
 function with_terminal(f::Function, args...; kwargs...)
-    local spam_out, spam_err
+    local spam_out, spam_err, value
 	@color_output false begin
 		spam_out = @capture_out begin
             spam_err = @capture_err begin
 	            with_logger(ConsoleLogger(stdout)) do	
-                    f(args...; kwargs...)
+                    value = f(args...; kwargs...)
                 end
 			end
 		end
     end
-	
-	HTML("""
-		$(terminal_css)
-        <div class="PlutoUI_terminal">
-            <pre>$(htmlesc(spam_out))</pre>
-            $(isempty(spam_err) ? "" : "<pre class='err'>" * htmlesc(spam_err) * "</pre>")
-        </div>
-        """)
+	WithTerminalOutput(spam_out, spam_err, value)
 end
