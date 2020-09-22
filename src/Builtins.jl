@@ -1,6 +1,7 @@
 import Random: randstring
+import Dates
 
-export Slider, NumberField, Button, CheckBox, TextField, Select, MultiSelect, Radio, FilePicker
+export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField
 
 struct Slider
     range::AbstractRange
@@ -119,7 +120,7 @@ end
 get(checkbox::CheckBox) = checkbox.default
 
 
-"""A text input (`<input type="text">`) - the user can type text, the text is return as `String` via `@bind`.
+"""A text input (`<input type="text">`) - the user can type text, the text is returned as `String` via `@bind`.
 
 If `dims` is a tuple `(cols::Integer, row::Integer)`, a `<textarea>` will be shown, with the given dimensions
 
@@ -146,6 +147,31 @@ function show(io::IO, ::MIME"text/html", textfield::TextField)
 end
 
 get(textfield::TextField) = textfield.default
+
+
+
+"""A password input (`<input type="password">`) - the user can type text, the text is returned as `String` via `@bind`.
+
+This does not provide any special security measures, it just renders black dots (•••) instead of the typed characters.
+
+Use `default` to set the initial value.
+
+See the [Mozilla docs about `<input type="password">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/password)
+
+# Examples
+`@bind secret_poem PasswordField()`
+
+`@bind secret_poem PasswordField(default="Te dansen omdat men leeft")`"""
+Base.@kwdef struct PasswordField
+    default::AbstractString=""
+end
+
+function show(io::IO, ::MIME"text/html", passwordfield::PasswordField)
+    print(io, """<input type="password" value="$(htmlesc(passwordfield.default))">""")
+end
+
+get(passwordfield::PasswordField) = passwordfield.default
+
 
 """A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
 
@@ -251,7 +277,7 @@ function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
     print(io, "'>")
 end
 
-get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
+get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
 
 """A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
 
@@ -309,6 +335,45 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
 end
 
 get(radio::Radio) = radio.default
+
+"""A date input (`<input type="date">`) - the user can pick a date, the date is returned as `Dates.DateTime` via `@bind`.
+
+Use `default` to set the initial value.
+
+See the [Mozilla docs about `<input type="date">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date)
+
+# Examples
+`@bind best_day_of_my_live DateField()`
+
+`@bind best_day_of_my_live DateField(default=today())`"""
+Base.@kwdef struct DateField
+    default::Union{Dates.TimeType,Missing}=missing
+end
+
+function show(io::IO, ::MIME"text/html", datefield::DateField)
+    withtag(() -> (), io, :input, :type=>"date", :value=>datefield.default === missing ? "" : Dates.format(datefield.default, "Y-mm-dd"))
+end
+get(datefield::DateField) = datefield.default
+
+
+"""A time input (`<input type="time">`) - the user can pick a time, the time is returned as `Dates.DateTime` via `@bind`.
+
+Use `default` to set the initial value.
+
+See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time)
+
+# Examples
+`@bind lunch_time TimeField()`
+
+`@bind lunch_time TimeField(default=now())`"""
+Base.@kwdef struct TimeField
+    default::Union{Dates.TimeType,Missing}=missing
+end
+
+function show(io::IO, ::MIME"text/html", timefield::TimeField)
+    withtag(() -> (), io, :input, :type=>"time", :value=>timefield.default === missing ? "" : Dates.format(timefield.default, "HH:MM:SS"))
+end
+get(timefield::TimeField) = timefield.default
 
 
 """Generate Table of Contents using Markdown cells. Headers h1-h6 are used. 
@@ -384,7 +449,7 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 } catch {                    
                 }
                 return false
-            }
+            }            
 
             const getHeaders = () => {
                 const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
@@ -395,8 +460,9 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 return headers
             }
 
+            const tocIndentClass = '$(toc.indent ? "-indent" : "")'
             const render = (el) => `\${el.map(h => `<div class="toc-row">
-                                            <a class="\${h.nodeName}" 
+                                            <a class="\${h.nodeName}\${tocIndentClass}" 
                                                 href="#\${h.parentCellId}" 
                                                 onmouseover="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.add('highlight-pluto-cell-shoulder')})()" 
                                                 onmouseout="(()=>{document.getElementById('\${h.parentCellId}').firstElementChild.classList.remove('highlight-pluto-cell-shoulder')})()"
@@ -411,14 +477,14 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                                         </div>`).join('')}`
 
             const updateCallback = e => {
-                if (isSelf(e.detail.cell)) return
+                if (isSelf(e.detail.cell_id)) return
                 document.getElementById('toc-content').innerHTML = render(getHeaders())                
             }
 
-            // TODO: when to call removeEventListener? its needed if TOC cell is run more than once
             window.addEventListener('cell_output_changed', updateCallback)
 
-            return html`<div class="toc" id="toc">
+            const tocClass = '$(toc.aside ? "toc-aside" : "")'
+            return html`<div class=\${tocClass} id="toc">
                             <div class="markdown">
                                 <p class="toc-title">$(toc.title)</p>
                                 <div class="toc-content" id="toc-content">
@@ -431,6 +497,21 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :style) do        
         print(io, """
+            @media screen and (min-width: 1081px) {
+                .toc-aside {
+                    position:fixed; 
+                    right: 1rem;
+                    top: 5rem; 
+                    width:25%; 
+                    padding: 10px;
+                    border: 3px solid rgba(0, 0, 0, 0.15);
+                    border-radius: 10px;
+                    box-shadow: 0 0 11px 0px #00000010;
+                    max-height: 500px;
+                    overflow: auto;
+                }
+            }    
+
             .toc-title{
                 display: block;
                 font-size: 1.5em;
@@ -449,64 +530,40 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 padding-bottom: 2px;
             }
 
+            .highlight-pluto-cell-shoulder {
+                background: rgba(0, 0, 0, 0.05);
+                background-clip: padding-box;
+            }
+
             a {
                 text-decoration: none;
                 font-weight: normal;
                 color: gray;
             }
-
             a:hover {
                 color: black;
             }
-
-            .highlight-pluto-cell-shoulder {
-                background: rgba(0, 0, 0, 0.05);
-                background-clip: padding-box;
+            a.H1-indent {
+                padding: 0px 0px;
+            }
+            a.H2-indent {
+                padding: 0px 10px;
+            }
+            a.H3-indent {
+                padding: 0px 20px;
+            }
+            a.H4-indent {
+                padding: 0px 30px;
+            }
+            a.H5-indent {
+                padding: 0px 40px;
+            }
+            a.H6-indent {
+                padding: 0px 50px;
             }
             """)
-
-        if toc.aside
-            print(io, """
-                @media screen and (min-width: 1081px) {
-                    .toc {
-                        position:fixed; 
-                        right: 1rem;
-                        top: 5rem; 
-                        width:25%; 
-                        padding: 10px;
-                        border: 3px solid rgba(0, 0, 0, 0.15);
-                        border-radius: 10px;
-                        box-shadow: 0 0 11px 0px #00000010;
-                        max-height: 500px;
-                        overflow: auto;
-                    }
-                }
-            """)   
-        end
-
-        if toc.indent 
-            print(io, """
-                a.H1 {
-                    padding: 0px 0px;
-                }
-                a.H2 {
-                    padding: 0px 10px;
-                }
-                a.H3 {
-                    padding: 0px 20px;
-                }
-                a.H4 {
-                    padding: 0px 30px;
-                }
-                a.H5 {
-                    padding: 0px 40px;
-                }
-                a.H6 {
-                    padding: 0px 50px;
-                }"""        
-            )
-        end
     end
 end
 
 get(toc::TableOfContents) = toc.default
+
