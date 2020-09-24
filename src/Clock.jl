@@ -3,7 +3,8 @@ export Clock
 struct Clock
 	interval::Real
 	fixed::Bool
-	Clock(interval=1, fixed=false) = interval >= 0 ? new(interval, fixed) : error("interval must be non-negative")
+	stopped::Bool
+	Clock(interval=1; fixed=false, stopped=false) = interval >= 0 ? new(interval, fixed, stopped) : error("interval must be non-negative")
 end
 
 function show(io::IO, ::MIME"text/html", clock::Clock)
@@ -15,7 +16,16 @@ function show(io::IO, ::MIME"text/html", clock::Clock)
 	css = read(joinpath(PKG_ROOT_DIR, "assets", "clock.css"), String)
 	
 	result = """
-	<clock$(clock.fixed ? " class='fixed'" : "")>
+	<clock$(if clock.fixed && clock.stopped
+                " class='fixed stopped'"
+            elseif clock.fixed
+                " class='fixed'"
+            elseif clock.stopped
+                " class='stopped'"
+            else
+                ""
+            end
+            )>
 		<analog>
 			<back>$(cb)</back>
 			<front>$(cf)</front>
