@@ -69,7 +69,7 @@ end
 """
     Dump(x; maxdepth=8)
 
-Show every part of the representation of a value. The depth of the output is truncated at maxdepth. 
+Every part of the representation of a value. The depth of the output is truncated at maxdepth. 
 
 This is a variant of [`Base.dump`](@ref) that returns the representation directly, instead of printing it to stdout.
 """
