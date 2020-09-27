@@ -1,4 +1,4 @@
-export with_terminal
+export with_terminal, Dump
 
 import Suppressor: @color_output, @capture_out, @capture_err
 import Logging:  ConsoleLogger, with_logger
@@ -41,6 +41,8 @@ end
 ```julia
 with_terminal(dump, [1,2,[3,4]])
 ```
+
+See also [PlutoUI.Dump](@ref).
            
 """
 function with_terminal(f::Function, args...; kwargs...)
@@ -62,4 +64,17 @@ function with_terminal(f::Function, args...; kwargs...)
             $(isempty(spam_err) ? "" : "<pre class='err'>" * htmlesc(spam_err) * "</pre>")
         </div>
         """)
+end
+
+"""
+    Dump(x; maxdepth=8)
+
+Show every part of the representation of a value. The depth of the output is truncated at maxdepth. 
+
+This is a variant of [`Base.dump`](@ref) that returns the representation directly, instead of printing it to stdout.
+"""
+function Dump(x; maxdepth=8)
+	sprint() do io
+		dump(io, x; maxdepth=maxdepth)
+	end |> Text
 end
