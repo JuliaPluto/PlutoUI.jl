@@ -1,4 +1,4 @@
-export with_terminal, Dump
+export with_terminal, Dump, Show, Print
 
 import Suppressor: @color_output, @capture_out, @capture_err
 import Logging:  ConsoleLogger, with_logger
@@ -88,9 +88,55 @@ end
 Every part of the representation of a value. The depth of the output is truncated at maxdepth. 
 
 This is a variant of [`Base.dump`](@ref) that returns the representation directly, instead of printing it to stdout.
+
+See also: [`Print`](@ref) and [`with_terminal`](@ref).
 """
 function Dump(x; maxdepth=8)
 	sprint() do io
 		dump(io, x; maxdepth=maxdepth)
 	end |> Text
 end
+
+"""
+    Show(mime::MIME, data)
+
+An object that can be rendered as the `mime` MIME type, by writing `data` to the IO stream. For use in environments with rich output support. Read more about [`Base.show`](@ref).
+
+# Examples
+
+```julia
+Show(MIME"text/html"(), "I can be <b>rendered</b> as <em>HTML</em>!")
+```
+
+```julia
+Show(MIME"image/png"(), read("dog.png"))
+```
+
+`Base.showable` and `Base.show` are defined for a `Show`.
+
+```julia
+s = Show(MIME"text/latex"(), "\\\\frac{hello}{world}")
+
+showable(MIME"text/latex"(), s) == true
+
+repr(MIME"text/latex"(), s) == "\\\\frac{hello}{world}"
+```
+
+"""
+struct Show
+    mime::MIME
+    data
+end
+
+Base.showable(m::MIME, x::Show) = x.mime == m
+Base.show(io::IO, ::MIME, x::Show) = write(io, x.data)
+
+
+"""
+    Print(xs...)
+
+The text that would be printed when calling `print(xs...)`. Use `string(xs...)` if you want to use the result as a `String`.
+
+See also: [`Dump`](@ref) and [`with_terminal`](@ref).
+"""
+Print(xs...) = Text(string(xs...))
