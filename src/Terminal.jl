@@ -10,6 +10,7 @@ struct WithTerminalOutput
     stderr::String
     value::Any
 end
+
 function show(io::IO, mime::MIME"text/html", with_terminal::WithTerminalOutput)
 	show(io, mime, HTML("""
 		$(terminal_css)
@@ -23,14 +24,22 @@ end
 const terminal_css = """
 <style>
 div.PlutoUI_terminal {
+    border: 10px solid #cedbd0; /* https://www.vintagecomputer.net/browse_thread.cfm?id=618 */
+    border-radius: 15px;
     font-size: .65rem;
     background-color: #333;
+    max-height: 300px;
+    overflow: auto;
 }
 div.PlutoUI_terminal pre {
     color: #ddd;
     background-color: transparent;
     margin-block-end: 0;
+    height: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
+
 div.PlutoUI_terminal pre.err {
     color: #ff5f5f;
 }
