@@ -10,6 +10,7 @@ struct WithTerminalOutput
     stderr::String
     value::Any
 end
+
 function show(io::IO, mime::MIME"text/html", with_terminal::WithTerminalOutput)
 	show(io, mime, HTML("""
 		$(terminal_css)
@@ -96,4 +97,3 @@ function Dump(x; maxdepth=8)
 		dump(io, x; maxdepth=maxdepth)
 	end |> Text
 end
->>>>>>> master
