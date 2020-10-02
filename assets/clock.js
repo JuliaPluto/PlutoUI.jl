@@ -18,7 +18,6 @@ tpsInput.oninput = (e) => {
     analogfront.style.animationDuration = dt + "s"
     e && e.stopPropagation()
 }
-clock.classList.toggle("stopped")
 tpsInput.oninput()
 
 analogfront.onanimationiteration = (e) => {
