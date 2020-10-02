@@ -1,8 +1,24 @@
-export with_terminal
+export with_terminal, Dump
 
 import Suppressor: @color_output, @capture_out, @capture_err
 import Logging:  ConsoleLogger, with_logger
 import Markdown: htmlesc
+import Base: show
+
+struct WithTerminalOutput
+    stdout::String
+    stderr::String
+    value::Any
+end
+function show(io::IO, mime::MIME"text/html", with_terminal::WithTerminalOutput)
+	show(io, mime, HTML("""
+		$(terminal_css)
+        <div class="PlutoUI_terminal">
+            <pre>$(htmlesc(with_terminal.stdout))</pre>
+            $(isempty(with_terminal.stderr) ? "" : "<pre class='err'>" * htmlesc(with_terminal.stderr) * "</pre>")
+        </div>
+    """))
+end
 
 const terminal_css = """
 <style>
@@ -50,25 +66,34 @@ end
 ```julia
 with_terminal(dump, [1,2,[3,4]])
 ```
+
+See also [PlutoUI.Dump](@ref).
            
 """
 function with_terminal(f::Function, args...; kwargs...)
-    local spam_out, spam_err
+    local spam_out, spam_err, value
 	@color_output false begin
 		spam_out = @capture_out begin
             spam_err = @capture_err begin
 	            with_logger(ConsoleLogger(stdout)) do	
-                    f(args...; kwargs...)
+                    value = f(args...; kwargs...)
                 end
 			end
 		end
-    end
-	
-	HTML("""
-		$(terminal_css)
-        <div class="PlutoUI_terminal">
-            <pre>$(htmlesc(spam_out))</pre>
-            $(isempty(spam_err) ? "" : "<pre class='err'>" * htmlesc(spam_err) * "</pre>")
-        </div>
-        """)
+  end
+	WithTerminalOutput(spam_out, spam_err, value)
 end
+
+"""
+    Dump(x; maxdepth=8)
+
+Every part of the representation of a value. The depth of the output is truncated at maxdepth. 
+
+This is a variant of [`Base.dump`](@ref) that returns the representation directly, instead of printing it to stdout.
+"""
+function Dump(x; maxdepth=8)
+	sprint() do io
+		dump(io, x; maxdepth=maxdepth)
+	end |> Text
+end
+>>>>>>> master
