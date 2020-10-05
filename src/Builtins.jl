@@ -1,7 +1,7 @@
 import Random: randstring
 import Dates
 
-export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker
+export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField
 
 mkattr(kwargs) = join(["$(htmlesc(k))=\"$(htmlesc(v))\"" for (k, v) in kwargs], " ")
 
@@ -357,15 +357,15 @@ Use `default` to set the initial value.
 See the [Mozilla docs about `<input type="date">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date)
 
 # Examples
-`@bind secret_poem DateField()`
+`@bind best_day_of_my_live DateField()`
 
-`@bind secret_poem DateField(default="Te dansen omdat men leeft")`"""
+`@bind best_day_of_my_live DateField(default=today())`"""
 Base.@kwdef struct DateField
     default::Union{Dates.TimeType,Missing}=missing
 end
 
 function show(io::IO, ::MIME"text/html", datefield::DateField)
-    withtag(() -> (), io, :input, :type=>"date", :value=>datefield.default === missing ? "" : Dates.format(datefield.default, "Y-m-d"))
+    withtag(() -> (), io, :input, :type=>"date", :value=>datefield.default === missing ? "" : Dates.format(datefield.default, "Y-mm-dd"))
 end
 get(datefield::DateField) = datefield.default
 
@@ -377,14 +377,14 @@ Use `default` to set the initial value.
 See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time)
 
 # Examples
-`@bind secret_poem TimeField()`
+`@bind lunch_time TimeField()`
 
-`@bind secret_poem TimeField(default="Te dansen omdat men leeft")`"""
+`@bind lunch_time TimeField(default=now())`"""
 Base.@kwdef struct TimeField
     default::Union{Dates.TimeType,Missing}=missing
 end
 
 function show(io::IO, ::MIME"text/html", timefield::TimeField)
-    withtag(() -> (), io, :input, :type=>"time", :value=>timefield.default === missing ? "" : Dates.format(timefield.default, "H:M:S"))
+    withtag(() -> (), io, :input, :type=>"time", :value=>timefield.default === missing ? "" : Dates.format(timefield.default, "HH:MM:SS"))
 end
 get(timefield::TimeField) = timefield.default
