@@ -1,7 +1,7 @@
 import Random: randstring
 import Dates
 
-export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField
+export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker
 
 struct Slider
     range::AbstractRange
@@ -374,3 +374,24 @@ function show(io::IO, ::MIME"text/html", timefield::TimeField)
     withtag(() -> (), io, :input, :type=>"time", :value=>timefield.default === missing ? "" : Dates.format(timefield.default, "HH:MM:SS"))
 end
 get(timefield::TimeField) = timefield.default
+
+
+"""A color input (`<input type="color">`) - the user can pick an RGB color, the color is returned as color hex `String` via `@bind`. The value is lowercase and starts with `#`.
+
+Use `default` to set the initial value.
+
+See the [Mozilla docs about `<input type="color">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color)
+
+# Examples
+`@bind color ColorStringPicker()`
+
+`@bind color ColorStringPicker(default="#aabbcc")`
+"""
+Base.@kwdef struct ColorStringPicker
+    default::String="#000000"
+end
+
+function show(io::IO, ::MIME"text/html", colorStringPicker::ColorStringPicker)
+    withtag(() -> (), io, :input, :type=>"color", :value=>colorStringPicker.default)
+end
+get(colorStringPicker::ColorStringPicker) = colorStringPicker.default
