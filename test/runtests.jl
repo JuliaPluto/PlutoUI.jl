@@ -1,6 +1,18 @@
 using PlutoUI
 using Test
 
+using Documenter
+
+DocMeta.setdocmeta!(PlutoUI, :DocTestSetup, :(using PlutoUI; macro bind(def, element)
+    quote
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        el
+    end
+end
+))
+doctest(PlutoUI; manual = false)
+
 @testset "builtins" begin
     for s in [
         Slider(1:0.2:3; default=0.4, style="width:100px"),

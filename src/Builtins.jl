@@ -11,15 +11,29 @@ struct Slider
     attributes::Dict
 end
 
-"""A Slider on the given `range`.
+"""
+    Slider(range, default, show_value, attributes)
+    Slider(range; default=missing, show_value=false, kwargs...)
+
+A Slider on the given `range`.
 
 ## Examples
-`@bind x Slider(1:10)`
+```jldoctest
+julia> @bind x Slider(1:10)
+Slider(1:10, 1, false, Dict{Union{},Union{}}())
 
-`@bind x Slider(0.00 : 0.01 : 0.30)`
+julia> @bind x Slider(0.00 : 0.01 : 0.30)
+Slider(0.0:0.01:0.3, 0.0, false, Dict{Union{},Union{}}())
 
-`@bind x Slider(1:10; default=8, show_value=true)`
+julia> @bind x Slider(1:10; default=8, show_value=true)
+Slider(1:10, 8, true, Dict{Union{},Union{}}())
 
+julia> @bind x Slider(1:10; default=8, show_value=true, id="slider1")
+Slider(1:10, 8, true, Dict(:id => "slider1"))
+
+julia> @bind x Slider(1:10, 8, true, Dict("id"=>"slider1"))
+Slider(1:10, 8, true, Dict("id" => "slider1"))
+```
 """
 Slider(range::AbstractRange; default=missing, show_value=false, kwargs...) = Slider(range, (default === missing) ? first(range) : default, show_value, kwargs)
 
