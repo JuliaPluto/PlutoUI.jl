@@ -32,10 +32,10 @@ doctest(PlutoUI; manual = false)
 end
 
 @testset "clock" begin
-    c = Clock(0.1; stopped=false, fixed=false)
+    c = Clock(0.1, false, false)
+    @test c.start_running == false
     @test c.fixed == false
-    @test c.stopped == false
-    c = Clock(0.2; stopped=true, fixed=true)
+    c = Clock(0.2, true, true)
+    @test c.start_running == true
     @test c.fixed == true
-    @test c.stopped == true
 end
