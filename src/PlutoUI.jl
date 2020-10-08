@@ -9,5 +9,6 @@ include("./Builtins.jl")
 include("./Clock.jl")
 include("./Resource.jl")
 include("./deprecations.jl")
+include("./Terminal.jl")
 
 end

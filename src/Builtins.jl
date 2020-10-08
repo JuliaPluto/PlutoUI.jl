@@ -1,6 +1,7 @@
 import Random: randstring
+import Dates
 
-export Slider, NumberField, Button, CheckBox, TextField, Select, MultiSelect, Radio, FilePicker
+export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField
 
 mkattr(kwargs) = join(["$(htmlesc(k))=\"$(htmlesc(v))\"" for (k, v) in kwargs], " ")
 
@@ -141,7 +142,7 @@ end
 get(checkbox::CheckBox) = checkbox.default
 
 
-"""A text input (`<input type="text">`) - the user can type text, the text is return as `String` via `@bind`.
+"""A text input (`<input type="text">`) - the user can type text, the text is returned as `String` via `@bind`.
 
 If `dims` is a tuple `(cols::Integer, row::Integer)`, a `<textarea>` will be shown, with the given dimensions
 
@@ -169,6 +170,31 @@ function show(io::IO, ::MIME"text/html", textfield::TextField)
 end
 
 get(textfield::TextField) = textfield.default
+
+
+
+"""A password input (`<input type="password">`) - the user can type text, the text is returned as `String` via `@bind`.
+
+This does not provide any special security measures, it just renders black dots (•••) instead of the typed characters.
+
+Use `default` to set the initial value.
+
+See the [Mozilla docs about `<input type="password">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/password)
+
+# Examples
+`@bind secret_poem PasswordField()`
+
+`@bind secret_poem PasswordField(default="Te dansen omdat men leeft")`"""
+Base.@kwdef struct PasswordField
+    default::AbstractString=""
+end
+
+function show(io::IO, ::MIME"text/html", passwordfield::PasswordField)
+    print(io, """<input type="password" value="$(htmlesc(passwordfield.default))">""")
+end
+
+get(passwordfield::PasswordField) = passwordfield.default
+
 
 """A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
 
@@ -278,7 +304,7 @@ function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
     print(io, "' $(mkattr(filepicker.attributes))>")
 end
 
-get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
+get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
 
 """A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
 
@@ -337,3 +363,42 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
 end
 
 get(radio::Radio) = radio.default
+
+"""A date input (`<input type="date">`) - the user can pick a date, the date is returned as `Dates.DateTime` via `@bind`.
+
+Use `default` to set the initial value.
+
+See the [Mozilla docs about `<input type="date">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date)
+
+# Examples
+`@bind best_day_of_my_live DateField()`
+
+`@bind best_day_of_my_live DateField(default=today())`"""
+Base.@kwdef struct DateField
+    default::Union{Dates.TimeType,Missing}=missing
+end
+
+function show(io::IO, ::MIME"text/html", datefield::DateField)
+    withtag(() -> (), io, :input, :type=>"date", :value=>datefield.default === missing ? "" : Dates.format(datefield.default, "Y-mm-dd"))
+end
+get(datefield::DateField) = datefield.default
+
+
+"""A time input (`<input type="time">`) - the user can pick a time, the time is returned as `Dates.DateTime` via `@bind`.
+
+Use `default` to set the initial value.
+
+See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time)
+
+# Examples
+`@bind lunch_time TimeField()`
+
+`@bind lunch_time TimeField(default=now())`"""
+Base.@kwdef struct TimeField
+    default::Union{Dates.TimeType,Missing}=missing
+end
+
+function show(io::IO, ::MIME"text/html", timefield::TimeField)
+    withtag(() -> (), io, :input, :type=>"time", :value=>timefield.default === missing ? "" : Dates.format(timefield.default, "HH:MM:SS"))
+end
+get(timefield::TimeField) = timefield.default
