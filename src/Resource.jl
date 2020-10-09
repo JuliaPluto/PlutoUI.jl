@@ -9,18 +9,23 @@ export Resource, RemoteResource, LocalResource, DownloadButton
 A container for a URL-addressed resource that displays correctly in rich IDEs.
 
 # Examples
-```
-Resource("https://julialang.org/assets/infra/logo.svg")
-```
-
-```
-Resource("https://interactive-examples.mdn.mozilla.net/media/examples/flower.webm", :width => 100)
+```jldoctest
+julia> Resource("https://julialang.org/assets/infra/logo.svg")
+Resource("https://julialang.org/assets/infra/logo.svg", MIME type image/svg+xml, ())
 ```
 
+```jldoctest
+julia> Resource("https://interactive-examples.mdn.mozilla.net/media/examples/flower.webm", :width => 100)
+Resource("https://interactive-examples.mdn.mozilla.net/media/examples/flower.webm", MIME type video/webm, (:width => 100,))
 ```
-md\"\"\"
-This is what a duck sounds like: \$(Resource("https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3"))
-md\"\"\"
+
+```jldoctest
+julia> md\"\"\"
+       This is what a duck sounds like: \$(Resource("https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3"))
+       \"\"\"
+  This is what a duck sounds like:
+  Resource("https://interactive-examples.mdn.mozilla.net/media/examples/t-rex-roar.mp3",
+  MIME type audio/mpeg, ())
 ```
 
 """
@@ -61,19 +66,23 @@ Create a `Resource` for a local file (a base64 encoded data URL is generated).
 1. Go to [imgur.com](https://imgur.com) and drag&drop the image to the page. Right click on the image, and select "Copy image location". You can now use the image like so: `PlutoUI.Resource("https://i.imgur.com/SAzsMMA.jpg")`.
 2. If your notebook is part of a git repository, place the image in the repository and use a relative path: `PlutoUI.LocalResource("../images/cat.jpg")`.
 
-# Examples
-```
-Resource("./cat.jpg")
-```
-
-```
-Resource("/home/fons/Videos/nijmegen.mp4", :width => 200)
+## Examples
+```jldoctest
+julia> Resource("./cat.jpg")
+Resource("./cat.jpg", MIME type image/jpeg, ())
 ```
 
+```jldoctest
+julia> Resource("/home/fons/Videos/nijmegen.mp4", :width => 200)
+Resource("/home/fons/Videos/nijmegen.mp4", MIME type video/mp4, (:width => 200,))
 ```
-md\"\"\"
-This is what a duck sounds like: \$(Resource("../data/hannes.mp3"))
-md\"\"\"
+
+```jldoctest
+julia> md\"\"\"
+       This is what a duck sounds like: \$(Resource("../data/hannes.mp3"))
+       \"\"\"
+  This is what a duck sounds like: Resource("../data/hannes.mp3", MIME type
+  audio/mpeg, ())
 ```
 """
 function LocalResource(path::AbstractString, html_attributes::Pair...)
@@ -101,17 +110,21 @@ Button to download a Julia object as a file from the browser.
 
 See [`DownloadButton`](@ref) to do the opposite.
 
-# Examples
+## Examples
 
-```julia
+```jldoctest
+julia> DownloadButton("Roses are red,", "novel.txt")
 DownloadButton("Roses are red,", "novel.txt")
 ```
-```julia
+```jldoctest
+julia> DownloadButton(UInt8[0xff, 0xd8, 0xff, 0xe1, 0x00, 0x69], "raw.dat")
 DownloadButton(UInt8[0xff, 0xd8, 0xff, 0xe1, 0x00, 0x69], "raw.dat")
 ```
-```julia
-import JSON
-DownloadButton(JSON.json(Dict("name" => "merlijn", "can_cook" => true)), "staff.json")
+```jldoctest
+julia> import JSON
+
+julia> DownloadButton(JSON.json(Dict("name" => "merlijn", "can_cook" => true)), "staff.json")
+DownloadButton("{\\"name\\":\\"merlijn\\",\\"can_cook\\":true}", "staff.json")
 ```
 
 """

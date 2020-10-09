@@ -53,16 +53,18 @@ This allows you to to see the messages from `println`, `dump`, `Pkg.status`, etc
 
 Example:
 
-```julia
-with_terminal() do
-    x=1+1
-    println(x)
-    @warn "Oopsie!"
-end 
+```jldoctest
+julia> with_terminal() do
+           x=1+1
+           println(x)
+           @warn "Oopsie!"
+       end
+PlutoUI.WithTerminalOutput("2\\n┌ Warning: Oopsie!\\n└ @ Main none:4\\n", "", nothing)
 ```
 
 ```julia
-with_terminal(dump, [1,2,[3,4]])
+julia> with_terminal(dump, [1,2,[3,4]])
+PlutoUI.WithTerminalOutput("Array{Any}((3,))\n  1: Int64 1\n  2: Int64 2\n  3: Array{Int64}((2,)) [3, 4]\n", "", nothing)
 ```
 
 See also [PlutoUI.Dump](@ref).
@@ -102,7 +104,7 @@ end
 
 An object that can be rendered as the `mime` MIME type, by writing `data` to the IO stream. For use in environments with rich output support. Read more about [`Base.show`](@ref).
 
-# Examples
+## Examples
 
 ```julia
 Show(MIME"text/html"(), "I can be <b>rendered</b> as <em>HTML</em>!")

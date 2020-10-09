@@ -3,7 +3,7 @@ using Test
 
 using Documenter
 
-DocMeta.setdocmeta!(PlutoUI, :DocTestSetup, :(using PlutoUI; macro bind(def, element)
+DocMeta.setdocmeta!(PlutoUI, :DocTestSetup, :(using PlutoUI, Markdown; macro bind(def, element)
     quote
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing

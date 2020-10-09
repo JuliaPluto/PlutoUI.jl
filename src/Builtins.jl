@@ -59,12 +59,15 @@ get(slider::Slider) = slider.default
 """A box where you can type in a number, within a specific range.
 
 ## Examples
-`@bind x NumberField(1:10)`
+```jldoctest
+julia> @bind x NumberField(1:10)
+NumberField(1:10, 1, Dict{Union{},Union{}}())
 
-`@bind x NumberField(0.00 : 0.01 : 0.30)`
+julia> @bind x NumberField(0.00 : 0.01 : 0.30)
+NumberField(0.0:0.01:0.3, 0.0, Dict{Union{},Union{}}())
 
-`@bind x NumberField(1:10; default=8)`
-
+julia> @bind x NumberField(1:10; default=8)
+NumberField(1:10, 8, Dict{Union{},Union{}}())```
 """
 struct NumberField
     range::AbstractRange
@@ -89,20 +92,21 @@ You can use it to _trigger reactive cells_.
 
 In one cell:
 
-```julia
-@bind go Button("Go!")
+```jldoctest
+julia> @bind go Button("Go!")
+Button("Go!", Dict{Union{},Union{}}())
 ```
 
 and in a second cell:
 
-```julia
-begin
-    # reference the bound variable - clicking the button will run this cell
-    go
+```jldoctest
+julia> begin
+           # reference the bound variable - clicking the button will run this cell
+           go
 
-    md"My favorite number is $(rand())!"
-end
-```
+           md"My favorite number is $(rand())!"
+       end
+  My favorite number is 0.5100336734986661!```
 """
 struct Button
     label::AbstractString
@@ -122,11 +126,15 @@ get(button::Button) = button.label
 
 ## Examples
 
-`@bind programming_is_fun CheckBox()`
+```jldoctest
+julia> @bind programming_is_fun CheckBox()
+CheckBox(false, Dict{Union{},Union{}}())
 
-`@bind julia_is_fun CheckBox(default=true)`
+julia> @bind julia_is_fun CheckBox(default=true)
+CheckBox(true, Dict{Union{},Union{}}())
 
-`md"Would you like the thing? \$(@bind enable_thing CheckBox())"`
+julia> md"Would you like the thing? \$(@bind enable_thing CheckBox())"
+  Would you like the thing? \$(@bind enable_thing CheckBox())
 """
 struct CheckBox
     default::Bool
@@ -150,10 +158,15 @@ Use `default` to set the initial value.
 
 See the [Mozilla docs about `<input type="text">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text) and [`<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea)
 
-# Examples
-`@bind poem TextField()`
+## Examples
+```jldoctest
+julia> @bind poem TextField()
+TextField(nothing, "", Dict{Union{},Union{}}())
 
-`@bind poem TextField((30,5); default="Hello\nJuliaCon!")`"""
+julia> @bind poem TextField((30,5); default="Hello\\nJuliaCon!")
+TextField((30, 5), "Hello\\nJuliaCon!", Dict{Union{},Union{}}())
+```
+"""
 struct TextField
     dims::Union{Tuple{Integer,Integer},Nothing}
     default::AbstractString
@@ -181,16 +194,23 @@ Use `default` to set the initial value.
 
 See the [Mozilla docs about `<input type="password">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/password)
 
-# Examples
-`@bind secret_poem PasswordField()`
+## Examples
+```jldoctest
+julia> @bind secret_poem PasswordField()
+PasswordField("", Dict{Union{},Union{}}())
 
-`@bind secret_poem PasswordField(default="Te dansen omdat men leeft")`"""
-Base.@kwdef struct PasswordField
-    default::AbstractString=""
+julia> @bind secret_poem PasswordField(default="Te dansen omdat men leeft")
+PasswordField("Te dansen omdat men leeft", Dict{Union{},Union{}}())```
+"""
+struct PasswordField
+    default::AbstractString
+    attributes::Dict
 end
 
+PasswordField(; default="", kwargs...) = PasswordField(default, kwargs)
+
 function show(io::IO, ::MIME"text/html", passwordfield::PasswordField)
-    print(io, """<input type="password" value="$(htmlesc(passwordfield.default))">""")
+    print(io, """<input type="password" value="$(htmlesc(passwordfield.default))" $(mkattr(passwordfield.attributes))>""")
 end
 
 get(passwordfield::PasswordField) = passwordfield.default
@@ -204,19 +224,24 @@ See [`MultiSelect`](@ref) for a version that allows multiple selected items.
 
 See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select)
 
-# Examples
-`@bind veg Select(["potato", "carrot"])`
+## Examples
+```jldoctest
+julia> @bind veg Select(["potato", "carrot"])
+Select(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "potato", "carrot" => "carrot"], missing, Dict{Union{},Union{}}())
 
-`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
+julia> @bind veg Select(["potato" => "🥔", "carrot" => "🥕"])
+Select(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "🥔", "carrot" => "🥕"], missing, Dict{Union{},Union{}}())
 
-`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`"""
+julia> @bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")
+Select(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "🥔", "carrot" => "🥕"], "carrot", Dict{Union{},Union{}}())
+"""
 struct Select
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractString}
     attributes::Dict
 end
 Select(options::Array{<:AbstractString,1}; default=missing, kwargs...) = Select([o => o for o in options], default, kwargs)
-Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Select(options, default)
+Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing, kwargs...) = Select(options, default, kwargs)
 
 function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select, select.attributes...) do
@@ -243,12 +268,17 @@ See [`Select`](@ref) for a version that allows only one selected item.
 
 See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select)
 
-# Examples
-`@bind veg MultiSelect(["potato", "carrot"])`
+## Examples
+```jldoctest
+julia> @bind veg MultiSelect(["potato", "carrot"])
+MultiSelect(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "potato", "carrot" => "carrot"], missing, Dict{Union{},Union{}}())
 
-`@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"])`
+julia> @bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"])
+MultiSelect(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "🥔", "carrot" => "🥕"], missing, Dict{Union{},Union{}}())
 
-`@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`"""
+julia> @bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])
+MultiSelect(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "🥔", "carrot" => "🥕"], AbstractString["carrot"], Dict{Union{},Union{}}())
+"""
 struct MultiSelect
     options::Array{Pair{<:AbstractString,<:Any},1}
     default::Union{Missing, AbstractVector{AbstractString}}
@@ -279,17 +309,22 @@ The optional `accept` argument can be an array of `MIME`s. The user can only sel
 
 ## Examples
 
-`@bind file_data FilePicker()`
+```jldoctest
+julia> @bind file_data FilePicker()
+FilePicker(MIME[], Dict{Union{},Union{}}())
 
-`file_data["data"]`
+julia> file_data["data"]
+UInt8[]
+```
 
 You can limit the allowed MIME types:
 
-```julia
-@bind image_data FilePicker([MIME("image/jpg"), MIME("image/png")])
-# and use MIME groups:
-@bind image_data FilePicker([MIME("image/*")])
-```
+```jldoctest
+julia> @bind image_data FilePicker([MIME("image/jpg"), MIME("image/png")])
+FilePicker(MIME[MIME type image/jpg, MIME type image/png], Dict{Union{},Union{}}())
+
+julia> @bind image_data FilePicker([MIME("image/*")]) # use MIME groups
+FilePicker(MIME[MIME type image/*], Dict{Union{},Union{}}())```
 """
 struct FilePicker
     accept::Array{MIME,1}
@@ -311,13 +346,16 @@ get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
 `options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
 
 
-# Examples
-`@bind veg Radio(["potato", "carrot"])`
+## Examples
+```jldoctest
+julia> @bind veg Radio(["potato", "carrot"])
+Radio(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "potato", "carrot" => "carrot"], missing, Dict{Union{},Union{}}())
 
-`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"])`
+julia> @bind veg Radio(["potato" => "🥔", "carrot" => "🥕"])
+Radio(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "🥔", "carrot" => "🥕"], missing, Dict{Union{},Union{}}())
 
-`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
-
+julia> @bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")
+Radio(Pair{var"#s16",var"#s15"} where var"#s15" where var"#s16"<:AbstractString["potato" => "🥔", "carrot" => "🥕"], "carrot", Dict{Union{},Union{}}())```
 """
 struct Radio
     options::Array{Pair{<:AbstractString,<:Any},1}
@@ -370,10 +408,17 @@ Use `default` to set the initial value.
 
 See the [Mozilla docs about `<input type="date">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date)
 
-# Examples
-`@bind best_day_of_my_live DateField()`
+## Examples
+```jldoctest
+julia> using Dates
 
-`@bind best_day_of_my_live DateField(default=today())`"""
+julia> @bind best_day_of_my_live DateField()
+DateField(missing)
+
+julia> @bind best_day_of_my_live DateField(default=today())
+DateField(Date("2020-10-08"))
+```
+"""
 Base.@kwdef struct DateField
     default::Union{Dates.TimeType,Missing}=missing
 end
@@ -390,10 +435,14 @@ Use `default` to set the initial value.
 
 See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time)
 
-# Examples
-`@bind lunch_time TimeField()`
+## Examples
+```jldoctest
+julia> @bind lunch_time TimeField()
+TimeField(missing)
 
-`@bind lunch_time TimeField(default=now())`"""
+julia> @bind lunch_time TimeField(default=now())
+TimeField(DateTime("2020-10-08T20:49:09.106"))```
+"""
 Base.@kwdef struct TimeField
     default::Union{Dates.TimeType,Missing}=missing
 end
