@@ -16,9 +16,6 @@ end
 # ╔═╡ c8a92546-1147-11eb-042c-437210cca71b
 include("templates.jl")
 
-# ╔═╡ e08d89b8-1147-11eb-27c7-f766bfbcd119
-@bind tf TextField(; dims=[3,8])
-
 # ╔═╡ 059247c8-1164-11eb-3cfb-2f853212914f
 @bind sl Slider(1:0.1:100; default=0.8)
 
@@ -31,6 +28,9 @@ sl # good
 # ╔═╡ 38fd0fc6-1166-11eb-126f-fda7cd735d76
 nf # good
 
+# ╔═╡ e08d89b8-1147-11eb-27c7-f766bfbcd119
+@bind tf TextField(; dims=(3,8))
+
 # ╔═╡ 742de95e-114a-11eb-37f3-ef8642108bf5
 tf  # good
 
@@ -38,7 +38,7 @@ tf  # good
 @bind tf2 TextField(; default="xx")
 
 # ╔═╡ 75a126d4-114a-11eb-192f-afc757d8ac20
-tf2  # bad
+tf2  # good
 
 # ╔═╡ 8b0d2e34-1148-11eb-32d6-a52ef910b42b
 @bind pf PasswordField()
@@ -90,11 +90,11 @@ csp   # good
 
 # ╔═╡ Cell order:
 # ╠═c8a92546-1147-11eb-042c-437210cca71b
-# ╠═e08d89b8-1147-11eb-27c7-f766bfbcd119
 # ╠═059247c8-1164-11eb-3cfb-2f853212914f
 # ╠═3770bcbe-1166-11eb-3233-a71ecbe56fe2
 # ╠═344f56e4-1166-11eb-1a30-63d2885de66e
 # ╠═38fd0fc6-1166-11eb-126f-fda7cd735d76
+# ╠═e08d89b8-1147-11eb-27c7-f766bfbcd119
 # ╠═742de95e-114a-11eb-37f3-ef8642108bf5
 # ╠═7202dfec-114a-11eb-2f9f-e735cc2501ea
 # ╠═75a126d4-114a-11eb-192f-afc757d8ac20

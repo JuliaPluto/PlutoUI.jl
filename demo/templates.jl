@@ -21,7 +21,7 @@ end
 @widget CheckBox """<input type="checkbox" {{#default}}checked{{/default}}>""" default=false
 
 @widget TextField """{{^dims}}<input type="text" value="{{default}}">{{/dims}}
-<textarea {{#dims}}{{#.[1]}}cols="{{.}}"{{/.[1]}} {{#.[2]}}rows="{{.}}"{{/.[2]}}{{/dims}}>{{default}}</textarea>""" default="" dims=missing
+{{@dims}}<textarea {{#dims}}{{#.[1]}}cols="{{.}}"{{/.[1]}} {{#.[2]}}rows="{{.}}"{{/.[2]}}{{/dims}}>{{default}}</textarea>{{/dims}}""" default="" dims=missing
 
 @widget PasswordField """<input type="password" value="{{default}}">""" default=""
 
