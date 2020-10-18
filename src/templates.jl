@@ -2,13 +2,19 @@ include("parser.jl")
 
 @widget FilePicker """<input type='file' accept='{{#accepts}}{{.}}, {{/accepts}}'>""" accepts=[] default=Dict("name" => "", "data" => UInt8[], "type" => "")
 
-@widget Slider3 """<input type="range"
-{{#range}} min="{{start}}"  step="{{step}}" max="{{stop}}" {{/range}}
-value="{{default}}" {{#show_value}} oninput="this.nextElementSibling.value=this.value" {{/show_value}}>""" show_value=false default=range.start
+@widget Slider """<input type="range"
+min="{{start}}"  step="{{step}}" max="{{stop}}"
+value="{{default}}" {{#show_value}} oninput="this.nextElementSibling.value=this.value" {{/show_value}}>""" default=start show_value=false
+function Slider(range; default=first(range), show_value=false)
+    Slider(start=first(range), step=step(range), stop=last(range), default=default, show_value=show_value)
+end
 
 @widget NumberField """
-<input type="number" {{#range}}min="{{range.start}}" step="{{range.step}}" max="{{range.stop}}" {{/range}}value="{{default}}">
-""" default=range.start
+<input type="number" min="{{start}}" step="{{step}}" max="{{stop}}" value="{{default}}">
+""" default=start
+function NumberField(range; default=first(range))
+    Slider(start=first(range), step=step(range), stop=last(range), default=default)
+end
 
 @widget Button """<input type="button" value="{{label}}">""" default=label
 
