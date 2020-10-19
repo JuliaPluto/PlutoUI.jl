@@ -2,8 +2,7 @@ import Mustache
 import Pluto
 using Random: randstring
 
-function gettokens!(template, tokens)
-    ps = Mustache.parse(template, ("{{", "}}"))
+function gettokens!(ps, tokens)
     for token in ps.tokens
         if token._type != "text"
             if length(token.value) >= 1 && token.value[1] == ':'
@@ -31,7 +30,8 @@ Here, the `default` is a special in that it represents the default value of the 
 It will be there even if not used in the template.
 """
 macro widget(T, template, defaults...)
-    args = push!(unique(gettokens!(template, Any[])), :default)
+    ps = Mustache.parse(template, ("{{", "}}"))
+    args = push!(unique(gettokens!(ps, Any[])), :default)
     for d in defaults
         if d isa Expr && d.head == :(=)
             for i=1:length(args)
@@ -55,7 +55,7 @@ HTML widget with `kwargs`
         Base.@kwdef $constr
 
         function Base.show(io::IO, ::MIME"text/html", obj::$T)
-            ret = $(Mustache.render)($template, obj)
+            ret = $(Mustache.render)($ps, obj)
             print(io, ret)
         end
 

@@ -68,3 +68,24 @@ element.value = {{{default}}};
 @widget DateField """<input type="date", value={{default}}>""" default=""
 @widget TimeField """<input type="time", value={{default}}>""" default=""
 @widget ColorStringPicker """<input type="color", value={{default}}>""" default="#000000"
+
+@widget Clock """
+<clock class='{{@fixed}}fixed{{/fixed}} {{^start_running}}stopped{{/start_running}}'>
+	<analog>
+        <back>{{cb}}</back>
+        <front>{{cf}}</front>
+        <zoof style="opacity: 0">{{cz}}</zoof>
+    </analog>
+    <button></button>
+    <span>speed: </span>
+    <input type="number" value="{{interval}}"  min=0 step=any lang="en-001">
+    <span id="unit" title="Click to invert"></span>
+</clock>
+<script>
+{{js}}
+</script>
+<style>
+{{css}}
+</style>
+""" fixed=false start_running=false default=1 interval=1 cb=read(joinpath(PKG_ROOT_DIR, "assets", "clock_back.svg"), String) cf=read(joinpath(PKG_ROOT_DIR, "assets", "clock_front.svg"), String) cz=read(joinpath(PKG_ROOT_DIR, "assets", "clock_zoof.svg"), String) js=read(joinpath(PKG_ROOT_DIR, "assets", "clock.js"), String) css=read(joinpath(PKG_ROOT_DIR, "assets", "clock.css"), String)
+
