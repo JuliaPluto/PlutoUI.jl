@@ -1,5 +1,5 @@
 // const clock = this.querySelector("clock")
-const clock = (this == undefined ? currentScript : this.currentScript).previousElementSibling
+const clock = (currentScript ? currentScript : this.currentScript).previousElementSibling
 const tpsInput = clock.querySelector("input")
 const analogfront = clock.querySelector("analog front")
 const analogzoof = clock.querySelector("analog zoof")
