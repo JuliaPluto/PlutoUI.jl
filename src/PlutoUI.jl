@@ -10,5 +10,6 @@ include("./Clock.jl")
 include("./Resource.jl")
 include("./Terminal.jl")
 include("./RangeSlider.jl")
+include("./DisplayTricks.jl")
 
 end
