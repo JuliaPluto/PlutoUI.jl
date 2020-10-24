@@ -72,4 +72,4 @@ function show(io::IO, ::MIME"text/html", slider::RangeSlider)
     print(io, result)
 end
 
-get(slider::RangeSlider) = slider.range
+get(slider::RangeSlider) = slider.left:step(slider.range):slider.right
