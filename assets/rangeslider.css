@@ -26,8 +26,6 @@
 .slider > .range {
 	position: absolute;
 	z-index: 2;
-	left: 25%;
-	right: 25%;
 	top: 0;
 	bottom: 0;
 	border-radius: 5px;
@@ -53,12 +51,10 @@
 }
 
 .slider > .thumb.left {
-	left: 25%;
 	transform: translate(-7.5px, -2.5px);
 }
 
 .slider > .thumb.right {
-	right: 25%;
 	transform: translate(7.5px, -2.5px);
 }
 
