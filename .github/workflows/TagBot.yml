@@ -1,20 +1,19 @@
 
-# This GitHub action checks daily whether a new version of this package
+# This GitHub action checks whether a new version of this package
 # has been registred in the official registry.
 # If so, it creates a new _release_:
-# https://github.com/fonsp/Pluto.jl/releases
+# https://github.com/fonsp/PlutoUI.jl/releases
 
 name: TagBot
-
-# Controls when the action will run. Triggers the workflow on push or pull request 
-# events but only for the master branch
 on:
-  schedule:
-    - cron: '*/15 * * * *'
+  issue_comment:
+    types:
+      - created
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   TagBot:
+    if: github.event_name == 'workflow_dispatch' || github.actor == 'JuliaTagBot'
     runs-on: [ubuntu-latest]
     steps:
       - uses: JuliaRegistries/TagBot@v1
