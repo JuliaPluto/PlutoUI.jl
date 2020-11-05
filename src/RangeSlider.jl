@@ -7,7 +7,7 @@ struct RangeSlider
     show_value::Bool
 end
 
-RangeSlider(range::AbstractRange; left=first(range), right=last(range), show_value=true) = 
+RangeSlider(range::AbstractRange; left=first(range), right=last(range), show_value=false) = 
 left > right ? error("Left value cannot be bigger than right") : RangeSlider(range, left, right, show_value)
 
 """
@@ -31,17 +31,9 @@ function show(io::IO, ::MIME"text/html", slider::RangeSlider)
     js = read(joinpath(PKG_ROOT_DIR, "assets", "rangeslider.js"), String)
     css = read(joinpath(PKG_ROOT_DIR, "assets", "rangeslider.css"), String)
 
-    if step(slider.range) == 1
-        output = "$(slider.left):$(slider.right)"
-    else
-        output = "$(slider.left):$(step(slider.range)):$(slider.right)"
-    end
-
     result = """
-    <div class="values"></div>
-    $(slider.show_value ? """<output id=\"slider-output\">$(output)</output>""" : "")
-    <div class="middle">
-        <div class="multi-range-slider">
+    <multi-range-slider>
+        <div class="middle">
             <input type="range" id="input-left" step="$(step(slider.range))" 
             min="$(first(slider.range))" max="$(last(slider.range))" 
             value="$(slider.left)">
@@ -56,20 +48,17 @@ function show(io::IO, ::MIME"text/html", slider::RangeSlider)
                 <div class="thumb left"></div>
             </div>
         </div>
-    </div>
-    <script>
-        $(js)
-        $(slider.show_value ? """
-            inputLeft.addEventListener(\"input\", updateValues);
-            inputRight.addEventListener(\"input\", updateValues);
-        """ : "")
-    </script>
-    <style>
+        $(slider.show_value ? """<output id=\"slider-output\"></output>""" : "")
+        <script>
+            $(js)
+            </script>
+        <style>
         $(css)
-    </style>
+        </style>
+    </multi-range-slider>
     """
 
     print(io, result)
 end
 
-get(slider::RangeSlider) = slider.left:step(slider.range):slider.right
+get(slider::RangeSlider) = collect(slider.left:step(slider.range):slider.right)

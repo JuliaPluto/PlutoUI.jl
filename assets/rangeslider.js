@@ -1,9 +1,11 @@
-var inputLeft = currentScript.closest("pluto-output").querySelector("#input-left");
-var inputRight = currentScript.closest("pluto-output").querySelector("#input-right");
-var thumbLeft = currentScript.closest("pluto-output").querySelector(".slider > .thumb.left");
-var thumbRight = currentScript.closest("pluto-output").querySelector(".slider > .thumb.right");
-var range = currentScript.closest("pluto-output").querySelector(".slider > .range");
-var values = currentScript.closest("pluto-output").querySelector(".values");
+const container = currentScript.parentElement
+const inputLeft = container.querySelector("#input-left");
+const inputRight = container.querySelector("#input-right");
+const thumbLeft = container.querySelector(".slider > .thumb.left");
+const thumbRight = container.querySelector(".slider > .thumb.right");
+const range = container.querySelector(".slider > .range");
+const display = container.querySelector("#slider-output")
+
 const min = parseFloat(inputLeft.min);
 const max = parseFloat(inputLeft.max);
 
@@ -31,8 +33,8 @@ function setLeftValue() {
 		i += parseFloat(inputLeft.step);
     }
     
-	values.value = returnValue;	
-    values.dispatchEvent(new CustomEvent("input"));
+	container.value = returnValue;	
+    container.dispatchEvent(new CustomEvent("input"));
 }
 setLeftValue();
 
@@ -60,16 +62,20 @@ function setRightValue() {
 		i += parseFloat(inputLeft.step);
     }
     
-	values.value = returnValue;
-    values.dispatchEvent(new CustomEvent("input"));
+	container.value = returnValue;
+    container.dispatchEvent(new CustomEvent("input"));
 }
 setRightValue();
 
 inputLeft.addEventListener("input", setLeftValue);
 inputRight.addEventListener("input", setRightValue);
 
-function updateValues() {
-    var display = currentScript.closest("pluto-output").querySelector("#slider-output");
-    display.value = (inputLeft.step == 1) ? `${inputLeft.value}:${inputRight.value}` 
-                        : `${inputLeft.value}:${inputLeft.step}:${inputRight.value}`;
+function updateDisplay() {
+	if(display != null) {
+		display.value = (inputLeft.step == 1) ? `${inputLeft.value}:${inputRight.value}` 
+							: `${inputLeft.value}:${inputLeft.step}:${inputRight.value}`;
+	}
 }
+inputLeft.addEventListener("input", updateDisplay)
+inputRight.addEventListener("input", updateDisplay)
+updateDisplay()
