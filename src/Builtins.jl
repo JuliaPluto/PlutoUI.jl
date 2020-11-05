@@ -318,7 +318,7 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
     end
     withtag(io, :script) do
         print(io, """
-        const form = this.querySelector('#$(groupname)')
+        const form = document.querySelector('#$(groupname)')
 
         form.oninput = (e) => {
             form.value = e.target.value
