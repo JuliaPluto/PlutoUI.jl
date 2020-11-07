@@ -1,5 +1,5 @@
 // const clock = this.querySelector("clock")
-const clock = this.currentScript.previousElementSibling
+const clock = (currentScript ? currentScript : this.currentScript).previousElementSibling
 const tpsInput = clock.querySelector("input")
 const analogfront = clock.querySelector("analog front")
 const analogzoof = clock.querySelector("analog zoof")
@@ -13,8 +13,8 @@ tpsInput.oninput = (e) => {
     if (clock.classList.contains("inverted")) {
         dt = 1.0 / dt
     }
-    dt = (dt == Infinity || dt == 0) ? 1e9 : dt
-    analogzoof.style.opacity = 0.8 - Math.pow(dt, .2)
+    dt = dt == Infinity || dt == 0 ? 1e9 : dt
+    analogzoof.style.opacity = 0.8 - Math.pow(dt, 0.2)
     analogfront.style.animationDuration = dt + "s"
     e && e.stopPropagation()
 }
