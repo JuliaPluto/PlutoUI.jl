@@ -1,12 +1,10 @@
 import Random: randstring
-<<<<<<< HEAD
 import Dates
 
 export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, Microphone
 =======
 
 export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker, Radio
->>>>>>> cd91008dfe913d18cecf9cf850743a8597b1224e
 
 struct Slider
     range::AbstractRange
@@ -154,7 +152,6 @@ end
 get(textfield::TextField) = textfield.default
 
 
-
 """A password input (`<input type="password">`) - the user can type text, the text is returned as `String` via `@bind`.
 
 This does not provide any special security measures, it just renders black dots (•••) instead of the typed characters.
@@ -202,7 +199,6 @@ Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Sele
 function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select) do
         for o in select.options
-<<<<<<< HEAD
             print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "")>""")
             if showable(MIME"text/html"(), o.second)
                 show(io, MIME"text/html"(), o.second)
@@ -246,7 +242,6 @@ function show(io::IO, ::MIME"text/html", select::MultiSelect)
                 show(io, MIME"text/html"(), o.second)
             else
                 print(io, o.second)
-=======
             print(io, """<option value="$(htmlesc(o.first))"$(radio.default === o.first ? " selected" : "")>""")
             withtag(io, :option, :value=>o.first) do
                 if showable(MIME"text/html"(), o.second)
@@ -254,14 +249,12 @@ function show(io::IO, ::MIME"text/html", select::MultiSelect)
                 else
                     print(io, o.second)
                 end
->>>>>>> cd91008dfe913d18cecf9cf850743a8597b1224e
             end
             print(io, "</option>")
         end
     end
 end
 
-<<<<<<< HEAD
 get(select::MultiSelect) = ismissing(select.default) ? Any[] : select.default
 
 """A file upload box. The chosen file will be read by the browser, and the bytes are sent back to Julia.
@@ -271,7 +264,6 @@ The optional `accept` argument can be an array of `MIME`s. The user can only sel
 ## Examples
 =======
 get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
->>>>>>> cd91008dfe913d18cecf9cf850743a8597b1224e
 
 `@bind file_data FilePicker()`
 
@@ -296,11 +288,9 @@ function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
     print(io, "'>")
 end
 
-<<<<<<< HEAD
 get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
 =======
 get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
->>>>>>> cd91008dfe913d18cecf9cf850743a8597b1224e
 
 """A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
 
@@ -358,7 +348,6 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
 end
 
 get(radio::Radio) = radio.default
-<<<<<<< HEAD
 
 struct Microphone end
 
@@ -487,5 +476,3 @@ function show(io::IO, ::MIME"text/html", colorStringPicker::ColorStringPicker)
     withtag(() -> (), io, :input, :type=>"color", :value=>colorStringPicker.default)
 end
 get(colorStringPicker::ColorStringPicker) = colorStringPicker.default
-=======
->>>>>>> cd91008dfe913d18cecf9cf850743a8597b1224e
