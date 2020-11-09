@@ -2,9 +2,6 @@ import Random: randstring
 import Dates
 
 export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, Microphone
-=======
-
-export Slider, NumberField, Button, CheckBox, TextField, Select, FilePicker, Radio
 
 struct Slider
     range::AbstractRange
@@ -262,7 +259,6 @@ get(select::MultiSelect) = ismissing(select.default) ? Any[] : select.default
 The optional `accept` argument can be an array of `MIME`s. The user can only select files with these MIME. If only `image/*` MIMEs are allowed, then smartphone browsers will open the camera instead of a file browser.
 
 ## Examples
-=======
 get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
 
 `@bind file_data FilePicker()`
@@ -289,8 +285,6 @@ function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
 end
 
 get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
-=======
-get(select::FilePicker) = Dict("name" => "", "data" => [], "type" => "")
 
 """A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
 
