@@ -99,7 +99,7 @@ end
 """
 Button to download a Julia object as a file from the browser.
 
-See [`DownloadButton`](@ref) to do the opposite.
+See [`FilePicker`](@ref) to do the opposite.
 
 # Examples
 
