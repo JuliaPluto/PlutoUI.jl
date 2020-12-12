@@ -1,19 +1,19 @@
 export RangeSlider
 
-struct RangeSlider
-    range::AbstractRange
-    left::Number
-    right::Number
+struct RangeSlider{T<:AbstractRange{<:Number}} <: AbstractUIElement{T}
+    range::T
+    left::eltype(T)
+    right::eltype(T)
     show_value::Bool
 end
 
-RangeSlider(range::AbstractRange; left=first(range), right=last(range), show_value=false) = 
-left > right ? error("Left value cannot be bigger than right") : RangeSlider(range, left, right, show_value)
+RangeSlider(range::T; left::eltype(T)=first(range), right::eltype(T)=last(range), show_value=false) where T<:AbstractRange{<:Number} =
+left > right ? error("Left value cannot be bigger than right") : RangeSlider{T}(range, left, right, show_value)
 
 """
 A `RangeSlider` is a two thumb slider which returns the range between the two thumbs.
 
-If you set `show_value` to `false`, the slider won't display its value. 
+If you set `show_value` to `false`, the slider won't display its value.
 
 By default `show_value` is set to `true`
 
@@ -34,13 +34,13 @@ function show(io::IO, ::MIME"text/html", slider::RangeSlider)
     result = """
     <multi-range-slider>
         <div class="middle">
-            <input type="range" id="input-left" step="$(step(slider.range))" 
-            min="$(first(slider.range))" max="$(last(slider.range))" 
+            <input type="range" id="input-left" step="$(step(slider.range))"
+            min="$(first(slider.range))" max="$(last(slider.range))"
             value="$(slider.left)">
-            <input type="range" id="input-right" step="$(step(slider.range))" 
-            min="$(first(slider.range))" max="$(last(slider.range))" 
+            <input type="range" id="input-right" step="$(step(slider.range))"
+            min="$(first(slider.range))" max="$(last(slider.range))"
             value="$(slider.right)">
-    
+
             <div class="slider">
                 <div class="track" onmousedown="event.preventDefault()"></div>
                 <div class="range" onmousedown="event.preventDefault()"></div>
@@ -61,4 +61,4 @@ function show(io::IO, ::MIME"text/html", slider::RangeSlider)
     print(io, result)
 end
 
-get(slider::RangeSlider) = collect(slider.left:step(slider.range):slider.right)
+get(slider::RangeSlider) = slider.range[slider.range .>= slider.left & slider.range .<= slider.right]

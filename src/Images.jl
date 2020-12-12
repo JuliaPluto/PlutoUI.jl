@@ -3,7 +3,7 @@
 
 export ImageInput
 
-struct ImageInput
+struct ImageInput <: AbstractUIElement{NamedTuple{(:width,:height,:data),Tuple{Int64,Int64,Array{UInt8,2}}}}
     use_camera::Bool
     default_url::AbstractString
     maxsize::Integer
@@ -20,19 +20,19 @@ function show(io::IO, ::MIME"text/html", img::ImageInput)
         const span = (this == undefined ? currentScript : this.currentScript).parentElement
         const input = span.querySelector("input")
         const img = html`<img crossOrigin="anonymous">`
-        
+
         const maxsize = $(img.maxsize)
-        
+
         img.onload = () => {
             const scale = Math.min(1.0, maxsize / img.width, maxsize / img.height)
-        
+
             const width = Math.floor(img.width * scale)
             const height = Math.floor(img.height * scale)
-        
+
             const canvas = html`<canvas width=\${width} height=\${height}>`
             const ctx = canvas.getContext("2d")
             ctx.drawImage(img, 0, 0, width, height)
-        
+
             span.value = {
                 width: width,
                 height: height,
@@ -40,15 +40,15 @@ function show(io::IO, ::MIME"text/html", img::ImageInput)
             }
             span.dispatchEvent(new CustomEvent("input"))
         }
-        
+
         input.oninput = (e) => {
             img.src = URL.createObjectURL(input.files[0])
             e.stopPropagation()
         }
-        
+
         // set default URL so that you have something to look at:
         img.src = "$(img.default_url)"
-        
+
         </script>
         </span>
         """
@@ -57,16 +57,16 @@ function show(io::IO, ::MIME"text/html", img::ImageInput)
 end
 
 # the default is a 0x0 image
-get(img::ImageInput) = Dict(
-    "width" => 0,
-    "height" => 0,
-    "data" => zeros(UInt8, 0, 0),
+get(img::ImageInput) = (
+    width = 0,
+    height = 0,
+    data = zeros(UInt8, 0, 0),
 )
 
 
 export CameraInput
 
-struct CameraInput
+struct CameraInput <: AbstractUIElement{NamedTuple{(:width,:height,:data),Tuple{Int64,Int64,Array{UInt8,2}}}}
     default_url::AbstractString
     maxsize::Integer
 end
@@ -82,19 +82,19 @@ function show(io::IO, ::MIME"text/html", img::CameraInput)
         const span = (this == undefined ? currentScript : this.currentScript).parentElement
         const input = span.querySelector("input")
         const img = html`<img crossOrigin="anonymous">`
-        
+
         const maxsize = $(img.maxsize)
-        
+
         img.onload = () => {
             const scale = Math.min(1.0, maxsize / img.width, maxsize / img.height)
-        
+
             const width = Math.floor(img.width * scale)
             const height = Math.floor(img.height * scale)
-        
+
             const canvas = html`<canvas width=\${width} height=\${height}>`
             const ctx = canvas.getContext("2d")
             ctx.drawImage(img, 0, 0, width, height)
-        
+
             span.value = {
                 width: width,
                 height: height,
@@ -102,15 +102,15 @@ function show(io::IO, ::MIME"text/html", img::CameraInput)
             }
             span.dispatchEvent(new CustomEvent("input"))
         }
-        
+
         input.oninput = (e) => {
             img.src = URL.createObjectURL(input.files[0])
             e.stopPropagation()
         }
-        
+
         // set default URL so that you have something to look at:
         img.src = "$(cam.default_url)"
-        
+
         </script>
         </span>
         """
@@ -119,8 +119,8 @@ function show(io::IO, ::MIME"text/html", img::CameraInput)
 end
 
 # the default is a 0x0 image
-get(cam::CameraInput) = Dict(
-    "width" => 0,
-    "height" => 0,
-    "data" => zeros(UInt8, 0, 0),
+get(cam::CameraInput) = (
+    width = 0,
+    height = 0,
+    data = zeros(UInt8, 0, 0),
 )

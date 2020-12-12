@@ -3,9 +3,13 @@ import Dates
 
 export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker
 
-struct Slider
-    range::AbstractRange
-    default::Number
+abstract type AbstractUIElement{T}
+end
+get(e::AbstractUIElement) = e.default
+
+struct Slider{T<:AbstractRange{<:Number}} <: AbstractUIElement{eltype(T)}
+    range::T
+    default::eltype(T)
     show_value::Bool
 end
 
@@ -19,24 +23,22 @@ end
 `@bind x Slider(1:10; default=8, show_value=true)`
 
 """
-Slider(range::AbstractRange; default=missing, show_value=false) = Slider(range, (default === missing) ? first(range) : default, show_value)
+Slider(range::T; default=missing, show_value=false) where T<:AbstractRange = Slider{T}(range, (default === missing) ? first(range) : default, show_value)
 
 function show(io::IO, ::MIME"text/html", slider::Slider)
-    print(io, """<input 
-        type="range" 
-        min="$(first(slider.range))" 
-        step="$(step(slider.range))" 
-        max="$(last(slider.range))" 
+    print(io, """<input
+        type="range"
+        min="$(first(slider.range))"
+        step="$(step(slider.range))"
+        max="$(last(slider.range))"
         value="$(slider.default)"
         $(slider.show_value ? "oninput=\"this.nextElementSibling.value=this.value\"" : "")
         >""")
-    
+
     if slider.show_value
         print(io, """<output>$(slider.default)</output>""")
     end
 end
-
-get(slider::Slider) = slider.default
 
 """A box where you can type in a number, within a specific range.
 
@@ -48,18 +50,16 @@ get(slider::Slider) = slider.default
 `@bind x NumberField(1:10; default=8)`
 
 """
-struct NumberField
-    range::AbstractRange
-    default::Number
+struct NumberField{T<:AbstractRange{<:Number}} <: AbstractUIElement{eltype(T)}
+    range::T
+    default::eltype(T)
 end
 
-NumberField(range::AbstractRange; default=missing) = NumberField(range, (default === missing) ? first(range) : default)
+NumberField(range::T; default=missing) where T<:AbstractRange{<:Number} = NumberField{T}(range, (default === missing) ? first(range) : default)
 
 function show(io::IO, ::MIME"text/html", numberfield::NumberField)
     print(io, """<input type="number" min="$(first(numberfield.range))" step="$(step(numberfield.range))" max="$(last(numberfield.range))" value="$(numberfield.default)">""")
 end
-
-get(numberfield::NumberField) = numberfield.default
 
 
 """A button that sends back the same value every time that it is clicked.
@@ -85,8 +85,8 @@ begin
 end
 ```
 """
-struct Button
-    label::AbstractString
+struct Button{T<:AbstractString} <: AbstractUIElement{T}
+    label::T
 end
 Button() = Button("Click")
 
@@ -107,7 +107,7 @@ get(button::Button) = button.label
 
 `md"Would you like the thing? \$(@bind enable_thing CheckBox())"`
 """
-struct CheckBox
+struct CheckBox <: AbstractUIElement{Bool}
     default::Bool
 end
 
@@ -116,9 +116,6 @@ CheckBox(;default::Bool=false) = CheckBox(default)
 function show(io::IO, ::MIME"text/html", button::CheckBox)
     print(io, """<input type="checkbox"$(button.default ? " checked" : "")>""")
 end
-
-get(checkbox::CheckBox) = checkbox.default
-
 
 """A text input (`<input type="text">`) - the user can type text, the text is returned as `String` via `@bind`.
 
@@ -132,11 +129,11 @@ See the [Mozilla docs about `<input type="text">`](https://developer.mozilla.org
 `@bind poem TextField()`
 
 `@bind poem TextField((30,5); default="Hello\nJuliaCon!")`"""
-struct TextField
+struct TextField{T<:AbstractString} <: AbstractUIElement{T}
     dims::Union{Tuple{Integer,Integer},Nothing}
-    default::AbstractString
+    default::T
 end
-TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="") = TextField(dims, default)
+TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::T="") where T<:AbstractString = TextField{T}(dims, default)
 
 function show(io::IO, ::MIME"text/html", textfield::TextField)
     if textfield.dims === nothing
@@ -145,10 +142,6 @@ function show(io::IO, ::MIME"text/html", textfield::TextField)
         print(io, """<textarea cols="$(textfield.dims[1])" rows="$(textfield.dims[2])">$(htmlesc(textfield.default))</textarea>""")
     end
 end
-
-get(textfield::TextField) = textfield.default
-
-
 
 """A password input (`<input type="password">`) - the user can type text, the text is returned as `String` via `@bind`.
 
@@ -162,15 +155,13 @@ See the [Mozilla docs about `<input type="password">`](https://developer.mozilla
 `@bind secret_poem PasswordField()`
 
 `@bind secret_poem PasswordField(default="Te dansen omdat men leeft")`"""
-Base.@kwdef struct PasswordField
-    default::AbstractString=""
+Base.@kwdef struct PasswordField{T<:AbstractString} <: AbstractUIElement{T}
+    default::T=""
 end
 
 function show(io::IO, ::MIME"text/html", passwordfield::PasswordField)
     print(io, """<input type="password" value="$(htmlesc(passwordfield.default))">""")
 end
-
-get(passwordfield::PasswordField) = passwordfield.default
 
 
 """A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
@@ -187,28 +178,30 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 `@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
 
 `@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`"""
-struct Select
-    options::Array{Pair{<:AbstractString,<:Any},1}
-    default::Union{Missing, AbstractString}
+struct Select{K<:Union{Missing,AbstractString},T<:AbstractDict{K,<:Any}} <: AbstractUIElement{K}
+    options::T
+    default::K
 end
-Select(options::Array{<:AbstractString,1}; default=missing) = Select([o => o for o in options], default)
-Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Select(options, default)
+# TODO replace Dict with an ordered Dict
+Select(options::T; default::K=missing) where {K<:Union{Missing,AbstractString}, T <: AbstractDict{K,<:Any}} = Select{K,T}(options, default)
+Select(options::T; default=missing) where T <: AbstractVector{<:AbstractString} = Select(Dict(o => o for o in options), default)
+Select(options::T; default=missing) where T <: AbstractVector{<:Pair{<:AbstractString,<:Any}} = Select(Dict(options), default)
 
 function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select) do
-        for o in select.options
-            print(io, """<option value="$(htmlesc(o.first))"$(select.default === o.first ? " selected" : "")>""")
-            if showable(MIME"text/html"(), o.second)
-                show(io, MIME"text/html"(), o.second)
+        for (k,v) in select.options
+            print(io, """<option value="$(htmlesc(k))"$(select.default === k ? " selected" : "")>""")
+            if showable(MIME"text/html"(), v)
+                show(io, MIME"text/html"(), v)
             else
-                print(io, o.second)
+                print(io, v)
             end
             print(io, "</option>")
         end
     end
 end
 
-get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
+get(select::Select) = ismissing(select.default) ? first(keys(select.options)) : select.default
 
 
 """A multi-selector (`<select multi>`) - the user can choose one or more of the `options`, an array of `Strings.
@@ -225,28 +218,29 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 `@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"])`
 
 `@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`"""
-struct MultiSelect
-    options::Array{Pair{<:AbstractString,<:Any},1}
-    default::Union{Missing, AbstractVector{AbstractString}}
+struct MultiSelect{K<:Union{Missing,AbstractString},T<:AbstractDict{K,<:Any}} <: AbstractUIElement{K}
+    options::T
+    default::K
 end
-MultiSelect(options::Array{<:AbstractString,1}; default=missing) = MultiSelect([o => o for o in options], default)
-MultiSelect(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = MultiSelect(options, default)
+MultiSelect(options::T; default::K=missing) where {K<:Union{Missing,AbstractString},T<:AbstractDict{K,<:Any}} = Multiselect{K,T}(options, default)
+MultiSelect(options::T; default=missing) where T<:AbstractVector{<:AbstractString} = MultiSelect(Dict(o => o for o in options), default)
+MultiSelect(options::T; default=missing) where T<:AbstractVector{<:Pair{<:AbstractString,<:Any}} = MultiSelect(Dict(options), default)
 
 function show(io::IO, ::MIME"text/html", select::MultiSelect)
     withtag(io, Symbol("select multiple")) do
-        for o in select.options
-            print(io, """<option value="$(htmlesc(o.first))"$(!ismissing(select.default) && o.first ∈ select.default ? " selected" : "")>""")
-            if showable(MIME"text/html"(), o.second)
-                show(io, MIME"text/html"(), o.second)
+        for (k,v) in select.options
+            print(io, """<option value="$(htmlesc(k))"$(!ismissing(select.default) && k ∈ select.default ? " selected" : "")>""")
+            if showable(MIME"text/html"(), v)
+                show(io, MIME"text/html"(), v)
             else
-                print(io, o.second)
+                print(io, v)
             end
             print(io, "</option>")
         end
     end
 end
 
-get(select::MultiSelect) = ismissing(select.default) ? Any[] : select.default
+get(select::MultiSelect{T}) where T = ismissing(select.default) ? keytype(T)[] : select.default
 
 """A file upload box. The chosen file will be read by the browser, and the bytes are sent back to Julia.
 
@@ -266,8 +260,8 @@ You can limit the allowed MIME types:
 @bind image_data FilePicker([MIME("image/*")])
 ```
 """
-struct FilePicker
-    accept::Array{MIME,1}
+struct FilePicker{T<:AbstractVector{MIME}} <: AbstractUIElement{NamedTuple{(:name,:data,:type),Tuple{String,Array{UInt8},String}}}
+    accept::T
 end
 FilePicker() = FilePicker(MIME[])
 
@@ -277,9 +271,9 @@ function show(io::IO, ::MIME"text/html", filepicker::FilePicker)
     print(io, "'>")
 end
 
-get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
+get(select::FilePicker) = (name="", data=UInt8[], type="")
 
-"""A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
+"""A group of radio buttons - the user can choose one of the `options`, an array of `String`s.
 
 `options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
 
@@ -292,25 +286,26 @@ get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
 `@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
 
 """
-struct Radio
-    options::Array{Pair{<:AbstractString,<:Any},1}
-    default::Union{Missing, AbstractString}
+struct Radio{K<:Union{Missing,AbstractString},T<:AbstractDict{K,<:Any}} <: AbstractUIElement{K}
+    options::T
+    default::K
 end
-Radio(options::Array{<:AbstractString,1}; default=missing) = Radio([o => o for o in options], default)
-Radio(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Radio(options, default)
+Radio(options::T; default::K=missing) where {K<:Union{Missing,AbstractString},T<:AbstractDict{K,<:Any}} = Radio{K,T}(options,default)
+Radio(options::T; default=missing) where T<:AbstractVector{<:AbstractString} = Radio(Dict(o => o for o in options), default)
+Radio(options::T; default=missing) where T<:AbstractVector{Pair{<:AbstractString,<:Any}} = Radio(Dict(options), default)
 
 function show(io::IO, ::MIME"text/html", radio::Radio)
     groupname = randstring('a':'z')
     withtag(io, :form, :id=>groupname) do
-        for o in radio.options
+        for (k,v) in radio.options
             withtag(io, :div) do
-                print(io, """<input type="radio" id="$(htmlesc(groupname * o.first))" name="$(groupname)" value="$(htmlesc(o.first))"$(radio.default === o.first ? " checked" : "")>""")
+                print(io, """<input type="radio" id="$(htmlesc(groupname * k))" name="$(groupname)" value="$(htmlesc(k))"$(radio.default === k ? " checked" : "")>""")
 
-                withtag(io, :label, :for=>(groupname * o.first)) do
-                    if showable(MIME"text/html"(), o.second)
-                        show(io, MIME"text/html"(), o.second)
+                withtag(io, :label, :for=>(groupname * k)) do
+                    if showable(MIME"text/html"(), v)
+                        show(io, MIME"text/html"(), v)
                     else
-                        print(io, o.second)
+                        print(io, v)
                     end
                 end
             end
@@ -334,7 +329,6 @@ function show(io::IO, ::MIME"text/html", radio::Radio)
     end
 end
 
-get(radio::Radio) = radio.default
 
 """A date input (`<input type="date">`) - the user can pick a date, the date is returned as `Dates.DateTime` via `@bind`.
 
@@ -346,14 +340,13 @@ See the [Mozilla docs about `<input type="date">`](https://developer.mozilla.org
 `@bind best_day_of_my_live DateField()`
 
 `@bind best_day_of_my_live DateField(default=today())`"""
-Base.@kwdef struct DateField
+Base.@kwdef struct DateField <: AbstractUIElement{Union{Dates.TimeType,Missing}}
     default::Union{Dates.TimeType,Missing}=missing
 end
 
 function show(io::IO, ::MIME"text/html", datefield::DateField)
     withtag(() -> (), io, :input, :type=>"date", :value=>datefield.default === missing ? "" : Dates.format(datefield.default, "Y-mm-dd"))
 end
-get(datefield::DateField) = datefield.default
 
 
 """A time input (`<input type="time">`) - the user can pick a time, the time is returned as `Dates.DateTime` via `@bind`.
@@ -366,14 +359,13 @@ See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org
 `@bind lunch_time TimeField()`
 
 `@bind lunch_time TimeField(default=now())`"""
-Base.@kwdef struct TimeField
+Base.@kwdef struct TimeField <: AbstractUIElement{Union{Dates.TimeType,Missing}}
     default::Union{Dates.TimeType,Missing}=missing
 end
 
 function show(io::IO, ::MIME"text/html", timefield::TimeField)
     withtag(() -> (), io, :input, :type=>"time", :value=>timefield.default === missing ? "" : Dates.format(timefield.default, "HH:MM:SS"))
 end
-get(timefield::TimeField) = timefield.default
 
 
 """A color input (`<input type="color">`) - the user can pick an RGB color, the color is returned as color hex `String` via `@bind`. The value is lowercase and starts with `#`.
@@ -387,11 +379,10 @@ See the [Mozilla docs about `<input type="color">`](https://developer.mozilla.or
 
 `@bind color ColorStringPicker(default="#aabbcc")`
 """
-Base.@kwdef struct ColorStringPicker
+Base.@kwdef struct ColorStringPicker <: AbstractUIElement{String}
     default::String="#000000"
 end
 
 function show(io::IO, ::MIME"text/html", colorStringPicker::ColorStringPicker)
     withtag(() -> (), io, :input, :type=>"color", :value=>colorStringPicker.default)
 end
-get(colorStringPicker::ColorStringPicker) = colorStringPicker.default

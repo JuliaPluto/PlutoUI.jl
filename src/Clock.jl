@@ -1,6 +1,6 @@
 export Clock
 
-struct Clock
+struct Clock <: AbstractUIElement{Int64}
 	interval::Real
 	fixed::Bool
 	start_running::Bool
@@ -14,7 +14,7 @@ function show(io::IO, ::MIME"text/html", clock::Clock)
 	cz = read(joinpath(PKG_ROOT_DIR, "assets", "clock_zoof.svg"), String)
 	js = read(joinpath(PKG_ROOT_DIR, "assets", "clock.js"), String)
 	css = read(joinpath(PKG_ROOT_DIR, "assets", "clock.css"), String)
-	
+
 	result = """
 	<clock class='$(clock.fixed ? " fixed" : "")$(clock.start_running ? "" : " stopped")'>
 		<analog>
