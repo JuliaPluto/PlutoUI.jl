@@ -386,3 +386,22 @@ end
 function show(io::IO, ::MIME"text/html", colorStringPicker::ColorStringPicker)
     withtag(() -> (), io, :input, :type=>"color", :value=>colorStringPicker.default)
 end
+
+function show(io::IO, mime::MIME"text/html", elements::AbstractArray{<:AbstractUIElement})
+    if length(elements) == 1
+        show(io,mime,elements...)
+        return
+    end
+    print(io,"<table>")
+    for r = eachrow(elements)
+        print(io,"<tr>")
+        for e in r
+            print(io,"<td>")
+            show(io,mime,e)
+            print(io,"</td>")
+        end
+        print(io,"</tr>")
+    end
+end
+
+get(elements::AbstractArray{<:AbstractUIElement}) = get.(elements)
