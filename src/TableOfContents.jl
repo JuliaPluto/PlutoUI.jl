@@ -32,11 +32,6 @@ function Base.show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :script) do
         print(io, """
-
-            if (document.getElementById("toc") !== null){
-                return html`<div>TableOfContents already added. Cannot add another.</div>`
-            }
-
             const getParentCellId = el => {
                 // Traverse up the DOM tree until you reach a pluto-cell
                 while (el.nodeName != 'PLUTO-CELL') {
@@ -64,14 +59,6 @@ function Base.show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 )
             ).map(el => el.id)
             
-            const isSelf = el => {
-                try {
-                    return el.childNodes[1].id === "toc"
-                } catch {                    
-                }
-                return false
-            }            
-
             const getHeaders = () => {
                 const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
                 const range = Array.from({length: depth}, (x, i) => i+1) // [1, ... depth]
@@ -97,22 +84,27 @@ function Base.show(io::IO, ::MIME"text/html", toc::TableOfContents)
                                                 > \${h.innerText}</a>
                                         </div>`).join('')}`
 
-            const updateCallback = e => {
-                if (isSelf(e.detail.cell_id)) return
-                document.getElementById('toc-content').innerHTML = render(getHeaders())                
-            }
-
-            window.addEventListener('cell_output_changed', updateCallback)
 
             const tocClass = '$(toc.aside ? "toc-aside" : "")'
-            return html`<div class=\${tocClass} id="toc">
-                            <div class="markdown">
-                                <p class="toc-title">$(toc.title)</p>
-                                <div class="toc-content" id="toc-content">
-                                        \${render(getHeaders())}
-                                </div>
-                            </div>
-                        </div>`
+
+            const tocContentNode = html`<div class="toc-content" id="toc-content"></div>`
+            const tocNode = html`<div class=\${tocClass} id="toc">
+                <div class="markdown">
+                    <p class="toc-title">$(toc.title)</p>
+                    \${tocContentNode}
+                </div>
+            </div>`
+            const updateCallback = e => {
+                tocContentNode.innerHTML = render(getHeaders())                
+            }
+            updateCallback()
+
+            window.addEventListener('cell_output_changed', updateCallback)
+            invalidation.then(() => {
+                window.removeEventListener('cell_output_changed', updateCallback)
+            })
+
+            return tocNode
         """)
     end
 
