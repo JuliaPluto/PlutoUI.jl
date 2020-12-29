@@ -2,6 +2,7 @@ export TableOfContents
 
 """Generate Table of Contents using Markdown cells. Headers h1-h6 are used. 
 
+# Keyword arguments:
 `title` header to this element, defaults to "Table of Contents"
 
 `indent` flag indicating whether to vertically align elements by hierarchy
@@ -12,26 +13,22 @@ export TableOfContents
 
 # Examples:
 
-`TableOfContents()`
+```julia
+TableOfContents()
 
-`TableOfContents("Experiments 🔬")`
+TableOfContents(title="Experiments 🔬")
 
-`TableOfContents("📚 Table of Contents", true, 4, true)`
+TableOfContents(title="📚 Table of Contents", indent=true, depth=4, aside=true)
+```
 """
-struct TableOfContents
-    title::AbstractString
-    indent::Bool
-    depth::Int
-    aside::Bool
+Base.@kwdef struct TableOfContents
+    title::AbstractString="Table of Contents"
+    indent::Bool=true
+    depth::Integer=3
+    aside::Bool=true
 end
-TableOfContents(title::AbstractString; indent::Bool=true, depth::Int=3, aside::Bool=true) = TableOfContents(title, indent, depth, aside)
-TableOfContents() = TableOfContents("Table of Contents", true, 3, true)
 
-function show(io::IO, ::MIME"text/html", toc::TableOfContents)
-
-    if toc.title === nothing || toc.title === missing 
-        toc.title = ""
-    end
+function Base.show(io::IO, ::MIME"text/html", toc::TableOfContents)
 
     withtag(io, :script) do
         print(io, """
@@ -188,5 +185,3 @@ function show(io::IO, ::MIME"text/html", toc::TableOfContents)
             """)
     end
 end
-
-get(toc::TableOfContents) = toc.default
