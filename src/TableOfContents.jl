@@ -99,16 +99,45 @@ function Base.show(io::IO, ::MIME"text/html", toc::TableOfContents)
             }
             updateCallback()
 
+            const observers = {
+                current: [],
+            }
+
+            const notebook = document.querySelector("pluto-notebook")
+            const createCellObservers = () => {
+                observers.current.forEach((o) => o.disconnect())
+                observers.current = Array.from(notebook.querySelectorAll("pluto-cell")).map(el => {
+                    const o = new MutationObserver(updateCallback)
+                    o.observe(el, {attributeFilter: ["class"]})
+                    return o
+                })
+            }
+            const notebookObserver = new MutationObserver(createCellObservers)
+            notebookObserver.observe(notebook, {childList: true})
+            
+            createCellObservers()
+
+            invalidation.then(() => {
+                notebookObserver.disconnect()
+                observers.current.forEach((o) => o.disconnect())
+            })
+            /*const observer = new MutationObserver(updateCallback)
+
+            observer.observe(document.querySelector("pluto-notebook"), {
+                subtree: true,
+                attributeFilter: ["class"],
+            })*/
+            /*
             window.addEventListener('cell_output_changed', updateCallback)
             invalidation.then(() => {
                 window.removeEventListener('cell_output_changed', updateCallback)
-            })
+            })*/
 
             return tocNode
         """)
     end
 
-    withtag(io, :style) do        
+    withtag(io, :style) do
         print(io, """
             @media screen and (min-width: 1081px) {
                 .toc-aside {
