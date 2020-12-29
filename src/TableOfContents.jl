@@ -121,18 +121,7 @@ function Base.show(io::IO, ::MIME"text/html", toc::TableOfContents)
                 notebookObserver.disconnect()
                 observers.current.forEach((o) => o.disconnect())
             })
-            /*const observer = new MutationObserver(updateCallback)
-
-            observer.observe(document.querySelector("pluto-notebook"), {
-                subtree: true,
-                attributeFilter: ["class"],
-            })*/
-            /*
-            window.addEventListener('cell_output_changed', updateCallback)
-            invalidation.then(() => {
-                window.removeEventListener('cell_output_changed', updateCallback)
-            })*/
-
+            
             return tocNode
         """)
     end
