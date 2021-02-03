@@ -13,4 +13,10 @@ include("./TableOfContents.jl")
 include("./RangeSlider.jl")
 include("./DisplayTricks.jl")
 
+module ScrubbableNotebook
+    include("./Scrubbable.jl")
+end
+import .ScrubbableNotebook: Scrubbable
+export Scrubbable
+
 end
