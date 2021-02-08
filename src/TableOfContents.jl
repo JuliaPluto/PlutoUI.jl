@@ -131,6 +131,7 @@ const toc_css = """
 		max-height: 500px;
 		overflow: auto;
 		z-index: 5;
+		background: white;
 	}
 }
 
