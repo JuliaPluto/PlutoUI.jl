@@ -144,7 +144,8 @@ const toc_css = """
 		border: 3px solid rgba(0, 0, 0, 0.15);
 		border-radius: 10px;
 		box-shadow: 0 0 11px 0px #00000010;
-		max-height: 500px;
+		/* That is, viewport minus top minus Live Docs */
+		max-height: calc(100vh - 5rem - 56px);
 		overflow: auto;
 		z-index: 5;
 		background: white;
