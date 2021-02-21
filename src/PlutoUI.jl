@@ -12,6 +12,7 @@ include("./Terminal.jl")
 include("./TableOfContents.jl")
 include("./RangeSlider.jl")
 include("./DisplayTricks.jl")
+include("./MultiCheckBox.jl")
 
 module ScrubbableNotebook
     include("./Scrubbable.jl")
