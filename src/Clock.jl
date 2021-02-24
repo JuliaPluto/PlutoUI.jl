@@ -38,9 +38,9 @@ begin
 	end
 	
 	# for backwards compat
-	Clock(interval=1, fixed=false, start_running=false) = Clock(interval, fixed, start_running, nothing)
-	
 	Clock(interval; kwargs...) = Clock(interval=interval; kwargs...)
+
+	Clock(interval, fixed, start_running=false) = Clock(interval, fixed, start_running, nothing)
 	
 	function Base.show(io::IO, ::MIME"text/html", clock::Clock)
 	    # We split the HTML string into multiple files, but you could also write all of this into a single (long) string 🎈
