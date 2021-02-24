@@ -1,15 +1,19 @@
 // const clock = this.querySelector("clock")
-const clock = (currentScript ? currentScript : this.currentScript).previousElementSibling
+const clock = (currentScript ?? this.currentScript).previousElementSibling
 const tpsInput = clock.querySelector("input")
-const analogfront = clock.querySelector("analog front")
-const analogzoof = clock.querySelector("analog zoof")
+const analogfront = clock.querySelector("plutoui-analog plutoui-front")
+const analogzoof = clock.querySelector("plutoui-analog plutoui-zoof")
 const unit = clock.querySelector("span#unit")
 const button = clock.querySelector("button")
 
+const max_value = +clock.dataset.maxValue
+
 var t = 1
+var starttime = null
+var dt = 1
 
 tpsInput.oninput = (e) => {
-    var dt = tpsInput.valueAsNumber
+    dt = tpsInput.valueAsNumber
     if (clock.classList.contains("inverted")) {
         dt = 1.0 / dt
     }
@@ -21,15 +25,27 @@ tpsInput.oninput = (e) => {
 tpsInput.oninput()
 
 analogfront.onanimationiteration = (e) => {
-    t++
-    clock.value = t
-    clock.dispatchEvent(new CustomEvent("input"))
+    if (!clock.classList.contains("stopped")) {
+        const running_time = (Date.now() - starttime) / 1000
+        t = Math.max(t + 1, Math.floor(running_time / dt))
+        if (!isNaN(max_value)) {
+            t = Math.min(t, max_value)
+        }
+        clock.value = t
+        clock.dispatchEvent(new CustomEvent("input"))
+    }
+
+    if (t >= max_value) {
+        clock.classList.add("stopped")
+        t = 0
+    }
 }
 unit.onclick = (e) => {
     clock.classList.toggle("inverted")
     tpsInput.oninput()
 }
 button.onclick = (e) => {
+    starttime = Date.now()
     clock.classList.toggle("stopped")
     if (!clock.classList.contains("stopped")) {
         t = 1 - 1
