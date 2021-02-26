@@ -114,6 +114,14 @@ import JSON
 DownloadButton(JSON.json(Dict("name" => "merlijn", "can_cook" => true)), "staff.json")
 ```
 
+If you want to make a **local file** available for download, you need to `read` the file's data:
+```julia
+let
+    filename = "/Users/fonsi/Documents/mydata.csv"
+    DownloadButton(read(filename), basename(filename))
+end
+```
+
 """
 struct DownloadButton
     data
