@@ -4,13 +4,12 @@
 
 export as_mime
 
-struct AsMIME
-    mime::MIME
+struct AsMIME{M <: MIME}
+    mime::M
     x::Any
 end
 
-Base.showable(m::MIME, am::AsMIME) = m == am.mime
-Base.show(io::IO, m::MIME, am::AsMIME) = Base.show(io, m, am.x)
+Base.show(io::IO, m::M, am::AsMIME{M}) where M <: MIME = Base.show(io, m, am.x)
 
 function as_mime(m::MIME)
     x -> as_mime(m, x)
@@ -76,13 +75,12 @@ repr(MIME"text/latex"(), s) == "\\\\frac{hello}{world}"
 ```
 
 """
-struct Show
-    mime::MIME
+struct Show{M <: MIME}
+    mime::M
     data
 end
 
-Base.showable(m::MIME, x::Show) = x.mime == m
-Base.show(io::IO, ::MIME, x::Show) = write(io, x.data)
+Base.show(io::IO, ::M, x::Show{M}) where M <: MIME = write(io, x.data)
 
 
 """
@@ -116,18 +114,20 @@ large_df = DataFrame(rand(100,100))
 WithIOContext(large_df, :displaysize => (9999,9999))
 ```
 """
-struct WithIOContext
-    x
-    context_properties
-    WithIOContext(x, props::Pair...; moreprops...) = new(x, [props..., moreprops...])
+struct WithIOContext{T}
+    x::T
+    context::IOContext{Base.DevNull}
+    WithIOContext(x::T, props::Pair...; moreprops...) where T = new{T}(x, IOContext(devnull, props..., moreprops...))
 end
 
+Base.:(==)(w1::WithIOContext, w2::WithIOContext) = w1.x == w2.x && w1.context == w2.context
+
 function Base.show(io::IO, m::MIME, w::WithIOContext)
-	Base.show(IOContext(io, w.context_properties...), m, w.x)
+	Base.show(IOContext(io, w.context), m, w.x)
 end
 # we need to add a more specific method for text/plain because Julia base has a fallback method here
 function Base.show(io::IO, m::MIME"text/plain", w::WithIOContext)
-	Base.show(IOContext(io, w.context_properties...), m, w.x)
+	Base.show(IOContext(io, w.context), m, w.x)
 end
 
 Base.showable(m::MIME, w::WithIOContext) = Base.showable(m, w.x)
