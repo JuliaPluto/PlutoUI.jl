@@ -43,11 +43,17 @@ This is a variant of [`Base.dump`](@ref) that returns the representation directl
 
 See also: [`Print`](@ref) and [`with_terminal`](@ref).
 """
-function Dump(x; maxdepth=8)
-	sprint() do io
-		dump(io, x; maxdepth=maxdepth)
-	end |> Text
+struct Dump
+    x::Any
+    maxdepth::Integer
 end
+
+Dump(x; maxdepth=8) = Dump(x, maxdepth)
+
+function Base.show(io::IO, ::MIME"text/plain", d::Dump)
+    dump(io, d.x; maxdepth=d.maxdepth)
+end
+
 
 """
     Show(mime::MIME, data)
