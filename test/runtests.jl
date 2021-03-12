@@ -1,6 +1,9 @@
 using PlutoUI
 using Test
 
+# has to be outside of the begin block for julia 1.0 compat
+struct Uhm end
+
 
 @testset "DisplayTricks" begin
     
@@ -51,7 +54,6 @@ using Test
     @test repr(MIME"text/plain"(), WithIOContext(1.345234523452, compact=false)) == "1.345234523452"
     
 
-    struct Uhm end
     m = MIME"hello"()
     Base.istextmime(::MIME"hello") = true
 
