@@ -14,7 +14,7 @@ macro bind(def, element)
 end
 
 # ╔═╡ 34012b14-d597-4b9d-b23d-66b638e4c282
-using Markdown: htmlesc
+using JSON: escape_string
 
 # ╔═╡ a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 md"""
@@ -29,7 +29,7 @@ md"""
 # ╔═╡ 144bff17-30eb-458a-8e94-33e1f11edbeb
 "Convert a Julia array to a JS array in string form."
 function jsarray_string(a::AbstractVector{T}) where {T <: AbstractString}
-	string("[\"", join(map(htmlesc, a), "\",\""), "\"]")
+	string("[\"", join(map(escape_string, a), "\",\""), "\"]")
 end
 
 # ╔═╡ 91a08b98-52b5-4a2a-8180-7cba6d7232cd
