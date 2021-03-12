@@ -12,8 +12,10 @@ include("./Resource.jl")
 include("./Terminal.jl")
 include("./RangeSlider.jl")
 include("./DisplayTricks.jl")
-include("./MultiCheckBox.jl")
 
+@reexport module MultiCheckBoxNotebook
+    include("./MultiCheckBox.jl")
+end
 @reexport module TableOfContentsNotebook
     include("./TableOfContents.jl")
 end
