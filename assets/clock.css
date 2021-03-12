@@ -1,14 +1,14 @@
-clock {
+plutoui-clock {
     display: flex;
     flex-direction: row;
 }
 
-clock>* {
+plutoui-clock > * {
     align-self: center;
-    margin-right: .3rem;
+    margin-right: 0.3rem;
 }
 
-analog {
+plutoui-analog {
     display: block;
     position: relative;
     overflow: hidden;
@@ -16,71 +16,71 @@ analog {
     height: 20px;
 }
 
-analog>* {
+plutoui-analog > * {
     display: block;
     width: 100%;
     height: 100%;
 }
 
-analog>*>svg {
+plutoui-analog > * > svg {
     width: 100%;
     height: 100%;
 }
 
-clock analog front,
-clock analog zoof {
+plutoui-clock plutoui-analog plutoui-front,
+plutoui-clock plutoui-analog plutoui-zoof {
     position: absolute;
     left: 0;
     top: 0;
     animation: 1s linear 🔁 infinite;
 }
 
-clock.stopped analog front {
+plutoui-clock.stopped plutoui-analog plutoui-front {
     animation-play-state: paused;
 }
 
-clock.stopped analog zoof {
+plutoui-clock.stopped plutoui-analog plutoui-zoof {
     display: none;
 }
 
-clock input {
+plutoui-clock input {
     width: 3rem;
 }
 
-clock span {
+plutoui-clock span {
     font-family: "Roboto Mono", monospace;
-    font-size: .75rem;
-    word-spacing: -.2rem;
+    font-size: 0.75rem;
+    word-spacing: -0.2rem;
 }
 
-clock span#unit {
+plutoui-clock span#unit {
     font-style: italic;
     cursor: pointer;
 }
 
-clock span#unit::after {
+plutoui-clock span#unit::after {
     content: "secs / tick";
 }
 
-clock.inverted span#unit::after {
+plutoui-clock.inverted span#unit::after {
     content: "ticks / sec";
 }
 
-clock button {
+plutoui-clock button {
     margin-left: 1rem;
     margin-right: 1rem;
 }
 
-clock button::after {
+plutoui-clock button::after {
     content: "Stop";
 }
 
-clock.stopped button::after {
+plutoui-clock.stopped button::after {
     content: "Start";
 }
 
-clock.fixed span,
-clock.fixed input {
+plutoui-clock.fixed span,
+plutoui-clock.fixed input {
     display: none;
 }
 
