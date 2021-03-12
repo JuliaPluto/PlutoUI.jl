@@ -34,7 +34,7 @@ begin
 		start_running::Bool = false
 		max_value::Union{Int64,Nothing} = nothing
 		
-		Clock(interval, fixed, start_running, max_value) = interval >= 0 ? new(interval, fixed, start_running, max_value) : error("interval must be non-negative")
+		# Clock(interval, fixed, start_running, max_value) = interval >= 0 ? new(interval, fixed, start_running, max_value) : error("interval must be non-negative")
 	end
 	
 	# for backwards compat
@@ -43,6 +43,7 @@ begin
 	Clock(interval, fixed, start_running=false) = Clock(interval, fixed, start_running, nothing)
 	
 	function Base.show(io::IO, ::MIME"text/html", clock::Clock)
+		interval < 0 && error("interval must be non-negative")
 	    # We split the HTML string into multiple files, but you could also write all of this into a single (long) string 🎈
 		cb = read(joinpath(@__DIR__, "..", "assets", "clock_back.svg"), String)
 		cf = read(joinpath(@__DIR__, "..", "assets", "clock_front.svg"), String)
