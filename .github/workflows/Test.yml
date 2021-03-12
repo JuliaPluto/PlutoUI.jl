@@ -1,0 +1,31 @@
+name: Julia tests
+
+on:
+    workflow_dispatch:
+    push:
+        paths-ignore:
+            - "**.md"
+    pull_request:
+        paths-ignore:
+            - "**.md"
+
+jobs:
+    test:
+        runs-on: ${{ matrix.os }}
+        # Uncomment if you want to see all results for all OSses. Otherwise, the first failed test cancels all others
+        # continue-on-error: true
+        strategy:
+            matrix:
+                julia-version: ["1.0", "1.6"]
+                os: [ubuntu-latest]
+                
+
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@v2
+
+            - uses: julia-actions/setup-julia@v1
+              with:
+                  version: ${{ matrix.julia-version }}
+
+            - uses: julia-actions/julia-runtest@v1
