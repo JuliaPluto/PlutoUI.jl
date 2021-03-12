@@ -115,7 +115,7 @@ Clock()
 @assert try
 	
 	# this should error:
-	Clock(-5)
+	repr(MIME"text/html"(), Clock(-5))
 	
 	false
 catch
