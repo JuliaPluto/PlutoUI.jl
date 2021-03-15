@@ -81,3 +81,9 @@ function with_terminal(f::Function, args...; kwargs...)
   end
 	WithTerminalOutput(spam_out, spam_err, value)
 end
+
+macro with_terminal(arg)
+    quote
+        with_terminal() do; $arg; end 
+    end
+end
