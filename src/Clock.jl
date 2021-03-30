@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.20
+# v0.14.0
 
 using Markdown
 using InteractiveUtils
@@ -43,7 +43,7 @@ begin
 	Clock(interval, fixed, start_running=false) = Clock(interval, fixed, start_running, nothing)
 	
 	function Base.show(io::IO, ::MIME"text/html", clock::Clock)
-		interval < 0 && error("interval must be non-negative")
+		clock.interval < 0 && error("interval must be non-negative")
 	    # We split the HTML string into multiple files, but you could also write all of this into a single (long) string 🎈
 		cb = read(joinpath(@__DIR__, "..", "assets", "clock_back.svg"), String)
 		cf = read(joinpath(@__DIR__, "..", "assets", "clock_front.svg"), String)
