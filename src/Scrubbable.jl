@@ -281,6 +281,7 @@ begin
 			}
 
 			const onpointerdown = (e) => {
+				window.getSelection().empty()
 				old_x = e.clientX
 				old_index = current_index
 				window.addEventListener("pointermove", onScrub)
