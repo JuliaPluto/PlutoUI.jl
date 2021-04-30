@@ -1,10 +1,12 @@
 const container = (currentScript ? currentScript : this.currentScript)
   .previousElementSibling;
 
+const my_id = crypto.getRandomValues(new Uint32Array(1))[0].toString(36)
+
 // Add checkboxes
 const inputEls = [];
 for (let i = 0; i < labels.length; i++) {
-  const boxId = `box-${i}`;
+  const boxId = `${my_id}-box-${i}`;
 
   const item = document.createElement("div");
   item.classList.add("multicheckbox");
@@ -40,17 +42,19 @@ if (includeSelectAll) {
   // Add select-all checkbox.
   const selectAllItem = document.createElement("div");
   selectAllItem.classList.add("multicheckbox");
-  selectAllItem.classList.add("select-all");
+  selectAllItem.classList.add(`select-all`);
 
+  const selectID = `${my_id}-select-all`
+  
   const selectAllInput = document.createElement("input");
   selectAllInput.classList.add("multicheckbox");
   selectAllInput.type = "checkbox";
-  selectAllInput.id = "select-all";
+  selectAllInput.id = selectID;
   selectAllItem.appendChild(selectAllInput);
 
   const selectAllLabel = document.createElement("label");
   selectAllLabel.classList.add("multicheckbox");
-  selectAllLabel.htmlFor = "select-all";
+  selectAllLabel.htmlFor = selectID;
   selectAllLabel.innerText = "Select All";
   selectAllItem.appendChild(selectAllLabel);
 
