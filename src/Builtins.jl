@@ -188,11 +188,11 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 
 `@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`"""
 struct Select
-    options::Array{Pair{<:AbstractString,<:Any},1}
+    options::Vector{Pair{<:AbstractString,<:Any}}
     default::Union{Missing, AbstractString}
 end
-Select(options::Array{<:AbstractString,1}; default=missing) = Select([o => o for o in options], default)
-Select(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Select(options, default)
+Select(options::AbstractVector{<:AbstractString}; default=missing) = Select([o => o for o in options], default)
+Select(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing) = Select(options, default)
 
 function show(io::IO, ::MIME"text/html", select::Select)
     withtag(io, :select) do
@@ -226,11 +226,11 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 
 `@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`"""
 struct MultiSelect
-    options::Array{Pair{<:AbstractString,<:Any},1}
+    options::Vector{Pair{<:AbstractString,<:Any}}
     default::Union{Missing, AbstractVector{AbstractString}}
 end
-MultiSelect(options::Array{<:AbstractString,1}; default=missing) = MultiSelect([o => o for o in options], default)
-MultiSelect(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = MultiSelect(options, default)
+MultiSelect(options::AbstractVector{<:AbstractString}; default=missing) = MultiSelect([o => o for o in options], default)
+MultiSelect(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing) = MultiSelect(options, default)
 
 function show(io::IO, ::MIME"text/html", select::MultiSelect)
     withtag(io, Symbol("select multiple")) do
@@ -293,11 +293,11 @@ get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
 
 """
 struct Radio
-    options::Array{Pair{<:AbstractString,<:Any},1}
+    options::Vector{Pair{<:AbstractString,<:Any}}
     default::Union{Missing, AbstractString}
 end
-Radio(options::Array{<:AbstractString,1}; default=missing) = Radio([o => o for o in options], default)
-Radio(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=missing) = Radio(options, default)
+Radio(options::AbstractVector{<:AbstractString}; default=missing) = Radio([o => o for o in options], default)
+Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing) = Radio(options, default)
 
 function show(io::IO, ::MIME"text/html", radio::Radio)
     groupname = randstring('a':'z')
