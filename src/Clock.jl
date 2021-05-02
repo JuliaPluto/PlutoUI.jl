@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.0
+# v0.14.4
 
 using Markdown
 using InteractiveUtils
@@ -42,14 +42,15 @@ begin
 
 	Clock(interval, fixed, start_running=false) = Clock(interval, fixed, start_running, nothing)
 	
+	# We split the HTML string into multiple files, but you could also write all of this into a single (long) string 🎈
+	const cb = read(joinpath(@__DIR__, "..", "assets", "clock_back.svg"), String)
+	const cf = read(joinpath(@__DIR__, "..", "assets", "clock_front.svg"), String)
+	const cz = read(joinpath(@__DIR__, "..", "assets", "clock_zoof.svg"), String)
+	const js = read(joinpath(@__DIR__, "..", "assets", "clock.js"), String)
+	const css = read(joinpath(@__DIR__, "..", "assets", "clock.css"), String)
+	
 	function Base.show(io::IO, ::MIME"text/html", clock::Clock)
 		clock.interval < 0 && error("interval must be non-negative")
-	    # We split the HTML string into multiple files, but you could also write all of this into a single (long) string 🎈
-		cb = read(joinpath(@__DIR__, "..", "assets", "clock_back.svg"), String)
-		cf = read(joinpath(@__DIR__, "..", "assets", "clock_front.svg"), String)
-		cz = read(joinpath(@__DIR__, "..", "assets", "clock_zoof.svg"), String)
-		js = read(joinpath(@__DIR__, "..", "assets", "clock.js"), String)
-		css = read(joinpath(@__DIR__, "..", "assets", "clock.css"), String)
 		
 		result = """
 		<plutoui-clock class='$(clock.fixed ? " fixed" : "")$(clock.start_running ? "" : " stopped")' data-max-value=$(repr(clock.max_value))>
