@@ -5,7 +5,7 @@ export CSSWidgetWrapper
 
 Modify the style properties of the first HTML node for the given widget. 
 
-# Example:
+# Examples
 Generate a text field with a red background and white text.
 ```
 CSSWidgetWrapper(Textfield(),Dict("backgroundColor"=>"red","color"=>"white"))
