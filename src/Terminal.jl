@@ -31,7 +31,7 @@ div.PlutoUI_terminal {
     max-height: 300px;
     overflow: auto;
 }
-div.PlutoUI_terminal pre {
+pluto-output div.PlutoUI_terminal pre:not(.no-block) {
     color: #ddd;
     background-color: transparent;
     margin-block-end: 0;
