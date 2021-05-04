@@ -36,7 +36,6 @@ function show(io::IO, m::MIME"text/html", w::CSSWidgetWrapper)
         
         function setValue() {
             container.value = widget.value
-            container.dispatchEvent(new CustomEvent('input'))
         }        
 
         setValue()
