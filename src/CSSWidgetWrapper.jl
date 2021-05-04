@@ -23,27 +23,14 @@ end
 Output the html needed to wrap a widget and apply changes via javascript.
 """
 function show(io::IO, m::MIME"text/html", w::CSSWidgetWrapper)
-    style = ""
-    for (k,v) in w.style
-        style *= "widget.style.$k = '$v';\n"
-    end
+    style = join(["widget.style.$k = '$v';" for (k,v) in w.style],"\n")
     
     result = """
         <script>
-        var container = currentScript.parentElement
-        var widget = container.children[0]
-        $style
-        
-        function setValue() {
-            container.value = widget.value
-        }        
-
-        setValue()
-        widget.addEventListener('input',setValue)
+        var widget = currentScript.parentElement.firstElementChild
+        $style    
         </script>
-    </div>
     """
-    print(io,"<div>")
     show(io,m,w.widget)
     print(io,result)
 end
