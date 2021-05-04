@@ -22,7 +22,6 @@ end
 
 function show(io::IO, m::MIME"text/html", w::CSSWidgetWrapper)
     style = join(["widget.style.$k = '$v';" for (k,v) in w.style],"\n")
-    
     script = """
         <script>
         var widget = currentScript.parentElement.firstElementChild
