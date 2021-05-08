@@ -227,7 +227,7 @@ begin
 	Base.@kwdef struct Sidebar
 		initial_expanded::Bool=true
 	end
-	push!(::Sidebar, x) = SidebarItem(x)  # TODO: is this what we want?
+	Base.push!(::Sidebar, x) = SidebarItem(x)  # TODO: is this what we want?
 	function Base.show(io::IO, ::MIME"text/html", sidebar::Sidebar)
 		withtag(io, :script) do
 			print(io, sidebar_js(sidebar))
