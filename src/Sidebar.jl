@@ -65,7 +65,7 @@ const render = (el) => html`\${el.map(h => {
 const initial_expanded = $(sidebar.initial_expanded)
 const sidebarNode = html`<aside class="plutoui-sidebar"
 								aria-expanded="\${initial_expanded}">
-	<button>Toggle</button>
+	<button></button>
 	<div></div>
 </aside>`
 sidebarNode.querySelector("button").addEventListener("click", function(e) {
@@ -135,8 +135,48 @@ return sidebarNode
 
 # ╔═╡ 0f02965c-e014-4d18-aef5-e34d39b78682
 const sidebar_css = """
+.plutoui-sidebar button {
+	display: none;
+
+	border: none;
+	border-radius: 50%;
+	background-color: white;
+
+	/* Almost the same as <https://github.com/fonsp/Pluto.jl/blob/099f40a402de7215e1092ea740237082755a9d8a/frontend/binder.css#L158-L165> */
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background-size: 24px 24px;
+    cursor: pointer;
+    background-image: url(https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.0.0/src/svg/close-outline.svg);
+}
+
 @media screen and (min-width: 1666px) {
+	.plutoui-sidebar button {
+		display: inline-block;
+	}
+
+	.plutoui-sidebar[aria-expanded="false"] button {
+    	position: fixed;
+		/* Sidebar top plus desired top position */
+		top: calc(5rem + 12px);
+		/* Sidebar left plus desired left position */
+	    left: calc(1rem + 12px);
+
+		padding: 12px;
+		border: 3px solid rgba(0, 0, 0, 0.15);
+		box-shadow: 0 0 11px 0px #00000010;
+
+		background-image: url(https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.0.0/src/svg/chevron-forward-outline.svg);
+	}
+
 	.plutoui-sidebar {
+		transition: linear 0.1s;
+		min-height: 56px;
+
+		/* Almost the same as <https://github.com/fonsp/PlutoUI.jl/blob/ed3b84ed86cbbe20bb018a19ff88c4ef6f3dc8fc/src/TableOfContents.jl#L139-L151> */
 		position: fixed;
 		left: 1rem;
 		top: 5rem;
@@ -151,25 +191,23 @@ const sidebar_css = """
 		z-index: 50;
 		background: white;
 	}
+
 	.plutoui-sidebar[aria-expanded="false"] {
 		width: 0;
+		margin-left: 0;
+
 		padding: 0;
 		border: none;
 	}
-	.plutoui-sidebar button {
-		position: fixed;
-		top: 1rem;
-		left: 1rem;
-	}
 }
 
+/* Almost the same as <https://github.com/fonsp/PlutoUI.jl/blob/ed3b84ed86cbbe20bb018a19ff88c4ef6f3dc8fc/src/TableOfContents.jl#L166-L176> */
 .plutoui-sidebar div .sidebar-row {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	padding-bottom: 2px;
 }
-
 .highlight-pluto-cell-shoulder {
 	background: rgba(0, 0, 0, 0.05);
 	background-clip: padding-box;
