@@ -56,13 +56,22 @@ const getItems = () => {
 const render = (el) => html`\${el.map(h => {
 	// TODO: highlight parentCell on hover
 
+	// Mark item as placed, so we don't do it twice
 	h.classList.add("sidebar-placed")
+
 	return html`<div class="sidebar-row">\${h}</div>`
 })}`
 
-const sidebarNode = html`<aside class="plutoui-sidebar">
+const initial_expanded = $(sidebar.initial_expanded)
+const sidebarNode = html`<aside class="plutoui-sidebar"
+								aria-expanded="\${initial_expanded}">
+	<button>Toggle</button>
 	<div></div>
 </aside>`
+sidebarNode.querySelector("button").addEventListener("click", function(e) {
+	let expanded = sidebarNode.getAttribute("aria-expanded")
+	sidebarNode.setAttribute("aria-expanded", expanded == "true" ? "false" : "true")
+})
 
 // Dictionary relating sidebar items (nodes) and cell ids
 const sidebarItems = {
@@ -128,10 +137,10 @@ return sidebarNode
 const sidebar_css = """
 @media screen and (min-width: 1666px) {
 	.plutoui-sidebar {
-		position:fixed;
+		position: fixed;
 		left: 1rem;
 		top: 5rem;
-		width:25%;
+		width: 25%;
 		padding: 10px;
 		border: 3px solid rgba(0, 0, 0, 0.15);
 		border-radius: 10px;
@@ -141,6 +150,16 @@ const sidebar_css = """
 		overflow: auto;
 		z-index: 50;
 		background: white;
+	}
+	.plutoui-sidebar[aria-expanded="false"] {
+		width: 0;
+		padding: 0;
+		border: none;
+	}
+	.plutoui-sidebar button {
+		position: fixed;
+		top: 1rem;
+		left: 1rem;
 	}
 }
 
@@ -167,7 +186,9 @@ begin
 	Sidebar()
 	```
 	"""
-	struct Sidebar end
+	Base.@kwdef struct Sidebar
+		initial_expanded::Bool=true
+	end
 	push!(::Sidebar, x) = SidebarItem(x)  # TODO: is this what we want?
 	function Base.show(io::IO, ::MIME"text/html", sidebar::Sidebar)
 		withtag(io, :script) do
