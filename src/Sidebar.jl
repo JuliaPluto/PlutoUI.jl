@@ -54,7 +54,6 @@ const getItems = () => {
 }
 
 const render = (el) => html`\${el.map(h => {
-	// TODO: highlight parentCell on hover
 
 	// Mark item as placed, so we don't do it twice
 	h.classList.add("sidebar-placed")
@@ -89,6 +88,7 @@ const updateCallback = () => {
 	let items = render(Object.keys(sidebarItems.current).map((key) => {
 		return sidebarItems.current[key]
 	}))
+
 	sidebarNode.querySelector("div").replaceWith(
 		html`<div>\${items}</div>`
 	)
@@ -106,7 +106,7 @@ const createCellObservers = () => {
 	observers.current.forEach((o) => o.disconnect())
 	observers.current = Array.from(notebook.querySelectorAll("pluto-cell")).map(el => {
 		const o = new MutationObserver(updateCallback)
-		o.observe(el, {attributeFilter: ["class"]})
+		o.observe(el, {childList: true, attributeFilter: ["class"]})
 		return o
 	})
 }
@@ -117,12 +117,12 @@ const notebookObserver = new MutationObserver(() => {
 	updateCallback()
 	createCellObservers()
 })
-notebookObserver.observe(notebook, {childList: true})
+notebookObserver.observe(notebook, {childList: true, attributeFilter: ["class"]})
 
 // And finally, an observer for the document.body classList, to make sure that the
 // sidebar also works when it is loaded during notebook initialization.
 const bodyClassObserver = new MutationObserver(updateCallback)
-bodyClassObserver.observe(document.body, {attributeFilter: ["class"]})
+bodyClassObserver.observe(document.body, {childList: true, attributeFilter: ["class"]})
 
 invalidation.then(() => {
 	notebookObserver.disconnect()
