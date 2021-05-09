@@ -1,6 +1,6 @@
 name = "PlutoUI"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-authors = ["Fons van der Plas <fonsvdplas@gmail.com>"]
+authors = ["Fons van der Plas <fons@plutojl.org>"]
 version = "0.7.9"
 
 [deps]
