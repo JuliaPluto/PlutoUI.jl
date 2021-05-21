@@ -20,7 +20,7 @@ Slider(range::AbstractRange; default=first(range), show_value=false) = @htl("""
 	
 	<script>
 		let div = currentScript.parentElement
-		var slider = div.querySelector("input")
+		let slider = div.querySelector("input")
 	
 		slider.addEventListener("input", e => {
 			div.value = +slider.value
@@ -30,11 +30,11 @@ Slider(range::AbstractRange; default=first(range), show_value=false) = @htl("""
 		})
 	
 		div.value = $(default)
-		var localVal = div.value
+		let localVal = div.value
 		delete div.value
 		Object.defineProperty(div, "value",
 			{configurable: false,
-    		enumerable: false,
+    			enumerable: false,
 			get: () => {return localVal},
 			set: (newVal) => {
 				slider.value = newVal
