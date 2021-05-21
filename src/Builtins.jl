@@ -3,12 +3,6 @@ import Dates
 
 export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker
 
-struct Slider
-    range::AbstractRange
-    default::Number
-    show_value::Bool
-end
-
 """A Slider on the given `range`.
 
 ## Examples
@@ -19,24 +13,36 @@ end
 `@bind x Slider(1:10; default=8, show_value=true)`
 
 """
-Slider(range::AbstractRange; default=missing, show_value=false) = Slider(range, (default === missing) ? first(range) : default, show_value)
-
-function show(io::IO, ::MIME"text/html", slider::Slider)
-    print(io, """<input 
-        type="range" 
-        min="$(first(slider.range))" 
-        step="$(step(slider.range))" 
-        max="$(last(slider.range))" 
-        value="$(slider.default)"
-        $(slider.show_value ? "oninput=\"this.nextElementSibling.value=this.value\"" : "")
-        >""")
-    
-    if slider.show_value
-        print(io, """<output>$(slider.default)</output>""")
-    end
-end
-
-get(slider::Slider) = slider.default
+Slider(range::AbstractRange; default=first(range), show_value=false) = @htl("""
+<div>
+	<input type="range" min="$(first(range))" max="$(last(range))" step="$(step(range))" value="$(default)">
+	$(HTML(show_value ? "<output>$(default)</output>" : ""))
+	
+	<script>
+		let div = currentScript.parentElement
+		var slider = div.querySelector("input")
+	
+		slider.addEventListener("input", e => {
+			div.value = +slider.value
+			$(JavaScript(show_value ? "div.querySelector(\"output\").value = +slider.value" : ""))
+			div.dispatchEvent(new CustomEvent("input"))
+			e.preventDefault()
+		})
+	
+		div.value = $(default)
+		var localVal = div.value
+		delete div.value
+		Object.defineProperty(div, "value",
+			{configurable: false,
+    		enumerable: false,
+			get: () => {return localVal},
+			set: (newVal) => {
+				slider.value = newVal
+				$(JavaScript(show_value ? "div.querySelector(\"output\").value = +newVal" : ""))
+				localVal = newVal
+			}})
+	</script>
+</div>""")
 
 """A box where you can type in a number, within a specific range.
 
