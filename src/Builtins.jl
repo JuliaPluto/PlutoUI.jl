@@ -3,6 +3,12 @@ import Dates
 
 export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker
 
+struct Slider
+    range::AbstractRange
+    default::Number
+    show_value::Bool
+end
+
 """A Slider on the given `range`.
 
 ## Examples
@@ -13,36 +19,43 @@ export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, 
 `@bind x Slider(1:10; default=8, show_value=true)`
 
 """
-Slider(range::AbstractRange; default=first(range), show_value=false) = @htl("""
-<div>
-	<input type="range" min="$(first(range))" max="$(last(range))" step="$(step(range))" value="$(default)">
-	$(HTML(show_value ? "<output>$(default)</output>" : ""))
-	
-	<script>
-		let div = currentScript.parentElement
-		let slider = div.querySelector("input")
-	
-		slider.addEventListener("input", e => {
-			div.value = +slider.value
-			$(JavaScript(show_value ? "div.querySelector(\"output\").value = +slider.value" : ""))
-			div.dispatchEvent(new CustomEvent("input"))
-			e.preventDefault()
-		})
-	
-		div.value = $(default)
-		let localVal = div.value
-		delete div.value
-		Object.defineProperty(div, "value",
-			{configurable: false,
-    			enumerable: false,
-			get: () => {return localVal},
-			set: (newVal) => {
-				slider.value = newVal
-				$(JavaScript(show_value ? "div.querySelector(\"output\").value = +newVal" : ""))
-				localVal = newVal
-			}})
-	</script>
-</div>""")
+Slider(range::AbstractRange; default=first(range), show_value=false) = Slider(range, default, show_value)
+
+function show(io::IO, mimetype, slider::Slider)
+    range, default, show_value = slider.range, slider.default, slider.show_value
+    show(io, mimetype, @htl("""
+    <span>
+        <input type="range" min="$(first(range))" max="$(last(range))" step="$(step(range))" value="$(default)">
+        $(HTML(show_value ? "<output>$(default)</output>" : ""))
+        
+        <script>
+            let parentnode = currentScript.parentElement
+            let slider = parentnode.querySelector("input")
+        
+            slider.addEventListener("input", e => {
+                parentnode.value = +slider.value
+                $(JavaScript(show_value ? "parentnode.querySelector(\"output\").value = +slider.value" : ""))
+                parentnode.dispatchEvent(new CustomEvent("input"))
+                e.preventDefault()
+            })
+        
+            parentnode.value = $(default)
+            let localVal = parentnode.value
+            delete parentnode.value
+            Object.defineProperty(parentnode, "value",
+                {configurable: false,
+                enumerable: false,
+                get: () => {return localVal},
+                set: (newVal) => {
+                    slider.value = newVal
+                    $(JavaScript(show_value ? "parentnode.querySelector(\"output\").value = +newVal" : ""))
+                    localVal = newVal
+                }})
+        </script>
+    </span>"""))
+end
+
+get(slider::Slider) = slider.default
 
 """A box where you can type in a number, within a specific range.
 
