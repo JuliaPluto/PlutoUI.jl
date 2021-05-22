@@ -21,7 +21,7 @@ end
 """
 Slider(range::AbstractRange; default=first(range), show_value=false) = Slider(range, default, show_value)
 
-function show(io::IO, mimetype, slider::Slider)
+function show(io::IO, mimetype::MIME"text/html", slider::Slider)
     range, default, show_value = slider.range, slider.default, slider.show_value
     show(io, mimetype, @htl("""
     <span>
