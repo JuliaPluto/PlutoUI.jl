@@ -41,7 +41,6 @@ function show(io::IO, mimetype::MIME"text/html", slider::Slider)
         
             parentnode.value = $(default)
             let localVal = parentnode.value
-            delete parentnode.value
             Object.defineProperty(parentnode, "value",
                 {configurable: false,
                 enumerable: false,
