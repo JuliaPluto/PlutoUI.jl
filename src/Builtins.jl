@@ -33,8 +33,8 @@ function show(io::IO, mimetype::MIME"text/html", slider::Slider)
             let slider = parentnode.querySelector("input")
         
             slider.addEventListener("input", e => {
-                parentnode.value = +slider.value
-                $(JavaScript(show_value ? "parentnode.querySelector(\"output\").value = +slider.value" : ""))
+                parentnode.value = slider.valueAsNumber
+                $(JavaScript(show_value ? "parentnode.querySelector(\"output\").value = slider.valueAsNumber" : ""))
                 parentnode.dispatchEvent(new CustomEvent("input"))
                 e.preventDefault()
             })
