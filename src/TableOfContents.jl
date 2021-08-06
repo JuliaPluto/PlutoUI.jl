@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.20
+# v0.15.1
 
 using Markdown
 using InteractiveUtils
@@ -147,7 +147,7 @@ const toc_css = """
 		/* That is, viewport minus top minus Live Docs */
 		max-height: calc(100vh - 5rem - 56px);
 		overflow: auto;
-		z-index: 50;
+		z-index: 10;
 		background: white;
 	}
 }
@@ -254,8 +254,23 @@ export TableOfContents
 # ╔═╡ fdf8750b-653e-4f23-8f8f-9e2ef4e24e75
 TableOfContents()
 
-# ╔═╡ 06ac2f13-e1f7-477a-9b3c-4d8545b777d9
+# ╔═╡ 00000000-0000-0000-0000-000000000001
+PLUTO_PROJECT_TOML_CONTENTS = """
+[deps]
+Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
+"""
 
+# ╔═╡ 00000000-0000-0000-0000-000000000002
+PLUTO_MANIFEST_TOML_CONTENTS = """
+# This file is machine-generated - editing it directly is not advised
+
+[[Base64]]
+uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[Markdown]]
+deps = ["Base64"]
+uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+"""
 
 # ╔═╡ Cell order:
 # ╠═98cd39ae-a93c-40fe-a5d1-0883e1542e22
@@ -266,4 +281,5 @@ TableOfContents()
 # ╠═434cc67b-a1e8-4804-b7ba-f47d0f879046
 # ╠═d6940210-4f9b-47b5-af74-e53700a42417
 # ╠═731a4662-c329-42a2-ae71-7954140bb290
-# ╠═06ac2f13-e1f7-477a-9b3c-4d8545b777d9
+# ╟─00000000-0000-0000-0000-000000000001
+# ╟─00000000-0000-0000-0000-000000000002
