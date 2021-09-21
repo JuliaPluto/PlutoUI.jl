@@ -8,7 +8,7 @@ const button = clock.querySelector("button")
 
 const max_value = +clock.dataset.maxValue
 
-var t = 1
+var t = clock.value = 1
 var starttime = null
 var dt = 1
 
