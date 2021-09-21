@@ -4,6 +4,7 @@ import Suppressor: @color_output, @capture_out, @capture_err
 import Logging:  ConsoleLogger, with_logger
 import Markdown: htmlesc
 import Base: show
+import HypertextLiteral: @htl_str
 
 struct WithTerminalOutput
     stdout::String
@@ -62,13 +63,19 @@ end
 ```
 
 ```julia
+with_terminal(show_value=true) do
+    @time x=sum(1:100000)
+end 
+```
+
+```julia
 with_terminal(dump, [1,2,[3,4]])
 ```
 
 See also [PlutoUI.Dump](@ref).
            
 """
-function with_terminal(f::Function, args...; kwargs...)
+function with_terminal(f::Function, args...; show_value=true, kwargs...)
     local spam_out, spam_err, value
 	@color_output false begin
 		spam_out = @capture_out begin
@@ -79,5 +86,13 @@ function with_terminal(f::Function, args...; kwargs...)
 			end
 		end
   end
-	WithTerminalOutput(spam_out, spam_err, value)
+    if show_value
+        if isdefined(Main, :PlutoRunner)
+            htl"""$(WithTerminalOutput(spam_out, spam_err, value)) <br> $(Main.PlutoRunner.embed_display(value))"""
+        else
+            htl"""$(WithTerminalOutput(spam_out, spam_err, value)) <br> $(value)"""
+        end
+    else
+        WithTerminalOutput(spam_out, spam_err, value)
+    end
 end
