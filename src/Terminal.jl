@@ -87,7 +87,11 @@ function with_terminal(f::Function, args...; show_value=true, kwargs...)
 		end
   end
     if show_value
-        htl"""$(WithTerminalOutput(spam_out, spam_err, value)) <br> $(value)"""
+        if isdefined(Main, :PlutoRunner)
+            htl"""$(WithTerminalOutput(spam_out, spam_err, value)) <br> $(Main.PlutoRunner.embed_display(value))"""
+        else
+            htl"""$(WithTerminalOutput(spam_out, spam_err, value)) <br> $(value)"""
+        end
     else
         WithTerminalOutput(spam_out, spam_err, value)
     end
