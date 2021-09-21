@@ -9,10 +9,12 @@ const PKG_ROOT_DIR = normpath(joinpath(@__DIR__, ".."))
 
 include("./Builtins.jl")
 include("./Resource.jl")
-include("./Terminal.jl")
 include("./RangeSlider.jl")
 include("./DisplayTricks.jl")
 
+@reexport module TerminalNotebook
+    include("./TerminalNotebook.jl")
+end
 @reexport module MultiCheckBoxNotebook
     include("./MultiCheckBox.jl")
 end
