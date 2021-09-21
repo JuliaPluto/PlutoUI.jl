@@ -30,7 +30,7 @@ end
 
 # ╔═╡ e8c5ba24-10e9-49e8-8c11-0add092637f8
 """
-	@displayonly expression
+	@skip_as_script expression
 
 Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
 """
