@@ -7,9 +7,23 @@ import Base: show
 import HypertextLiteral: @htl_str
 
 struct WithTerminalOutput
+    value::Any
     stdout::String
     stderr::String
-    value::Any
+end
+
+module JustForShow
+    """
+    Fake WithTerminalOutput that I can show with the terminal.
+    Was thinking this is useful for when you have a like `x =`, but people see the actual value...
+    and then suddenly they are confused because `x` is actually a WithTerminalOutput!!
+    But idk...
+    """
+    struct WithTerminalOutput
+        value::Any
+        stdout::String
+        stderr::String
+    end
 end
 
 function show(io::IO, mime::MIME"text/html", with_terminal::WithTerminalOutput)
@@ -87,10 +101,17 @@ function with_terminal(f::Function, args...; show_value=true, kwargs...)
 		end
   end
     if show_value
-        if isdefined(Main, :PlutoRunner)
-            htl"""$(WithTerminalOutput(spam_out, spam_err, value)) <br> $(Main.PlutoRunner.embed_display(value))"""
+        if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
+            # fake_terminal_wrapper = JustForShow.WithTerminalOutput(value, spam_out, spam_err)
+            htl"""
+                $(Main.PlutoRunner.embed_display(value))
+                $(WithTerminalOutput(value, spam_out, spam_err))
+            """
         else
-            htl"""$(WithTerminalOutput(spam_out, spam_err, value)) <br> $(value)"""
+            htl"""
+                <span>$(value)</span>
+                $(WithTerminalOutput(value, spam_out, spam_err))
+            """
         end
     else
         WithTerminalOutput(spam_out, spam_err, value)
