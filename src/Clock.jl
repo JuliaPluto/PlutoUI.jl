@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.4
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
@@ -126,6 +126,12 @@ end
 # ╔═╡ 21cba3fb-7bb0-43ae-b4c4-5c1eb7241fec
 Clock(2.0, max_value=123)
 
+# ╔═╡ 9ece9332-0e36-4f4a-aefb-5e793dbe080a
+@bind a Clock()
+
+# ╔═╡ 1459d85a-aecd-4eae-8074-f93c65f500a2
+a
+
 # ╔═╡ Cell order:
 # ╠═06289ad2-9e2f-45b3-9d15-7c5a4167e138
 # ╠═9ecd95f0-d7a5-4ee9-9e18-9d87e5d43ab7
@@ -144,3 +150,5 @@ Clock(2.0, max_value=123)
 # ╠═9115fbcd-1550-4439-a830-c69b83b774b3
 # ╠═f4104cb3-7c07-4814-99f9-a00764ebadf6
 # ╠═21cba3fb-7bb0-43ae-b4c4-5c1eb7241fec
+# ╠═9ece9332-0e36-4f4a-aefb-5e793dbe080a
+# ╠═1459d85a-aecd-4eae-8074-f93c65f500a2
