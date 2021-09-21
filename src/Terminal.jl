@@ -75,7 +75,7 @@ with_terminal(dump, [1,2,[3,4]])
 See also [PlutoUI.Dump](@ref).
            
 """
-function with_terminal(f::Function, args...; show_value=false, kwargs...)
+function with_terminal(f::Function, args...; show_value=true, kwargs...)
     local spam_out, spam_err, value
 	@color_output false begin
 		spam_out = @capture_out begin
