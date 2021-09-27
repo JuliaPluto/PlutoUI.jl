@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.20
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
@@ -161,6 +161,15 @@ default_range(0)
 # ╔═╡ 2554121f-13e6-4b07-9c45-b2ccf154d07d
 default_range(0.0)
 
+# ╔═╡ 8bce6b13-9600-49ca-a7ea-ba2f53028f1b
+# using HypertextLiteral
+
+# ╔═╡ d17d259b-8379-46a7-ab54-cd2f697ec713
+# @htl("""
+# 	$(bc)
+# 	$(cool)
+# 	""")
+
 # ╔═╡ aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
 md"""
 ## Definition
@@ -210,6 +219,7 @@ begin
 		format::Union{AbstractString,Nothing}=nothing
 		prefix::AbstractString=""
 		suffix::AbstractString=""
+        id::String=join(rand('a':'z', 16))
 	end
 	Scrubbable(range::AbstractVector; kwargs...) = Scrubbable(;values=range, default=range[1 + length(range) ÷ 2], kwargs...)
 	Scrubbable(x::Number; kwargs...) = Scrubbable(;values=default_range(x), default=x, kwargs...)
@@ -228,7 +238,7 @@ begin
 			String(s.format)
 		end
 
-		write(io, """<script>
+		write(io, """<script id='$(s.id)'>
 
 			const d3format = await import("https://cdn.jsdelivr.net/npm/d3-format@2/+esm")
 
@@ -250,10 +260,10 @@ begin
 
 			let old_x = 0
 			let old_index = 0
-			let current_index = closest_index(values, $(s.default))
+			const initial_index = closest_index(values, $(s.default))
+			let current_index = initial_index
 
 			const formatter = s => $(repr(s.prefix)) + d3format.format($(repr(format)))(s) + $(repr(s.suffix))
-
 
 
 			Object.defineProperty(el, 'value', {
@@ -262,6 +272,7 @@ begin
 					current_index = closest_index(values, x)
 					el.innerText = formatter(el.value)
 				},
+				configurable: true,
 			});
 
 			// initial value
@@ -288,6 +299,12 @@ begin
 			}
 			el.addEventListener("pointerdown", onpointerdown)
 
+			const ondblclick = (e) => {
+				current_index = initial_index
+				el.innerText = formatter(el.value)
+				el.dispatchEvent(new CustomEvent("input"))
+			}
+			el.addEventListener("dblclick", ondblclick)
 
 			const onpointerup = () => {
 				window.removeEventListener("pointermove", onScrub)
@@ -298,6 +315,7 @@ begin
 
 			invalidation.then(() => {
 				el.removeEventListener("pointerdown", onpointerdown)
+				el.removeEventListener("dblclick", ondblclick)
 				window.removeEventListener("pointerup", onpointerup)
 			})
 
@@ -356,6 +374,9 @@ if coolness >= 1
 	md"![](https://media.giphy.com/media/GwGXoeb0gm7sc/giphy.gif)"
 end
 
+# ╔═╡ b081aa76-f080-4dd0-bcff-4bcc82a1c50a
+bc = @bind cool Scrubbable(199.1)
+
 # ╔═╡ 1d34fec8-01cb-4bee-8144-d8cc13a87b8b
 export Scrubbable
 
@@ -395,6 +416,9 @@ export Scrubbable
 # ╟─1fa8edc6-9aa2-4082-bdeb-7517d9e2dd71
 # ╠═3f1c3fa5-2257-4c3a-aa75-0b3c59a7fcdc
 # ╠═2554121f-13e6-4b07-9c45-b2ccf154d07d
+# ╠═b081aa76-f080-4dd0-bcff-4bcc82a1c50a
+# ╠═8bce6b13-9600-49ca-a7ea-ba2f53028f1b
+# ╠═d17d259b-8379-46a7-ab54-cd2f697ec713
 # ╟─aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
 # ╠═9c7ce2da-4ad8-11eb-14cd-cfcc8d2a6bf8
 # ╠═1d34fec8-01cb-4bee-8144-d8cc13a87b8b
