@@ -122,7 +122,9 @@ function default_range(x::Real) # not an integer
 	if x == 0
 		-1.0 : 0.1 : 1.0
 	elseif 0 < x < 1
-		0 : 0.1 : 1
+		between_zero_and_x = LinRange(0.0, x, 10)
+		between_x_and_one = LinRange(x, 1.0, 10)
+		[between_zero_and_x..., between_x_and_one[2:end]...]
 	else
 		sort(x .* up_or_down_one_order_of_magnitude)
 	end
