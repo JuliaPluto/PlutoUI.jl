@@ -28,4 +28,17 @@ end
     include("./Scrubbable.jl")
 end
 
+export br
+"""
+Line break without creating a new paragraph. Useful inside the `md"` macro:
+
+# Example
+```julia
+md"\""
+Hello \$br world!
+"\""
+```
+"""
+const br = HTML("<br>")
+
 end

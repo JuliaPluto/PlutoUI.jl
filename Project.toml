@@ -1,7 +1,7 @@
 name = "PlutoUI"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 authors = ["Fons van der Plas <fons@plutojl.org>"]
-version = "0.7.13"
+version = "0.7.14"
 
 [deps]
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
