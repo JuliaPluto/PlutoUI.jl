@@ -241,8 +241,8 @@ begin
 		end
 
 		write(io, """<script id='$(s.id)'>
-
-			const d3format = await import("https://cdn.jsdelivr.net/npm/d3-format@2/+esm")
+			// weird import to make it faster. The `await import` can still delay execution by one frame if it is already loaded...
+			window.d3format = window.d3format ?? await import("https://cdn.jsdelivr.net/npm/d3-format@2/+esm")
 
 			const argmin = xs => xs.indexOf(Math.min(...xs))
 			const closest_index = (xs, y) => argmin(xs.map(x => Math.abs(x-y)))
@@ -328,6 +328,9 @@ begin
 	
 	Scrubbable
 end
+
+# ╔═╡ 5c78e637-5733-4b0a-8dab-bf1cd9656d11
+HTML(join(repr.([MIME"text/html"()], [Scrubbable(1.0) for _ in 1:100])))
 
 # ╔═╡ b62db8c0-4352-4d0f-83a2-ac170ef3337a
 md"""
@@ -421,6 +424,7 @@ export Scrubbable
 # ╠═b081aa76-f080-4dd0-bcff-4bcc82a1c50a
 # ╠═8bce6b13-9600-49ca-a7ea-ba2f53028f1b
 # ╠═d17d259b-8379-46a7-ab54-cd2f697ec713
+# ╠═5c78e637-5733-4b0a-8dab-bf1cd9656d11
 # ╟─aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
 # ╠═9c7ce2da-4ad8-11eb-14cd-cfcc8d2a6bf8
 # ╠═1d34fec8-01cb-4bee-8144-d8cc13a87b8b
