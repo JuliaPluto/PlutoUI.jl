@@ -394,10 +394,10 @@ begin
 """
 struct Radio
     options::Vector{Pair{<:AbstractString,<:Any}}
-    default::Union{Missing, AbstractString}
+    default::Union{Nothing, AbstractString}
 end
-Radio(options::AbstractVector{<:AbstractString}; default=missing) = Radio([o => o for o in options], default)
-Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing) = Radio(options, default)
+Radio(options::AbstractVector{<:AbstractString}; default=nothing) = Radio([o => o for o in options], default)
+Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=nothing) = Radio(options, default)
 
 function Base.show(io::IO, m::MIME"text/html", radio::Radio)
     groupname = randstring('a':'z')
@@ -543,9 +543,6 @@ end
 Base.get(colorStringPicker::ColorStringPicker) = colorStringPicker.default
 end
 
-# ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker
-
 # ╔═╡ ec870eea-36a4-48b6-95d7-f7c083e29856
 bs = @bind s1 Slider(1:10)
 
@@ -634,10 +631,10 @@ bf
 f1
 
 # ╔═╡ a95684ea-4612-45d6-b63f-41c051b53ed8
-br = @bind r1 Radio(["a" => "default", teststr => teststr])
+br1 = @bind r1 Radio(["a" => "default", teststr => teststr])
 
 # ╔═╡ a5612030-0781-4cf1-b8f0-409bd3886154
-br
+br1
 
 # ╔═╡ c2b3a7a4-8c9e-49cc-b5d0-85ad1c08fd72
 r1
@@ -692,6 +689,22 @@ ColorStringPicker("#ffffff")
 
 # ╔═╡ 724125f3-7699-4103-a5d8-bc6a00fab0ff
 ColorStringPicker(default="#abbaff")
+
+# ╔═╡ 9ade9240-1fea-4cb7-a571-a98b13cc29b2
+"""
+Line break without creating a new paragraph. Useful inside the `md"` macro:
+
+# Example
+```julia
+md"\""
+Hello \$br world!
+"\""
+```
+"""
+const br = HTML("<br>")
+
+# ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
+export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
@@ -775,3 +788,4 @@ ColorStringPicker(default="#abbaff")
 # ╠═78463563-4d1f-49f0-875f-8a30cf445a2d
 # ╠═1d95c38d-d336-436d-a62e-0a3786c321ca
 # ╠═724125f3-7699-4103-a5d8-bc6a00fab0ff
+# ╠═9ade9240-1fea-4cb7-a571-a98b13cc29b2

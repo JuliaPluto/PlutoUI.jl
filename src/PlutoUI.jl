@@ -7,7 +7,9 @@ using Reexport
 
 const PKG_ROOT_DIR = normpath(joinpath(@__DIR__, ".."))
 
-include("./Builtins.jl")
+@reexport module BuiltinsNotebook
+    include("./Builtins.jl")
+end
 include("./Resource.jl")
 include("./RangeSlider.jl")
 include("./DisplayTricks.jl")
@@ -27,18 +29,5 @@ end
 @reexport module ScrubbableNotebook
     include("./Scrubbable.jl")
 end
-
-export br
-"""
-Line break without creating a new paragraph. Useful inside the `md"` macro:
-
-# Example
-```julia
-md"\""
-Hello \$br world!
-"\""
-```
-"""
-const br = HTML("<br>")
 
 end
