@@ -84,7 +84,7 @@ const tocNode = html`<nav class="plutoui-toc">
 	<section></section>
 </nav>`
 tocNode.classList.toggle("aside", aside)
-tocNode.classList.toggle("indent", aside)
+tocNode.classList.toggle("indent", indent)
 
 const updateCallback = () => {
 	tocNode.querySelector("section").replaceWith(
@@ -254,6 +254,19 @@ export TableOfContents
 # ╔═╡ fdf8750b-653e-4f23-8f8f-9e2ef4e24e75
 TableOfContents()
 
+# ╔═╡ 7c32fd56-6cc5-420b-945b-53446833a125
+TableOfContents(; aside = false)
+
+# ╔═╡ 06ac2f13-e1f7-477a-9b3c-4d8545b777d9
+
+[[Base64]]
+uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[Markdown]]
+deps = ["Base64"]
+uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -276,10 +289,12 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 # ╠═98cd39ae-a93c-40fe-a5d1-0883e1542e22
 # ╠═ed0f13cc-4f7d-476b-a434-d14313d88eea
 # ╠═fdf8750b-653e-4f23-8f8f-9e2ef4e24e75
+# ╠═7c32fd56-6cc5-420b-945b-53446833a125
 # ╟─6043d6c5-54e4-40c1-a8a5-aec3ad7e1aa0
 # ╟─f11f9ead-bbe9-4fa5-b99c-408cc4a69a7e
 # ╠═434cc67b-a1e8-4804-b7ba-f47d0f879046
 # ╠═d6940210-4f9b-47b5-af74-e53700a42417
 # ╠═731a4662-c329-42a2-ae71-7954140bb290
+# ╠═06ac2f13-e1f7-477a-9b3c-4d8545b777d9
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

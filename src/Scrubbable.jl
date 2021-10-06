@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.20
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
@@ -122,7 +122,9 @@ function default_range(x::Real) # not an integer
 	if x == 0
 		-1.0 : 0.1 : 1.0
 	elseif 0 < x < 1
-		0 : 0.1 : 1
+		between_zero_and_x = LinRange(0.0, x, 10)
+		between_x_and_one = LinRange(x, 1.0, 10)
+		[between_zero_and_x..., between_x_and_one[2:end]...]
 	else
 		sort(x .* up_or_down_one_order_of_magnitude)
 	end
@@ -160,6 +162,15 @@ default_range(0)
 
 # ╔═╡ 2554121f-13e6-4b07-9c45-b2ccf154d07d
 default_range(0.0)
+
+# ╔═╡ 8bce6b13-9600-49ca-a7ea-ba2f53028f1b
+# using HypertextLiteral
+
+# ╔═╡ d17d259b-8379-46a7-ab54-cd2f697ec713
+# @htl("""
+# 	$(bc)
+# 	$(cool)
+# 	""")
 
 # ╔═╡ aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
 md"""
@@ -210,6 +221,7 @@ begin
 		format::Union{AbstractString,Nothing}=nothing
 		prefix::AbstractString=""
 		suffix::AbstractString=""
+        id::String=join(rand('a':'z', 16))
 	end
 	Scrubbable(range::AbstractVector; kwargs...) = Scrubbable(;values=range, default=range[1 + length(range) ÷ 2], kwargs...)
 	Scrubbable(x::Number; kwargs...) = Scrubbable(;values=default_range(x), default=x, kwargs...)
@@ -228,9 +240,9 @@ begin
 			String(s.format)
 		end
 
-		write(io, """<script>
-
-			const d3format = await import("https://cdn.jsdelivr.net/npm/d3-format@2/+esm")
+		write(io, """<script id='$(s.id)'>
+			// weird import to make it faster. The `await import` can still delay execution by one frame if it is already loaded...
+			window.d3format = window.d3format ?? await import("https://cdn.jsdelivr.net/npm/d3-format@2/+esm")
 
 			const argmin = xs => xs.indexOf(Math.min(...xs))
 			const closest_index = (xs, y) => argmin(xs.map(x => Math.abs(x-y)))
@@ -250,10 +262,10 @@ begin
 
 			let old_x = 0
 			let old_index = 0
-			let current_index = closest_index(values, $(s.default))
+			const initial_index = closest_index(values, $(s.default))
+			let current_index = initial_index
 
 			const formatter = s => $(repr(s.prefix)) + d3format.format($(repr(format)))(s) + $(repr(s.suffix))
-
 
 
 			Object.defineProperty(el, 'value', {
@@ -262,6 +274,7 @@ begin
 					current_index = closest_index(values, x)
 					el.innerText = formatter(el.value)
 				},
+				configurable: true,
 			});
 
 			// initial value
@@ -288,6 +301,12 @@ begin
 			}
 			el.addEventListener("pointerdown", onpointerdown)
 
+			const ondblclick = (e) => {
+				current_index = initial_index
+				el.innerText = formatter(el.value)
+				el.dispatchEvent(new CustomEvent("input"))
+			}
+			el.addEventListener("dblclick", ondblclick)
 
 			const onpointerup = () => {
 				window.removeEventListener("pointermove", onScrub)
@@ -298,6 +317,7 @@ begin
 
 			invalidation.then(() => {
 				el.removeEventListener("pointerdown", onpointerdown)
+				el.removeEventListener("dblclick", ondblclick)
 				window.removeEventListener("pointerup", onpointerup)
 			})
 
@@ -308,6 +328,9 @@ begin
 	
 	Scrubbable
 end
+
+# ╔═╡ 5c78e637-5733-4b0a-8dab-bf1cd9656d11
+HTML(join(repr.([MIME"text/html"()], [Scrubbable(1.0) for _ in 1:100])))
 
 # ╔═╡ b62db8c0-4352-4d0f-83a2-ac170ef3337a
 md"""
@@ -356,6 +379,9 @@ if coolness >= 1
 	md"![](https://media.giphy.com/media/GwGXoeb0gm7sc/giphy.gif)"
 end
 
+# ╔═╡ b081aa76-f080-4dd0-bcff-4bcc82a1c50a
+bc = @bind cool Scrubbable(199.1)
+
 # ╔═╡ 1d34fec8-01cb-4bee-8144-d8cc13a87b8b
 export Scrubbable
 
@@ -395,6 +421,10 @@ export Scrubbable
 # ╟─1fa8edc6-9aa2-4082-bdeb-7517d9e2dd71
 # ╠═3f1c3fa5-2257-4c3a-aa75-0b3c59a7fcdc
 # ╠═2554121f-13e6-4b07-9c45-b2ccf154d07d
+# ╠═b081aa76-f080-4dd0-bcff-4bcc82a1c50a
+# ╠═8bce6b13-9600-49ca-a7ea-ba2f53028f1b
+# ╠═d17d259b-8379-46a7-ab54-cd2f697ec713
+# ╠═5c78e637-5733-4b0a-8dab-bf1cd9656d11
 # ╟─aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
 # ╠═9c7ce2da-4ad8-11eb-14cd-cfcc8d2a6bf8
 # ╠═1d34fec8-01cb-4bee-8144-d8cc13a87b8b
