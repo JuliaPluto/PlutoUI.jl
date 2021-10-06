@@ -30,4 +30,9 @@ end
     include("./Scrubbable.jl")
 end
 
+# this is a submodule
+module ExperimentalLayout
+    include("./Layout.jl")
+end
+
 end
