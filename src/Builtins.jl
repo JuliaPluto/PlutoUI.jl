@@ -130,6 +130,8 @@ begin
 
 	You can use it to _trigger reactive cells_.
 
+	**See also [`CounterButton`](@ref)** to get the *number of times* the button was clicked.
+
 	## Examples
 
 	In one cell:
@@ -149,20 +151,79 @@ begin
 	end
 	```
 	"""
-	struct Button
+	struct LabelButton
 		label::AbstractString
 	end
-	Button() = Button("Click")
+	LabelButton() = LabelButton("Click")
 	
-	function Base.show(io::IO, m::MIME"text/html", button::Button)
+	function Base.show(io::IO, m::MIME"text/html", button::LabelButton)
 		show(io, m, @htl("""<input type="button" value="$(button.label)">"""))
 	end
 	
-	Base.get(button::Button) = button.label
+	Base.get(button::LabelButton) = button.label
 end
+
+# ╔═╡ 7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
+const Button = LabelButton
 
 # ╔═╡ 3ae2351b-ac4a-4669-bb11-39a1c029b301
 Button()
+
+# ╔═╡ 548bda96-2461-48a3-a3ad-6d113337826e
+begin
+	"""A button that sends back the number of times that it was clicked.
+
+	You can use it to _trigger reactive cells_.
+
+	## Examples
+
+	In one cell:
+
+	```julia
+	@bind go CounterButton("Go!")
+	```
+
+	and in a second cell:
+
+	```julia
+	begin
+		# reference the bound variable - clicking the button will run this cell
+		go
+
+		md"My favorite number is $(rand())!"
+	end
+	```
+	"""
+	struct CounterButton
+		label::AbstractString
+	end
+	CounterButton() = CounterButton("Click")
+	
+	function Base.show(io::IO, m::MIME"text/html", button::CounterButton)
+		show(io, m, @htl("""
+		<span>
+		<input type="button" value="$(button.label)">
+		<script>
+		let count = 0
+		const span = currentScript.parentElement
+		const button = span.firstElementChild
+		
+		span.value = count
+		
+		button.addEventListener("click", (e) => {
+		count += 1
+		span.value = count
+		span.dispatchEvent(new CustomEvent("input"))
+		e.stopPropagation()
+			
+		})
+		</script>
+		</span>
+		"""))
+	end
+	
+	Base.get(button::CounterButton) = button.label
+end
 
 # ╔═╡ 76c3b77b-08aa-4899-bbdd-4f8faa8d1486
 begin
@@ -558,6 +619,15 @@ s1, s2
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
 @bind b1 Button(teststr)
 
+# ╔═╡ c111da12-d0ca-4b9b-8ede-20f4303a1c4b
+b1
+
+# ╔═╡ cd08b524-d778-4acd-9fac-851d90df7179
+@bind cb1 CounterButton() 
+
+# ╔═╡ 6135dca4-86f9-4675-8a45-fa16b3d2c3eb
+cb1
+
 # ╔═╡ 6cb75589-5496-4edd-9b21-ea49d5c0e733
 bc = @bind c1 CheckBox()
 
@@ -704,7 +774,7 @@ Hello \$br world!
 const br = HTML("<br>")
 
 # ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, br
+export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
@@ -723,8 +793,13 @@ export Slider, NumberField, Button, CheckBox, TextField, PasswordField, Select, 
 # ╠═05f6a603-b738-47b1-b335-acaaf480a240
 # ╠═f59eef32-4732-46db-87b0-3564433ce43e
 # ╠═b7c21c22-17f5-44b8-98de-a261d5c7192b
+# ╠═7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
 # ╠═c6d68308-53e7-4c60-8649-8f0161f28d70
+# ╠═c111da12-d0ca-4b9b-8ede-20f4303a1c4b
 # ╠═3ae2351b-ac4a-4669-bb11-39a1c029b301
+# ╠═548bda96-2461-48a3-a3ad-6d113337826e
+# ╠═6135dca4-86f9-4675-8a45-fa16b3d2c3eb
+# ╠═cd08b524-d778-4acd-9fac-851d90df7179
 # ╠═76c3b77b-08aa-4899-bbdd-4f8faa8d1486
 # ╠═6cb75589-5496-4edd-9b21-ea49d5c0e733
 # ╠═bcee47b1-0f45-4649-8517-0e93fa92bfe5
