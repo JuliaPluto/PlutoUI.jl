@@ -75,6 +75,9 @@ begin
 	"""
 	Slider(range::AbstractRange; default=missing, show_value=false) = Slider(range, (default === missing) ? first(range) : default, show_value)
 	
+        const slider_js = HypertextLiteral.JavaScript(read(joinpath(@__DIR__, "..", "assets", "slider.js"), String))
+        const slider_css = read(joinpath(@__DIR__, "..", "assets", "slider.css"), String)
+    
 	function Base.show(io::IO, m::MIME"text/html", slider::Slider)
 		show(io, m, @htl("""
 				<input 
@@ -86,11 +89,15 @@ begin
 				value=$(slider.default)
 				oninput=$(slider.show_value ? "this.nextElementSibling.value=this.value" : "")
 				>
-
 				$(
 				slider.show_value ? @htl("<output>$(slider.default)</output>") : nothing
 				)
-				
+                                <script> 
+                                        $slider_js 
+                                </script>
+		                <style>        
+		                        $(slider_css) 
+		                </style>       
 				"""))
 	end
 
