@@ -35,4 +35,19 @@ module ExperimentalLayout
     include("./Layout.jl")
 end
 
+is_sliderserver_static_export() =
+    isdefined(Main, :PlutoRunner) && isdefined(getfield(Main, :PlutoRunner), :should_set_possible_bind_values) && Main.PlutoRunner.should_set_possible_bind_values()
+
+function __init__()
+    is_sliderserver_static_export() && eval(quote
+	function Main.PlutoRunner._get_possible_values(slider::Slider)
+	    slider.range
+	end
+
+	function Main.PlutoRunner._get_possible_values(::CheckBox)
+	    Set{Bool}([true, false])
+	end
+    end)
+end
+
 end
