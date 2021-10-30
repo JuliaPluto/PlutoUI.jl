@@ -16,7 +16,7 @@ jobs:
         # continue-on-error: true
         strategy:
             matrix:
-                julia-version: ["1.0", "1.6.0-rc1"]
+                julia-version: ["1.0", "1.6"]
                 os: [ubuntu-latest]
                 
 
