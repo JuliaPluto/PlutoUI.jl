@@ -20,6 +20,11 @@ md"""
 # hbox and vbox
 """
 
+# ╔═╡ 29d510b1-667e-4211-acf7-ae872cd2d1a5
+@htl("""<div style=''>
+	$("sfd") $("asdf") $([1,2,3])
+</div>""")
+
 # ╔═╡ 4c0dc6e3-2596-40f6-8155-a1ae0326c33d
 md"""
 # Div (low-level)
@@ -80,6 +85,96 @@ maybecollect(x::Iterable) = collect(x)
 # ╔═╡ 4c5ca077-16db-4f10-af1a-ba510f4d6b49
 maybecollect(x::Vector) = x
 
+# ╔═╡ e01077d8-3c44-4c6f-8a50-a9a6189613be
+# Div(x::Iterable, style::CSS; kwargs...) = Div(x; style=style, kwargs...)
+
+# ╔═╡ d801dd15-9f0a-4448-9ab4-7786e4279547
+Div(x; kwargs...) = Div([x]; kwargs...)
+
+# ╔═╡ f24c4b3e-5155-46d5-a328-932719617ca6
+md"""
+## Triangle
+"""
+
+# ╔═╡ 9bb89479-fa6c-44d0-8bd1-bdd3db2880f6
+function pascal_row(n)
+	if n == 1
+		[1]
+	else
+		prev = pascal_row(n-1)
+		[prev; 0] .+ [0; prev]
+	end
+end
+
+# ╔═╡ a81011d5-e10f-4a58-941c-f69c4150730e
+pascal_row(3)
+
+# ╔═╡ 229274f2-5b10-4d58-944f-30d4acde04d8
+pascal(n) = pascal_row.(1:n)
+
+# ╔═╡ b2ef0286-0ae5-4e2f-ac8d-18d7f48b5646
+pascal(5)
+
+# ╔═╡ 0c5b1f00-57a6-494e-a508-cbac8b23b72e
+d = "a" => "3"
+
+# ╔═╡ 9238ec64-a123-486e-a615-2e7631a1123f
+repr(
+	MIME"text/html"(),
+	@htl("""
+		<div style=$(d)>
+		asdf
+		</div>
+		
+		""")
+) |> Text
+
+# ╔═╡ 3666dc17-2e67-483c-9400-242453ce0ea1
+Hyperscript.Calc(:(1px + 2px))
+
+# ╔═╡ 9a9b39f4-7187-411e-8f50-3293f85a369e
+123px |> string
+
+# ╔═╡ 8eef743b-bea0-4a97-b539-0723a231441b
+@htl("""
+<style>
+svg {
+	max-width: 100%;
+	height: auto;
+}
+</style>
+""")
+
+# ╔═╡ 081396af-0f8f-4d2a-b087-dfba01bfd7a7
+# grid([
+# 		p p data
+# 		p p data
+# 	])
+
+# ╔═╡ 70652040-5bf9-4408-a33c-9716f3af39e8
+macro canfail(expr)
+quote
+	try
+		$(esc(expr))
+
+	catch e
+		Text(sprint() do io
+			showerror(io, e, catch_backtrace())
+		end)
+	end
+end
+end
+
+# ╔═╡ ec996b12-1678-406b-b5b6-dbb73eabc2bf
+data = rand(3)
+
+# ╔═╡ 916f95ff-f568-48cc-91c3-ef2d2c9e397a
+embed_display(x) = if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
+	Main.PlutoRunner.embed_display(x)
+else
+	@htl("$(x)")
+end
+
 # ╔═╡ ca2a5bce-6565-4678-baea-535ac8ca3ca9
 Div(x::Iterable; style::CSS="", class::Union{Nothing,String}=nothing) = 
 	if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :DivElement)
@@ -90,17 +185,11 @@ Div(x::Iterable; style::CSS="", class::Union{Nothing,String}=nothing) =
 		)
 	else
 		HTLDiv(;
-			children=x, 
+			children=[embed_display(i) for i in x], 
 			style=style,
 			class=class,
 		)
 	end
-
-# ╔═╡ e01077d8-3c44-4c6f-8a50-a9a6189613be
-# Div(x::Iterable, style::CSS; kwargs...) = Div(x; style=style, kwargs...)
-
-# ╔═╡ d801dd15-9f0a-4448-9ab4-7786e4279547
-Div(x; kwargs...) = Div([x]; kwargs...)
 
 # ╔═╡ d720ae98-f34f-4870-b09a-06499e2c936d
 hbox(contents::Iterable; style::Dict=Dict()) = Div(
@@ -114,7 +203,7 @@ hbox(contents::Iterable; style::Dict=Dict()) = Div(
 
 # ╔═╡ 06a2b4f2-056c-458e-9107-870ea7a25e2f
 hbox([
-	"sfd", "asdf"
+	"sfd", "asdf", [1,2,3]
 ])
 
 # ╔═╡ f363e639-3799-4507-869c-b63c777988f5
@@ -180,30 +269,6 @@ end
 # ╔═╡ 6eeec9ed-49bf-45dd-ae73-5cac8ca276f7
 flex(rand(UInt8, 3))
 
-# ╔═╡ f24c4b3e-5155-46d5-a328-932719617ca6
-md"""
-## Triangle
-"""
-
-# ╔═╡ 9bb89479-fa6c-44d0-8bd1-bdd3db2880f6
-function pascal_row(n)
-	if n == 1
-		[1]
-	else
-		prev = pascal_row(n-1)
-		[prev; 0] .+ [0; prev]
-	end
-end
-
-# ╔═╡ a81011d5-e10f-4a58-941c-f69c4150730e
-pascal_row(3)
-
-# ╔═╡ 229274f2-5b10-4d58-944f-30d4acde04d8
-pascal(n) = pascal_row.(1:n)
-
-# ╔═╡ b2ef0286-0ae5-4e2f-ac8d-18d7f48b5646
-pascal(5)
-
 # ╔═╡ cf9c83c6-ee74-4fd4-ade4-5cd3d409f13f
 let
 	p = pascal(5)
@@ -225,25 +290,11 @@ let
 	)
 end
 
-# ╔═╡ 0c5b1f00-57a6-494e-a508-cbac8b23b72e
-d = "a" => "3"
-
-# ╔═╡ 9238ec64-a123-486e-a615-2e7631a1123f
-repr(
+# ╔═╡ a8f02660-32d8-428f-a0aa-d8eb06efabda
+@canfail repr(
 	MIME"text/html"(),
-	@htl("""
-		<div style=$(d)>
-		asdf
-		</div>
-		
-		""")
+	Div([], style=Dict("a" => 2))
 ) |> Text
-
-# ╔═╡ 3666dc17-2e67-483c-9400-242453ce0ea1
-Hyperscript.Calc(:(1px + 2px))
-
-# ╔═╡ 9a9b39f4-7187-411e-8f50-3293f85a369e
-123px |> string
 
 # ╔═╡ 8fbd9087-c932-4a01-bd44-69007e9f6656
 function grid(items::AbstractMatrix; 
@@ -284,52 +335,6 @@ grid(rand(UInt8, 10,8))
 
 # ╔═╡ 4726f3fe-a761-4a58-a177-a2ef79663a90
 grid(rand(UInt8, 10,10); fill_width=false)
-
-# ╔═╡ 8eef743b-bea0-4a97-b539-0723a231441b
-@htl("""
-<style>
-svg {
-	max-width: 100%;
-	height: auto;
-}
-</style>
-""")
-
-# ╔═╡ 081396af-0f8f-4d2a-b087-dfba01bfd7a7
-# grid([
-# 		p p data
-# 		p p data
-# 	])
-
-# ╔═╡ 70652040-5bf9-4408-a33c-9716f3af39e8
-macro canfail(expr)
-quote
-	try
-		$(esc(expr))
-
-	catch e
-		Text(sprint() do io
-			showerror(io, e, catch_backtrace())
-		end)
-	end
-end
-end
-
-# ╔═╡ a8f02660-32d8-428f-a0aa-d8eb06efabda
-@canfail repr(
-	MIME"text/html"(),
-	Div([], style=Dict("a" => 2))
-) |> Text
-
-# ╔═╡ ec996b12-1678-406b-b5b6-dbb73eabc2bf
-data = rand(3)
-
-# ╔═╡ 916f95ff-f568-48cc-91c3-ef2d2c9e397a
-embed_display(x) = if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
-	Main.PlutoRunner.embed_display(x)
-else
-	@htl("$(x)")
-end
 
 # ╔═╡ 18cc9fbe-a37a-11eb-082b-e99673bd677d
 function aside(x)
@@ -504,9 +509,10 @@ end
 # ╟─cc64885c-d00e-4d9d-b542-94da606798b7
 # ╠═da22938c-ab2c-4a9a-9df3-c69000a33d78
 # ╠═06a2b4f2-056c-458e-9107-870ea7a25e2f
+# ╠═29d510b1-667e-4211-acf7-ae872cd2d1a5
 # ╠═f363e639-3799-4507-869c-b63c777988f5
 # ╠═13b03bde-3dec-4c56-8b8a-c484b2f644aa
-# ╟─d720ae98-f34f-4870-b09a-06499e2c936d
+# ╠═d720ae98-f34f-4870-b09a-06499e2c936d
 # ╟─762c27a1-c71b-4354-8794-621bd0020397
 # ╟─4c0dc6e3-2596-40f6-8155-a1ae0326c33d
 # ╠═a3599e04-eaff-4be7-9ee0-a792274002b2
