@@ -30,9 +30,12 @@ for (let i = 0; i < labels.length; i++) {
   container.appendChild(item);
 }
 
+function setValue() {
+  container.value = inputEls.filter((o) => o.checked).map((o) => o.value);
+}
 // Add listeners
 function sendEvent() {
-  container.value = inputEls.filter((o) => o.checked).map((o) => o.value);
+  setValue()
   container.dispatchEvent(new CustomEvent("input"));
 }
 
@@ -120,4 +123,5 @@ function onItemClick(event) {
   updateSelectAll();
   sendEvent();
 }
+setValue()
 inputEls.forEach((el) => el.addEventListener("click", onItemClick));

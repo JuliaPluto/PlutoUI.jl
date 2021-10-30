@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.12.21
+# v0.17.0
 
 using Markdown
 using InteractiveUtils
@@ -25,6 +25,22 @@ md"""
 md"""
 ## Definition
 """
+
+# ╔═╡ 79c4dc76-efa2-4b7f-99ea-243e3a17f81c
+function skip_as_script(m::Module)
+	if isdefined(m, :PlutoForceDisplay)
+		return m.PlutoForceDisplay
+	else
+		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
+	end
+end
+
+# ╔═╡ 499ca710-1a50-4aa1-87d8-d213416e8e30
+if skip_as_script(@__MODULE__)
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Text("Project env active")
+end
 
 # ╔═╡ 144bff17-30eb-458a-8e94-33e1f11edbeb
 "Convert a Julia array to a JS array in string form."
@@ -107,7 +123,7 @@ function Base.show(io::IO, ::MIME"text/html", multicheckbox::MultiCheckBox)
     """)
 end
 
-Base.get(multicheckbox::MultiCheckBox) = multicheckbox.default
+Base.get(select::MultiCheckBox) = ismissing(select.default) ? Any[] : select.default
 end
 
 # ╔═╡ 8bfaf4c8-557d-433e-a228-aac493746efc
@@ -116,6 +132,12 @@ end
 # ╔═╡ 8e9f3962-d86c-4e07-b5d3-f31ee5361ca2
 animals
 
+# ╔═╡ a8a7e90d-8bbf-4ab6-90a8-24a10885fb0a
+@bind animals2 MultiCheckBox(["🐰", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"]; orientation=:column, default=["🐿️" , "🐝"])
+
+# ╔═╡ 6123cf6d-fc29-4a8f-a5a1-4366cc6457b6
+animals2
+
 # ╔═╡ 60183ad1-4919-4402-83fb-d53b86dda0a6
 MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"])
 
@@ -123,8 +145,12 @@ MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "
 # ╟─a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 # ╠═8bfaf4c8-557d-433e-a228-aac493746efc
 # ╠═8e9f3962-d86c-4e07-b5d3-f31ee5361ca2
+# ╠═a8a7e90d-8bbf-4ab6-90a8-24a10885fb0a
+# ╠═6123cf6d-fc29-4a8f-a5a1-4366cc6457b6
 # ╠═60183ad1-4919-4402-83fb-d53b86dda0a6
 # ╟─c8350f43-0d30-45d0-873b-ff56c5801ac1
+# ╟─79c4dc76-efa2-4b7f-99ea-243e3a17f81c
+# ╟─499ca710-1a50-4aa1-87d8-d213416e8e30
 # ╠═430e2c1a-832f-11eb-024a-13e3989fd7c2
 # ╠═34012b14-d597-4b9d-b23d-66b638e4c282
 # ╠═144bff17-30eb-458a-8e94-33e1f11edbeb
