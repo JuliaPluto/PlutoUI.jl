@@ -42,6 +42,9 @@ if skip_as_script(@__MODULE__)
 	Text("Project env active")
 end
 
+# ╔═╡ 631c14bf-e2d3-4a24-8ddc-095a3dab80ef
+import AbstractPlutoDingetjes
+
 # ╔═╡ 144bff17-30eb-458a-8e94-33e1f11edbeb
 "Convert a Julia array to a JS array in string form."
 function jsarray_string(a::AbstractVector{T}) where {T <: AbstractString}
@@ -124,6 +127,14 @@ function Base.show(io::IO, ::MIME"text/html", multicheckbox::MultiCheckBox)
 end
 
 Base.get(select::MultiCheckBox) = ismissing(select.default) ? Any[] : select.default
+
+	AbstractPlutoDingetjes.Bonds.initial_value(select::MultiCheckBox) = 
+		ismissing(select.default) ? Any[] : select.default
+	AbstractPlutoDingetjes.Bonds.possible_values(select::MultiCheckBox) = 
+		subarrays(first.(select.options))
+	function AbstractPlutoDingetjes.Bonds.validate_value(select::MultiCheckBox, val)
+		val isa Vector && val ⊆ (first(p) for p in select.options)
+	end
 end
 
 # ╔═╡ 8bfaf4c8-557d-433e-a228-aac493746efc
@@ -151,6 +162,7 @@ MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "
 # ╟─c8350f43-0d30-45d0-873b-ff56c5801ac1
 # ╟─79c4dc76-efa2-4b7f-99ea-243e3a17f81c
 # ╟─499ca710-1a50-4aa1-87d8-d213416e8e30
+# ╠═631c14bf-e2d3-4a24-8ddc-095a3dab80ef
 # ╠═430e2c1a-832f-11eb-024a-13e3989fd7c2
 # ╠═34012b14-d597-4b9d-b23d-66b638e4c282
 # ╠═144bff17-30eb-458a-8e94-33e1f11edbeb

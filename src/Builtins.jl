@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.1
+# v0.17.0
 
 using Markdown
 using InteractiveUtils
@@ -55,11 +55,14 @@ import Random: randstring
 # ╔═╡ 6da84fb9-a629-4e4c-819e-dd87a3e267ce
 import Dates
 
+# ╔═╡ dc3b6628-f453-46d9-b6a1-957608a20764
+import AbstractPlutoDingetjes
+
 # ╔═╡ d088bcdb-d851-4ad7-b5a0-751c1f348995
 begin
 	struct Slider
 		range::AbstractRange
-		default::Number
+		default::Real
 		show_value::Bool
 	end
 	
@@ -95,6 +98,11 @@ begin
 	end
 
 	Base.get(slider::Slider) = slider.default
+	AbstractPlutoDingetjes.Bonds.initial_value(slider::Slider) = slider.default
+	AbstractPlutoDingetjes.Bonds.possible_values(slider::Slider) = slider.range
+	function AbstractPlutoDingetjes.Bonds.validate_value(slider::Slider, val)
+		val isa Real && (minimum(slider) - 0.0001 <= val <= maximum(slider) + 0.0001)
+	end
 end
 
 # ╔═╡ f59eef32-4732-46db-87b0-3564433ce43e
@@ -121,7 +129,11 @@ begin
 	end
 	
 	Base.get(numberfield::NumberField) = numberfield.default
-	
+	AbstractPlutoDingetjes.Bonds.initial_value(nf::NumberField) = nf.default
+	AbstractPlutoDingetjes.Bonds.possible_values(nf::NumberField) = nf.range
+	function AbstractPlutoDingetjes.Bonds.validate_value(nf::NumberField, val)
+		val isa Real && (minimum(nf) - 0.0001 <= val <= maximum(nf) + 0.0001)
+	end
 end
 
 # ╔═╡ b7c21c22-17f5-44b8-98de-a261d5c7192b
@@ -161,6 +173,11 @@ begin
 	end
 	
 	Base.get(button::LabelButton) = button.label
+	AbstractPlutoDingetjes.Bonds.initial_value(b::LabelButton) = b.label
+	AbstractPlutoDingetjes.Bonds.possible_values(b::LabelButton) = [b.label]
+	function AbstractPlutoDingetjes.Bonds.validate_value(b::LabelButton, val)
+		val == b.label
+	end
 end
 
 # ╔═╡ 7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
@@ -223,6 +240,11 @@ begin
 	end
 	
 	Base.get(button::CounterButton) = button.label
+	AbstractPlutoDingetjes.Bonds.initial_value(b::CounterButton) = 0
+	AbstractPlutoDingetjes.Bonds.possible_values(b::CounterButton) = AbstractPlutoDingetjes.Bonds.InfinitePossibilities()
+	function AbstractPlutoDingetjes.Bonds.validate_value(b::CounterButton, val)
+		val isa Integer && val >= 0
+	end
 end
 
 # ╔═╡ 76c3b77b-08aa-4899-bbdd-4f8faa8d1486
@@ -248,6 +270,11 @@ begin
 	end
 	
 	Base.get(checkbox::CheckBox) = checkbox.default
+	AbstractPlutoDingetjes.Bonds.initial_value(b::CheckBox) = b.default
+	AbstractPlutoDingetjes.Bonds.possible_values(b::CheckBox) = [false, true]
+	function AbstractPlutoDingetjes.Bonds.validate_value(b::CheckBox, val)
+		val isa Bool
+	end
 end
 
 # ╔═╡ f81bb386-203b-4392-b974-a1e2146b1a08
@@ -282,6 +309,11 @@ begin
 	end
 	
 	Base.get(textfield::TextField) = textfield.default
+	AbstractPlutoDingetjes.Bonds.initial_value(t::TextField) = t.default
+	AbstractPlutoDingetjes.Bonds.possible_values(t::TextField) = AbstractPlutoDingetjes.Bonds.InfinitePossibilities()
+	function AbstractPlutoDingetjes.Bonds.validate_value(t::TextField, val)
+		t isa AbstractString
+	end
 end
 
 # ╔═╡ 4363f31e-1d71-4ad8-bfe8-04403d2d3621
@@ -310,7 +342,11 @@ begin
 	end
 	
 	Base.get(passwordfield::PasswordField) = passwordfield.default
-	
+	AbstractPlutoDingetjes.Bonds.initial_value(t::PasswordField) = t.default
+	AbstractPlutoDingetjes.Bonds.possible_values(t::PasswordField) = AbstractPlutoDingetjes.Bonds.InfinitePossibilities()
+	function AbstractPlutoDingetjes.Bonds.validate_value(t::PasswordField, val)
+		t isa AbstractString
+	end
 end
 
 # ╔═╡ eb4e17fd-07ba-4031-a39f-0d9fccd3d886
@@ -350,8 +386,15 @@ begin
 		)</select>"""))
 	end
 	
-	Base.get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
-	
+	Base.get(select::Select) = 
+		ismissing(select.default) ? first(select.options).first : select.default
+	AbstractPlutoDingetjes.Bonds.initial_value(select::Select) = 
+		ismissing(select.default) ? first(select.options).first : select.default
+	AbstractPlutoDingetjes.Bonds.possible_values(select::Select) = 
+		first.(select.options)
+	function AbstractPlutoDingetjes.Bonds.validate_value(select::Select, val)
+		val ∈ (first(p) for p in select.options)
+	end
 end
 
 # ╔═╡ d64bb805-b700-4fd6-8894-2980152ce250
@@ -359,6 +402,18 @@ Select(["a" => "✅", "b" => "🆘", "c" => "🆘"])
 
 # ╔═╡ 4f3ba840-28ce-4790-b929-ce6af8920189
 Select(["a" => "🆘", "b" => "✅", "c" => "🆘"]; default="b")
+
+# ╔═╡ f21db694-2acb-417d-9f4d-0d2400aa067e
+function subarrays(x)
+
+	
+	[
+		x[collect(I)]
+		for I in Iterators.product(Iterators.repeated([true,false],length(x))...) |> collect |> vec
+	]
+
+	
+end
 
 # ╔═╡ 5bacf96d-f24b-4e8b-81c7-47140f286e27
 begin
@@ -396,7 +451,18 @@ function Base.show(io::IO, m::MIME"text/html", select::MultiSelect)
 end
 
 Base.get(select::MultiSelect) = ismissing(select.default) ? Any[] : select.default
+
+	AbstractPlutoDingetjes.Bonds.initial_value(select::MultiSelect) = 
+		ismissing(select.default) ? Any[] : select.default
+	AbstractPlutoDingetjes.Bonds.possible_values(select::MultiSelect) = 
+		subarrays(first.(select.options))
+	function AbstractPlutoDingetjes.Bonds.validate_value(select::MultiSelect, val)
+		val isa Vector && val ⊆ (first(p) for p in select.options)
+	end
 end
+
+# ╔═╡ 4d8ea460-ff2b-4e92-966e-89e76d4806af
+subarrays([2,3,3])
 
 # ╔═╡ 998a3bd7-2d09-4b3f-8a41-50736b666dea
 MultiSelect(["a" => "🆘", "b" => "✅", "c" => "🆘",  "d" => "✅", "c" => "🆘2", "c3" => "🆘"]; default=["b","d"])
@@ -432,7 +498,17 @@ function Base.show(io::IO, m::MIME"text/html", filepicker::FilePicker)
     )>"""))
 end
 
-Base.get(select::FilePicker) = Dict("name" => "", "data" => UInt8[], "type" => "")
+Base.get(select::FilePicker) = nothing
+
+	AbstractPlutoDingetjes.Bonds.initial_value(select::FilePicker) = 
+		nothing
+	AbstractPlutoDingetjes.Bonds.possible_values(select::FilePicker) = 
+		AbstractPlutoDingetjes.Bonds.InfinitePossibilities()
+	function AbstractPlutoDingetjes.Bonds.validate_value(select::FilePicker, val)
+		val isa Nothing || (
+			val isa Dict && keys(val) == ["name", "data", "type"] && val["data"] isa Vector{UInt8} && val["name"] isa String && val["type"] isa String
+		)
+	end	
 end
 
 # ╔═╡ db65293b-891a-43a3-8a42-b23bf542755f
@@ -513,6 +589,14 @@ function Base.show(io::IO, m::MIME"text/html", radio::Radio)
 end
 
 Base.get(radio::Radio) = radio.default
+
+	
+	AbstractPlutoDingetjes.Bonds.initial_value(select::Radio) = select.default
+	AbstractPlutoDingetjes.Bonds.possible_values(select::Radio) = 
+		first.(select.options)
+	function AbstractPlutoDingetjes.Bonds.validate_value(select::Radio, val)
+		val ∈ (first(p) for p in select.options)
+	end
 end
 
 # ╔═╡ 7c4303a1-19be-41a2-a6c7-90146e01401d
@@ -547,6 +631,11 @@ function Base.show(io::IO, m::MIME"text/html", datefield::DateField)
 			>"""))
 end
 Base.get(datefield::DateField) = datefield.default === nothing ? nothing : Dates.DateTime(datefield.default)
+	AbstractPlutoDingetjes.Bonds.initial_value(datefield::DateField) = 
+		datefield.default === nothing ? nothing : Dates.DateTime(datefield.default)
+	AbstractPlutoDingetjes.Bonds.possible_values(datefield::DateField) = 
+		AbstractPlutoDingetjes.Bonds.InfinitePossibilities()
+	
 end
 
 # ╔═╡ ea7c4d05-c516-4f07-9d48-7df9ce997939
@@ -575,6 +664,11 @@ function Base.show(io::IO, m::MIME"text/html", timefield::TimeField)
 	>"))
 end
 Base.get(timefield::TimeField) = timefield.default === nothing ?  "" : Dates.format(timefield.default, "HH:MM")
+	AbstractPlutoDingetjes.Bonds.initial_value(timefield::TimeField) = 
+		timefield.default === nothing ?  "" : Dates.format(timefield.default, "HH:MM")
+	AbstractPlutoDingetjes.Bonds.possible_values(timefield::TimeField) = 
+		AbstractPlutoDingetjes.Bonds.InfinitePossibilities()
+	
 end
 
 # ╔═╡ 4c9c1e24-235f-44f6-83f3-9f985f7fb536
@@ -602,6 +696,14 @@ function Base.show(io::IO, ::MIME"text/html", colorStringPicker::ColorStringPick
     withtag(() -> (), io, :input, :type=>"color", :value=>colorStringPicker.default)
 end
 Base.get(colorStringPicker::ColorStringPicker) = colorStringPicker.default
+
+	AbstractPlutoDingetjes.Bonds.initial_value(c::ColorStringPicker) = 
+		c.default
+	AbstractPlutoDingetjes.Bonds.possible_values(c::ColorStringPicker) = 
+		AbstractPlutoDingetjes.Bonds.InfinitePossibilities()
+	function AbstractPlutoDingetjes.Bonds.validate_value(c::ColorStringPicker, val)
+		val isa String && val[1] == "#"
+	end
 end
 
 # ╔═╡ ec870eea-36a4-48b6-95d7-f7c083e29856
@@ -785,6 +887,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═a0fb4f28-bfe4-4877-bf07-31acb9a56d2c
 # ╠═ac542b84-dbc8-47e2-8835-9e43582b6ad7
 # ╠═6da84fb9-a629-4e4c-819e-dd87a3e267ce
+# ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
 # ╠═d088bcdb-d851-4ad7-b5a0-751c1f348995
 # ╠═ec870eea-36a4-48b6-95d7-f7c083e29856
@@ -826,6 +929,8 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═d64bb805-b700-4fd6-8894-2980152ce250
 # ╠═4f3ba840-28ce-4790-b929-ce6af8920189
 # ╠═5bacf96d-f24b-4e8b-81c7-47140f286e27
+# ╟─f21db694-2acb-417d-9f4d-0d2400aa067e
+# ╠═4d8ea460-ff2b-4e92-966e-89e76d4806af
 # ╠═78473a2f-0a64-4aa5-a60a-94031a4167b8
 # ╠═43f86637-9f0b-480c-826a-bbf583e44646
 # ╠═b6697df5-fd21-4553-9e90-1d33c0b51f70
