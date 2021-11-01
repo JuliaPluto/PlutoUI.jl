@@ -1,0 +1,110 @@
+/* 
+  Slider styling css after  Márk Munkácsi. 
+ This was public on codepen, so it is MIT: https://blog.codepen.io/documentation/licensing/
+ See  https://dev.to/munkacsimark/styled-range-input-a-way-out-of-range-input-nightmare-jeo , 
+ also for explanations.
+*/
+
+/* 
+   These variables configures the appearance of the slider.
+
+   Two modifications wrt. to the orginal (citation above):
+
+   -  colors modifid in order to work better with white background.
+   -  added variable `--width`
+*/
+input[type="range"] {
+  --thumbSize: 15px;
+  --trackSize: 8px;
+  --thumbBg: #ddd;
+  --trackBg: #ccc;
+  --progressBg: #888;
+  --width: 13%; 
+  /* webkit progress workaround */
+  --webkitProgressPercent: 0%;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  height: var(--thumbSize);
+  width: var(--width);
+  margin: 0;
+  padding: 0;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+/* Thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--thumbSize);
+  height: var(--thumbSize);
+  background-color: var(--thumbBg);
+  border-radius: calc(var(--thumbSize) / 2);
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: calc(((var(--thumbSize) - var(--trackSize)) / 2) * -1);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  -moz-appearance: none;
+  appearance: none;
+  width: var(--thumbSize);
+  height: var(--thumbSize);
+  background-color: var(--thumbBg);
+  border-radius: calc(var(--thumbSize) / 2);
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: calc(((var(--thumbSize) - var(--trackSize)) / 2) * -1);
+  cursor: pointer;
+}
+input[type="range"]::-ms-thumb {
+  -ms-appearance: none;
+  appearance: none;
+  width: var(--thumbSize);
+  height: var(--thumbSize);
+  background-color: var(--thumbBg);
+  border-radius: calc(var(--thumbSize) / 2);
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  margin-top: calc(((var(--thumbSize) - var(--trackSize)) / 2) * -1);
+  cursor: pointer;
+}
+
+/* Track */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: var(--trackSize);
+  background-image: linear-gradient(
+    90deg,
+    var(--progressBg) var(--webkitProgressPercent),
+    var(--trackBg) var(--webkitProgressPercent)
+  );
+  border-radius: calc(var(--trackSize) / 2);
+}
+input[type="range"]::-moz-range-track {
+  height: var(--trackSize);
+  background-color: var(--trackBg);
+  border-radius: calc(var(--trackSize) / 2);
+}
+input[type="range"]::-ms-track {
+  height: var(--trackSize);
+  background-color: var(--trackBg);
+  border-radius: calc(var(--trackSize) / 2);
+}
+
+/* Progress */
+input[type="range"]::-moz-range-progress {
+  height: var(--trackSize);
+  background-color: var(--progressBg);
+  border-radius: calc(var(--trackSize) / 2) 0 0 calc(var(--trackSize) / 2);
+}
+input[type="range"]::-ms-fill-lower {
+  height: var(--trackSize);
+  background-color: var(--progressBg);
+  border-radius: calc(var(--trackSize) / 2) 0 0 calc(var(--trackSize) / 2);
+}
