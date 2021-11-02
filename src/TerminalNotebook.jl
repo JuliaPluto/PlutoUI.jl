@@ -146,12 +146,12 @@ with_terminal(dump, [1,2,[3,4]])
 
 See also [PlutoUI.Dump](@ref).
 """
-function with_terminal(f; color=true, show_value=true)
+function with_terminal(f, args...; color=true, show_value=true)
 	if color
 		force_color_stdout() do
 			force_color_crayons() do
 				value, output = IOCapture.capture(color=true) do
-					f()
+					f(args...)
 				end
 				WithTerminalOutput(
 					value=value,
@@ -162,7 +162,7 @@ function with_terminal(f; color=true, show_value=true)
 		end
 	else
 		value, output = IOCapture.capture() do
-			f()
+			f(args...)
 		end
 		WithTerminalOutput(
 			value=value,
