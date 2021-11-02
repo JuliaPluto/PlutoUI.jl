@@ -1041,7 +1041,7 @@ bse
 @bind se2 Select(["a" => "✅", "b" => "🆘", "c" => "🆘"])
 
 # ╔═╡ 9729fa52-7cff-4905-9d1c-1d0eefc8ad6e
-@bind se3 Select([cos => "cosine", sin => "sine"])
+@bind se3 Select([cos => "cosine", sin => "sine"]; default=sin)
 
 # ╔═╡ d08b571c-fe08-4911-b9f3-5a1075be50ea
 @bind se4 Select([[1,Ref(2)], sqrt, cos])
