@@ -33,7 +33,7 @@ if skip_as_script(@__MODULE__)
 end
 
 # ╔═╡ fed9022f-1e8e-4f47-92d8-f99065023d29
-import AbstractPlutoDingetjes
+import AbstractPlutoDingetjes.Bonds
 
 # ╔═╡ 05804305-cb1f-4c97-8937-f56289222bd7
 md"""
@@ -91,13 +91,12 @@ begin
 	end
 	
 	Base.get(clock::Clock) = 1
-	AbstractPlutoDingetjes.Bonds.initial_value(c::Clock) = 
-		c.default
-	AbstractPlutoDingetjes.Bonds.possible_values(c::Clock) = 
+	Bonds.initial_value(c::Clock) = 1
+	Bonds.possible_values(c::Clock) = 
 		c.max_value === nothing ? 
-			AbstractPlutoDingetjes.Bonds.InfinitePossibilities() :
+			Bonds.InfinitePossibilities() :
 			1:c.max_value
-	function AbstractPlutoDingetjes.Bonds.validate_value(c::Clock, val)
+	function Bonds.validate_value(c::Clock, val)
 		val isa Integer && 1 <= val && (c.max_value === nothing || val <= c.max_value)
 	end
 end

@@ -614,16 +614,10 @@ HTML(repr(MIME"text/html"(), Select(["a" => "✅", "b" => "🆘", "c" => "🆘"]
 @skip_as_script HTML(repr(MIME"text/html"(), Select([sin, cos])))
 
 # ╔═╡ f21db694-2acb-417d-9f4d-0d2400aa067e
-function subarrays(x)
-
-	
-	[
-		x[collect(I)]
-		for I in Iterators.product(Iterators.repeated([true,false],length(x))...) |> collect |> vec
-	]
-
-	
-end
+subarrays(x) = (
+	x[collect(I)]
+	for I in Iterators.product(Iterators.repeated([true,false],length(x))...) |> collect |> vec
+)
 
 # ╔═╡ 5bacf96d-f24b-4e8b-81c7-47140f286e27
 begin
@@ -676,7 +670,7 @@ Base.get(select::MultiSelect) = ismissing(select.default) ? Any[] : select.defau
 end
 
 # ╔═╡ 4d8ea460-ff2b-4e92-966e-89e76d4806af
-subarrays([2,3,3])
+subarrays([2,3,3]) |> collect
 
 # ╔═╡ 998a3bd7-2d09-4b3f-8a41-50736b666dea
 MultiSelect(["a" => "🆘", "b" => "✅", "c" => "🆘",  "d" => "✅", "c" => "🆘2", "c3" => "🆘"]; default=["b","d"])
