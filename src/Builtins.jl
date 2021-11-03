@@ -577,7 +577,7 @@ begin
 	Base.get(select::Select) = select.default
 	Bonds.initial_value(select::Select) = select.default
 	
-	Bonds.possible_values(select::Select) = (o.first for o in select.options)
+	Bonds.possible_values(select::Select) = 1:length(select.options)
 	
 	function Bonds.transform_value(select::Select, val_from_js)
 		val_num = val_from_js isa Integer ? val_from_js : tryparse(Int64, val_from_js)
