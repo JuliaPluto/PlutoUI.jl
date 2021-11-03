@@ -283,7 +283,7 @@ begin
 end
 
 # ╔═╡ 7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
-const Button = CounterButton
+const Button = LabelButton
 
 # ╔═╡ 3ae2351b-ac4a-4669-bb11-39a1c029b301
 Button()
