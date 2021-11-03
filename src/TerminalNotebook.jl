@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.1
+# v0.17.0
 
 using Markdown
 using InteractiveUtils
@@ -146,12 +146,12 @@ with_terminal(dump, [1,2,[3,4]])
 
 See also [PlutoUI.Dump](@ref).
 """
-function with_terminal(f; color=true, show_value=true)
+function with_terminal(f, args...; color=true, show_value=true)
 	if color
 		force_color_stdout() do
 			force_color_crayons() do
 				value, output = IOCapture.capture(color=true) do
-					f()
+					f(args...)
 				end
 				WithTerminalOutput(
 					value=value,
@@ -162,7 +162,7 @@ function with_terminal(f; color=true, show_value=true)
 		end
 	else
 		value, output = IOCapture.capture() do
-			f()
+			f(args...)
 		end
 		WithTerminalOutput(
 			value=value,
@@ -218,6 +218,9 @@ md"## Examples"
 	@error "Hi"
 end
 
+# ╔═╡ c2c01f9a-151d-46b5-9ffd-45087fbf9381
+@skip_as_script with_terminal(dump, [1,2,[3,4]])
+
 # ╔═╡ 15383b08-1ad9-4f0b-9eb0-e55025ef5c26
 md"""
 ### Crayons
@@ -259,9 +262,6 @@ md"""
 Just keeping this here in case someone wants to un-@skip\_as\_script it
 """
 
-# ╔═╡ 329d47a4-7ae1-49fb-9411-55cbc113195b
-@skip_as_script @with_terminal @info "Hey!"
-
 # ╔═╡ e8f72c6d-1b48-4b30-acee-4ec519682070
 @skip_as_script macro with_terminal(expr)
 	quote
@@ -270,6 +270,9 @@ Just keeping this here in case someone wants to un-@skip\_as\_script it
 		end
 	end
 end
+
+# ╔═╡ 329d47a4-7ae1-49fb-9411-55cbc113195b
+@skip_as_script @with_terminal @info "Hey!"
 
 # ╔═╡ Cell order:
 # ╠═924c5ca1-f9f1-4b4b-b3d9-e74d6b2feae9
@@ -289,6 +292,7 @@ end
 # ╟─0ffed232-19c8-47f1-af97-23989687ae6e
 # ╟─3072a9cf-ad45-463c-866e-ed2bba434a95
 # ╠═5cd4a175-2290-441a-989d-f26921d090bb
+# ╠═c2c01f9a-151d-46b5-9ffd-45087fbf9381
 # ╟─15383b08-1ad9-4f0b-9eb0-e55025ef5c26
 # ╠═24250f93-16ce-456c-919f-d3a3d57a58f0
 # ╠═d501d4fd-975b-4459-b9e0-bfb8947ee538
