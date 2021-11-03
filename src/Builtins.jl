@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.0
+# v0.17.1
 
 using Markdown
 using InteractiveUtils
@@ -180,7 +180,7 @@ begin
 	Base.get(slider::Slider) = slider.default
 	Bonds.initial_value(slider::Slider) = slider.default
 	
-	Bonds.possible_values(slider::Slider) = slider.range
+	Bonds.possible_values(slider::Slider) = 1:length(slider.values)
 	
 	function Bonds.transform_value(slider::Slider, val_from_js)
 		slider.values[val_from_js]
@@ -468,9 +468,6 @@ begin
 	result
 end
 
-# ╔═╡ 519f4da9-0205-486e-aea6-9dd5db6b38e0
-
-
 # ╔═╡ edfdbaee-ec31-40c2-9ad5-28250fe6b651
 begin
 	local result = begin
@@ -613,6 +610,102 @@ HTML(repr(MIME"text/html"(), Select(["a" => "✅", "b" => "🆘", "c" => "🆘"]
 # ╔═╡ f3bef89c-61ac-4dcf-bf47-3824f11db26f
 @skip_as_script HTML(repr(MIME"text/html"(), Select([sin, cos])))
 
+# ╔═╡ 42e9e5ab-7d34-4300-a6c0-47f5cde658d8
+begin
+	local result = begin
+"""A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
+
+`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
+
+
+# Examples
+`@bind veg Radio(["potato", "carrot"])`
+
+`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"])`
+
+`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
+
+"""
+struct Radio
+    options::Vector{Pair{<:AbstractString,<:Any}}
+    default::Union{Nothing, AbstractString}
+end
+	end
+Radio(options::AbstractVector{<:AbstractString}; default=nothing) = Radio([o => o for o in options], default)
+Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=nothing) = Radio(options, default)
+
+function Base.show(io::IO, m::MIME"text/html", radio::Radio)
+    groupname = randstring('a':'z')
+		
+	h = @htl("""
+		<form>$(
+		map(radio.options) do o
+			@htl("""<div>
+				<input 
+					type="radio" 
+					id=$(groupname * o.first) 
+					name=$(groupname) 
+					value=$(o.first)
+					checked=$(radio.default === o.first)
+					>
+
+                <label for=$(groupname * o.first)>$(
+					o.second
+				)</label>
+            </div>""")
+        end	
+		)
+		<script>
+		const form = currentScript.parentElement
+		const groupname = $(groupname)
+		
+        const selected_radio = form.querySelector('input[checked]')
+
+		let val = selected_radio?.value
+
+		Object.defineProperty(form, "value", {
+			get: () => val,
+			set: (newval) => {
+				val = newval
+				const i = document.getElementById(groupname + newval)
+				if(i != null){
+					i.checked = true
+				}
+			},
+		})
+
+        form.oninput = (e) => {
+            val = e.target.value
+            // and bubble upwards
+        }
+
+        
+		</script>
+		</form>
+	""")
+	show(io, m, h)
+end
+
+Base.get(radio::Radio) = radio.default
+
+	
+	Bonds.initial_value(select::Radio) = select.default
+	Bonds.possible_values(select::Radio) = 
+		first.(select.options)
+	function Bonds.validate_value(select::Radio, val)
+		val ∈ (first(p) for p in select.options)
+	end
+	result
+end
+
+# ╔═╡ 7c4303a1-19be-41a2-a6c7-90146e01401d
+md"""
+nothing checked by defualt, the initial value should be `nothing`
+"""
+
+# ╔═╡ d9522557-07e6-4a51-ae92-3abe7a7d2732
+r1s = [];
+
 # ╔═╡ f21db694-2acb-417d-9f4d-0d2400aa067e
 subarrays(x) = (
 	x[collect(I)]
@@ -725,102 +818,6 @@ end
 
 # ╔═╡ db65293b-891a-43a3-8a42-b23bf542755f
 FilePicker([MIME"image/png"()])
-
-# ╔═╡ 42e9e5ab-7d34-4300-a6c0-47f5cde658d8
-begin
-	local result = begin
-"""A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
-
-`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
-
-
-# Examples
-`@bind veg Radio(["potato", "carrot"])`
-
-`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"])`
-
-`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
-
-"""
-struct Radio
-    options::Vector{Pair{<:AbstractString,<:Any}}
-    default::Union{Nothing, AbstractString}
-end
-	end
-Radio(options::AbstractVector{<:AbstractString}; default=nothing) = Radio([o => o for o in options], default)
-Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=nothing) = Radio(options, default)
-
-function Base.show(io::IO, m::MIME"text/html", radio::Radio)
-    groupname = randstring('a':'z')
-		
-	h = @htl("""
-		<form>$(
-		map(radio.options) do o
-			@htl("""<div>
-				<input 
-					type="radio" 
-					id=$(groupname * o.first) 
-					name=$(groupname) 
-					value=$(o.first)
-					checked=$(radio.default === o.first)
-					>
-
-                <label for=$(groupname * o.first)>$(
-					o.second
-				)</label>
-            </div>""")
-        end	
-		)
-		<script>
-		const form = currentScript.parentElement
-		const groupname = $(groupname)
-		
-        const selected_radio = form.querySelector('input[checked]')
-
-		let val = selected_radio?.value
-
-		Object.defineProperty(form, "value", {
-			get: () => val,
-			set: (newval) => {
-				val = newval
-				const i = document.getElementById(groupname + newval)
-				if(i != null){
-					i.checked = true
-				}
-			},
-		})
-
-        form.oninput = (e) => {
-            val = e.target.value
-            // and bubble upwards
-        }
-
-        
-		</script>
-		</form>
-	""")
-	show(io, m, h)
-end
-
-Base.get(radio::Radio) = radio.default
-
-	
-	Bonds.initial_value(select::Radio) = select.default
-	Bonds.possible_values(select::Radio) = 
-		first.(select.options)
-	function Bonds.validate_value(select::Radio, val)
-		val ∈ (first(p) for p in select.options)
-	end
-	result
-end
-
-# ╔═╡ 7c4303a1-19be-41a2-a6c7-90146e01401d
-md"""
-nothing checked by defualt, the initial value should be `nothing`
-"""
-
-# ╔═╡ d9522557-07e6-4a51-ae92-3abe7a7d2732
-r1s = [];
 
 # ╔═╡ d611e6f7-c574-4f0f-a46f-48ec8cf4b5aa
 begin
@@ -941,6 +938,9 @@ f
 # ╔═╡ 46a90b45-8fef-493e-9bd1-a71d1f9c53f6
 f(123)
 
+# ╔═╡ 5b9d9e05-81ef-4866-b130-5acadac852e3
+Bonds.possible_values(Slider([cos, sin]))
+
 # ╔═╡ 328e9651-0ad1-46ce-904c-afd7deaacf94
 bs = @bind s1 Slider(1:10)
 
@@ -1052,6 +1052,18 @@ bose
 # ╔═╡ a238ec69-d38b-464a-9b36-959531574d19
 ose1
 
+# ╔═╡ a95684ea-4612-45d6-b63f-41c051b53ed8
+br1 = @bind r1 Radio(["a" => "default", teststr => teststr])
+
+# ╔═╡ a5612030-0781-4cf1-b8f0-409bd3886154
+br1
+
+# ╔═╡ c2b3a7a4-8c9e-49cc-b5d0-85ad1c08fd72
+r1
+
+# ╔═╡ 69a94f6a-420a-4587-bbad-1219a390862d
+push!(r1s, r1)
+
 # ╔═╡ 78473a2f-0a64-4aa5-a60a-94031a4167b8
 bms = @bind ms1 MultiSelect(["a" => "default", teststr => teststr])
 
@@ -1069,18 +1081,6 @@ bf
 
 # ╔═╡ 5ed47c49-9a31-4948-8473-0311b54eb146
 f1
-
-# ╔═╡ a95684ea-4612-45d6-b63f-41c051b53ed8
-br1 = @bind r1 Radio(["a" => "default", teststr => teststr])
-
-# ╔═╡ a5612030-0781-4cf1-b8f0-409bd3886154
-br1
-
-# ╔═╡ c2b3a7a4-8c9e-49cc-b5d0-85ad1c08fd72
-r1
-
-# ╔═╡ 69a94f6a-420a-4587-bbad-1219a390862d
-push!(r1s, r1)
 
 # ╔═╡ a1666896-baf6-466c-b680-5f3e3dffff68
 bd = @bind d1 DateField()
@@ -1162,6 +1162,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
 # ╠═5caa34e8-e501-4248-be65-ef9c6303d025
 # ╠═46a90b45-8fef-493e-9bd1-a71d1f9c53f6
+# ╠═5b9d9e05-81ef-4866-b130-5acadac852e3
 # ╠═328e9651-0ad1-46ce-904c-afd7deaacf94
 # ╠═38d32393-49be-469c-840b-b58c7339a276
 # ╠═75b008b2-afc0-4bd5-9183-e0e0d392a4c5
@@ -1203,7 +1204,6 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═d8c60294-0ca6-4cb0-b51d-9f6d6b370b28
 # ╠═fbc6e4c1-4bd8-43a2-ac82-e6f76033fd8e
 # ╟─eb4e17fd-07ba-4031-a39f-0d9fccd3d886
-# ╠═519f4da9-0205-486e-aea6-9dd5db6b38e0
 # ╠═57a7d0c9-2f4a-44e6-9b7a-0bbd98611c9d
 # ╠═c9a291c5-b5f5-40a6-acb3-eff4882c1516
 # ╠═9729fa52-7cff-4905-9d1c-1d0eefc8ad6e
@@ -1220,7 +1220,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═609ab7f4-4fc4-4122-986d-9bfe54fa715d
 # ╠═6459df3f-143f-4d1a-a238-4447b11cc56c
 # ╠═f3bef89c-61ac-4dcf-bf47-3824f11db26f
-# ╠═42e9e5ab-7d34-4300-a6c0-47f5cde658d8
+# ╟─42e9e5ab-7d34-4300-a6c0-47f5cde658d8
 # ╠═57232d88-b74f-4823-be61-8db450c93f5c
 # ╟─7c4303a1-19be-41a2-a6c7-90146e01401d
 # ╠═a95684ea-4612-45d6-b63f-41c051b53ed8
