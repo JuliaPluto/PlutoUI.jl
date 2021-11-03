@@ -4,6 +4,7 @@ authors = ["Fons van der Plas <fons@plutojl.org>"]
 version = "0.7.17"
 
 [deps]
+AbstractPlutoDingetjes = "6e696c72-6542-2067-7265-42206c756150"
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Hyperscript = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
@@ -18,8 +19,9 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
+AbstractPlutoDingetjes = "1.1"
 Hyperscript = "0.0.4"
-HypertextLiteral = "0.8, 0.9"
+HypertextLiteral = "0.9"
 IOCapture = "0.2"
 JSON = "^0.21.1"
 Reexport = "^1"

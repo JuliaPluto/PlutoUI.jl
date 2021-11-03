@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.1
+# v0.17.0
 
 using Markdown
 using InteractiveUtils
@@ -177,6 +177,25 @@ md"""
 ## Definition
 """
 
+# ╔═╡ 1a649975-9e31-4ae8-8b2c-b615852cfc9d
+function skip_as_script(m::Module)
+	if isdefined(m, :PlutoForceDisplay)
+		return m.PlutoForceDisplay
+	else
+		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
+	end
+end
+
+# ╔═╡ 8c1d2b3b-8fa1-4356-8a9d-dff10cd0a336
+if skip_as_script(@__MODULE__)
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Text("Project env active")
+end
+
+# ╔═╡ 58a5b0d2-88a6-4a83-bb26-05c05a51716b
+import AbstractPlutoDingetjes
+
 # ╔═╡ 9c7ce2da-4ad8-11eb-14cd-cfcc8d2a6bf8
 begin
 	"""
@@ -227,6 +246,14 @@ begin
 	Scrubbable(x::Number; kwargs...) = Scrubbable(;values=default_range(x), default=x, kwargs...)
 	
 	Base.get(s::Scrubbable) = s.default
+
+	AbstractPlutoDingetjes.Bonds.initial_value(s::Scrubbable) = 
+		s.default
+	AbstractPlutoDingetjes.Bonds.possible_values(s::Scrubbable) = 
+		s.values
+	function AbstractPlutoDingetjes.Bonds.validate_value(s::Scrubbable, val)
+		val isa Real && minimum(s.values) - 0.001 <= val <= maximum(s.values) + 0.001
+	end
 	
 	function Base.show(io::IO, m::MIME"text/html", s::Scrubbable)
 		format = if s.format === nothing
@@ -329,9 +356,6 @@ begin
 	Scrubbable
 end
 
-# ╔═╡ 5c78e637-5733-4b0a-8dab-bf1cd9656d11
-HTML(join(repr.([MIME"text/html"()], [Scrubbable(1.0) for _ in 1:100])))
-
 # ╔═╡ b62db8c0-4352-4d0f-83a2-ac170ef3337a
 md"""
 _If Alice has $(@bind a Scrubbable(20)) apples, 
@@ -382,6 +406,9 @@ end
 # ╔═╡ b081aa76-f080-4dd0-bcff-4bcc82a1c50a
 bc = @bind cool Scrubbable(199.1)
 
+# ╔═╡ 5c78e637-5733-4b0a-8dab-bf1cd9656d11
+HTML(join(repr.([MIME"text/html"()], [Scrubbable(1.0) for _ in 1:100])))
+
 # ╔═╡ 1d34fec8-01cb-4bee-8144-d8cc13a87b8b
 export Scrubbable
 
@@ -426,5 +453,8 @@ export Scrubbable
 # ╠═d17d259b-8379-46a7-ab54-cd2f697ec713
 # ╠═5c78e637-5733-4b0a-8dab-bf1cd9656d11
 # ╟─aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
+# ╟─1a649975-9e31-4ae8-8b2c-b615852cfc9d
+# ╟─8c1d2b3b-8fa1-4356-8a9d-dff10cd0a336
+# ╠═58a5b0d2-88a6-4a83-bb26-05c05a51716b
 # ╠═9c7ce2da-4ad8-11eb-14cd-cfcc8d2a6bf8
 # ╠═1d34fec8-01cb-4bee-8144-d8cc13a87b8b

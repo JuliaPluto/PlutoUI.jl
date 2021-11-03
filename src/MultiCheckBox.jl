@@ -7,14 +7,15 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
     end
 end
 
-# ╔═╡ 34012b14-d597-4b9d-b23d-66b638e4c282
-using JSON: escape_string
+# ╔═╡ b65c67ec-b79f-4f0e-85e6-78ff22b279d4
+using HypertextLiteral
 
 # ╔═╡ a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 md"""
@@ -42,16 +43,14 @@ if skip_as_script(@__MODULE__)
 	Text("Project env active")
 end
 
-# ╔═╡ 144bff17-30eb-458a-8e94-33e1f11edbeb
-"Convert a Julia array to a JS array in string form."
-function jsarray_string(a::AbstractVector{T}) where {T <: AbstractString}
-	string("[\"", join(map(escape_string, a), "\",\""), "\"]")
-end
+# ╔═╡ 631c14bf-e2d3-4a24-8ddc-095a3dab80ef
+import AbstractPlutoDingetjes.Bonds
 
-# ╔═╡ 91a08b98-52b5-4a2a-8180-7cba6d7232cd
-function jsarray_string(a::AbstractVector{T}) where {T}
-	string("[", join(a, ","), "]")
-end
+# ╔═╡ c38de38d-e900-4309-a9f6-1392af2f245b
+subarrays(x) = (
+	x[collect(I)]
+	for I in Iterators.product(Iterators.repeated([true,false],length(x))...) |> collect |> vec
+)
 
 # ╔═╡ 430e2c1a-832f-11eb-024a-13e3989fd7c2
 begin
@@ -86,7 +85,7 @@ end
 MultiCheckBox(options::Array{<:AbstractString,1}; default=String[], orientation=:row, select_all=false) = MultiCheckBox([o => o for o in options], default, orientation, select_all)
 MultiCheckBox(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=String[], orientation=:row, select_all=false) = MultiCheckBox(options, default, orientation, select_all)
 
-function Base.show(io::IO, ::MIME"text/html", multicheckbox::MultiCheckBox)
+function Base.show(io::IO, m::MIME"text/html", multicheckbox::MultiCheckBox)
     if multicheckbox.orientation == :column 
         flex_direction = "column"
     elseif multicheckbox.orientation == :row
@@ -107,23 +106,31 @@ function Base.show(io::IO, ::MIME"text/html", multicheckbox::MultiCheckBox)
         push!(default_checked, k in multicheckbox.default)
     end
 
-    print(io, """
-    <multi-checkbox class="multicheckbox-container" style="flex-direction:$(flex_direction);"></multi-checkbox>
+    show(io, m, @htl("""
+    <multi-checkbox class="multicheckbox-container" style="flex-direction: $(flex_direction);"></multi-checkbox>
     <script type="text/javascript">
-        const labels = $(jsarray_string(labels));
-        const values = $(jsarray_string(vals));
-        const checked = $(jsarray_string(default_checked));
-        const defaults = $(jsarray_string(multicheckbox.default));
+        const labels = $(labels);
+        const values = $(vals);
+        const checked = $(default_checked);
+        const defaults = $(multicheckbox.default);
         const includeSelectAll = $(multicheckbox.select_all);
-        $(js)
+        $(HypertextLiteral.JavaScript(js))
     </script>
     <style type="text/css">
         $(css)
     </style>
-    """)
+    """))
 end
 
 Base.get(select::MultiCheckBox) = ismissing(select.default) ? Any[] : select.default
+
+	Bonds.initial_value(select::MultiCheckBox) = 
+		ismissing(select.default) ? Any[] : select.default
+	Bonds.possible_values(select::MultiCheckBox) = 
+		subarrays(first.(select.options))
+	function Bonds.validate_value(select::MultiCheckBox, val)
+		val isa Vector && val ⊆ (first(p) for p in select.options)
+	end
 end
 
 # ╔═╡ 8bfaf4c8-557d-433e-a228-aac493746efc
@@ -133,7 +140,7 @@ end
 animals
 
 # ╔═╡ a8a7e90d-8bbf-4ab6-90a8-24a10885fb0a
-@bind animals2 MultiCheckBox(["🐰", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"]; orientation=:column, default=["🐿️" , "🐝"])
+@bind animals2 MultiCheckBox(["\"🐰\\\"", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"]; orientation=:column, default=["🐿️" , "🐝"])
 
 # ╔═╡ 6123cf6d-fc29-4a8f-a5a1-4366cc6457b6
 animals2
@@ -151,7 +158,7 @@ MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "
 # ╟─c8350f43-0d30-45d0-873b-ff56c5801ac1
 # ╟─79c4dc76-efa2-4b7f-99ea-243e3a17f81c
 # ╟─499ca710-1a50-4aa1-87d8-d213416e8e30
+# ╠═631c14bf-e2d3-4a24-8ddc-095a3dab80ef
+# ╠═b65c67ec-b79f-4f0e-85e6-78ff22b279d4
 # ╠═430e2c1a-832f-11eb-024a-13e3989fd7c2
-# ╠═34012b14-d597-4b9d-b23d-66b638e4c282
-# ╠═144bff17-30eb-458a-8e94-33e1f11edbeb
-# ╠═91a08b98-52b5-4a2a-8180-7cba6d7232cd
+# ╠═c38de38d-e900-4309-a9f6-1392af2f245b

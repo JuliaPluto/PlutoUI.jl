@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.1
+# v0.17.0
 
 using Markdown
 using InteractiveUtils
@@ -17,7 +17,23 @@ end
 names(@__MODULE__)
 
 # ╔═╡ b1491ca6-f791-41d8-96b5-28971084f34c
+function skip_as_script(m::Module)
+	if isdefined(m, :PlutoForceDisplay)
+		return m.PlutoForceDisplay
+	else
+		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
+	end
+end
 
+# ╔═╡ 3689bb1b-23f8-41ae-a392-fb2ee2ec40d7
+if skip_as_script(@__MODULE__)
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Text("Project env active")
+end
+
+# ╔═╡ fed9022f-1e8e-4f47-92d8-f99065023d29
+import AbstractPlutoDingetjes.Bonds
 
 # ╔═╡ 05804305-cb1f-4c97-8937-f56289222bd7
 md"""
@@ -75,6 +91,14 @@ begin
 	end
 	
 	Base.get(clock::Clock) = 1
+	Bonds.initial_value(c::Clock) = 1
+	Bonds.possible_values(c::Clock) = 
+		c.max_value === nothing ? 
+			Bonds.InfinitePossibilities() :
+			1:c.max_value
+	function Bonds.validate_value(c::Clock, val)
+		val isa Integer && 1 <= val && (c.max_value === nothing || val <= c.max_value)
+	end
 end
 
 # ╔═╡ 06289ad2-9e2f-45b3-9d15-7c5a4167e138
@@ -139,7 +163,9 @@ a
 # ╠═80c6e80e-077a-4e31-9467-788a8c437bfc
 # ╠═63854404-e6a5-4dc6-a40e-b09b9f531465
 # ╠═e7a070ab-67e7-444b-88d8-87c14aaef046
-# ╠═b1491ca6-f791-41d8-96b5-28971084f34c
+# ╟─b1491ca6-f791-41d8-96b5-28971084f34c
+# ╟─3689bb1b-23f8-41ae-a392-fb2ee2ec40d7
+# ╠═fed9022f-1e8e-4f47-92d8-f99065023d29
 # ╟─05804305-cb1f-4c97-8937-f56289222bd7
 # ╠═9be4d586-76d8-11eb-06ed-c53d3aef0469
 # ╟─a5f8ed96-136c-4ff4-8275-bd569f0dae40
