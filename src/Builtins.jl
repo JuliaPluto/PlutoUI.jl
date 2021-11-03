@@ -108,7 +108,7 @@ begin
 	Bonds.initial_value(slider::OldSlider) = slider.default
 	Bonds.possible_values(slider::OldSlider) = slider.range
 	function Bonds.validate_value(slider::OldSlider, val)
-		val isa Real && (minimum(slider) - 0.0001 <= val <= maximum(slider) + 0.0001)
+		val isa Real && (minimum(slider.range) - 0.0001 <= val <= maximum(slider.range) + 0.0001)
 	end
 
 	result
@@ -228,7 +228,7 @@ begin
 	Bonds.initial_value(nf::NumberField) = nf.default
 	Bonds.possible_values(nf::NumberField) = nf.range
 	function Bonds.validate_value(nf::NumberField, val)
-		val isa Real && (minimum(nf) - 0.0001 <= val <= maximum(nf) + 0.0001)
+		val isa Real && (minimum(nf.range) - 0.0001 <= val <= maximum(nf.range) + 0.0001)
 	end
 
 	result
@@ -424,7 +424,7 @@ begin
 	Bonds.initial_value(t::TextField) = t.default
 	Bonds.possible_values(t::TextField) = Bonds.InfinitePossibilities()
 	function Bonds.validate_value(t::TextField, val)
-		t isa AbstractString
+		val isa AbstractString
 	end
 
 	result
@@ -462,7 +462,7 @@ begin
 	Bonds.initial_value(t::PasswordField) = t.default
 	Bonds.possible_values(t::PasswordField) = Bonds.InfinitePossibilities()
 	function Bonds.validate_value(t::PasswordField, val)
-		t isa AbstractString
+		val isa AbstractString
 	end
 
 	result
