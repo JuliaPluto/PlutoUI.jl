@@ -639,7 +639,7 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 
 `@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`
 
-`@bind letter MultiSelect(string.('a':'z'), size=20)`"""
+`@bind letters MultiSelect(string.('a':'z'), size=20)`"""
 struct MultiSelect
     options::Vector{Pair{<:AbstractString,<:Any}}
     default::Union{Missing, AbstractVector{AbstractString}}
