@@ -628,6 +628,8 @@ See [`Select`](@ref) for a version that allows only one selected item.
 
 `options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
 
+The `size` keyword argument may be used to specify how many rows should be visible at once.
+
 See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select)
 
 # Examples
@@ -635,18 +637,23 @@ See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/W
 
 `@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"])`
 
-`@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`"""
+`@bind veg MultiSelect(["potato" => "🥔", "carrot" => "🥕"], default=["carrot"])`
+
+`@bind letters MultiSelect(string.('a':'z'), size=20)`"""
 struct MultiSelect
     options::Vector{Pair{<:AbstractString,<:Any}}
     default::Union{Missing, AbstractVector{AbstractString}}
+	size::Int
+	MultiSelect(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}, default, size=missing) = 
+			new(options, default, coalesce(size, min(10, length(options))))
 end
 end
-MultiSelect(options::AbstractVector{<:AbstractString}; default=missing) = MultiSelect([o => o for o in options], default)
-MultiSelect(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing) = MultiSelect(options, default)
+MultiSelect(options::AbstractVector{<:AbstractString}; default=missing, size=missing) = MultiSelect([o => o for o in options], default, size)
+MultiSelect(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing, size=missing) = MultiSelect(options, default, size)
 
 function Base.show(io::IO, m::MIME"text/html", select::MultiSelect)
 	show(io, m, @htl("""
-			<select multiple>$(
+			<select multiple size=$(select.size)>$(
 	map(select.options) do o
 			@htl(
 			"<option value=$(o.first) selected=$(!ismissing(select.default) && o.first ∈ select.default)>$(
