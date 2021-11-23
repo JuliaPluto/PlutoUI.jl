@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.0
+# v0.17.2
 
 using Markdown
 using InteractiveUtils
@@ -615,6 +615,102 @@ HTML(repr(MIME"text/html"(), Select(["a" => "✅", "b" => "🆘", "c" => "🆘"]
 # ╔═╡ f3bef89c-61ac-4dcf-bf47-3824f11db26f
 @skip_as_script HTML(repr(MIME"text/html"(), Select([sin, cos])))
 
+# ╔═╡ 42e9e5ab-7d34-4300-a6c0-47f5cde658d8
+begin
+	local result = begin
+"""A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
+
+`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
+
+
+# Examples
+`@bind veg Radio(["potato", "carrot"])`
+
+`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"])`
+
+`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
+
+"""
+struct Radio
+    options::Vector{Pair{<:AbstractString,<:Any}}
+    default::Union{Nothing, AbstractString}
+end
+	end
+Radio(options::AbstractVector{<:AbstractString}; default=nothing) = Radio([o => o for o in options], default)
+Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=nothing) = Radio(options, default)
+
+function Base.show(io::IO, m::MIME"text/html", radio::Radio)
+    groupname = randstring('a':'z')
+		
+	h = @htl("""
+		<form>$(
+		map(radio.options) do o
+			@htl("""<div>
+				<input 
+					type="radio" 
+					id=$(groupname * o.first) 
+					name=$(groupname) 
+					value=$(o.first)
+					checked=$(radio.default === o.first)
+					>
+
+                <label for=$(groupname * o.first)>$(
+					o.second
+				)</label>
+            </div>""")
+        end	
+		)
+		<script>
+		const form = currentScript.parentElement
+		const groupname = $(groupname)
+		
+        const selected_radio = form.querySelector('input[checked]')
+
+		let val = selected_radio?.value
+
+		Object.defineProperty(form, "value", {
+			get: () => val,
+			set: (newval) => {
+				val = newval
+				const i = document.getElementById(groupname + newval)
+				if(i != null){
+					i.checked = true
+				}
+			},
+		})
+
+        form.oninput = (e) => {
+            val = e.target.value
+            // and bubble upwards
+        }
+
+        
+		</script>
+		</form>
+	""")
+	show(io, m, h)
+end
+
+Base.get(radio::Radio) = radio.default
+
+	
+	Bonds.initial_value(select::Radio) = select.default
+	Bonds.possible_values(select::Radio) = 
+		first.(select.options)
+	function Bonds.validate_value(select::Radio, val)
+		val ∈ (first(p) for p in select.options)
+	end
+	result
+end
+
+# ╔═╡ 7c4303a1-19be-41a2-a6c7-90146e01401d
+md"""
+nothing checked by defualt, the initial value should be `nothing`
+"""
+
+# ╔═╡ d9522557-07e6-4a51-ae92-3abe7a7d2732
+r1s = [];
+
 # ╔═╡ f21db694-2acb-417d-9f4d-0d2400aa067e
 subarrays(x) = (
 	x[collect(I)]
@@ -734,102 +830,6 @@ end
 
 # ╔═╡ db65293b-891a-43a3-8a42-b23bf542755f
 FilePicker([MIME"image/png"()])
-
-# ╔═╡ 42e9e5ab-7d34-4300-a6c0-47f5cde658d8
-begin
-	local result = begin
-"""A group of radio buttons - the user can choose one of the `options`, an array of `String`s. 
-
-`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
-
-
-# Examples
-`@bind veg Radio(["potato", "carrot"])`
-
-`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"])`
-
-`@bind veg Radio(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
-
-"""
-struct Radio
-    options::Vector{Pair{<:AbstractString,<:Any}}
-    default::Union{Nothing, AbstractString}
-end
-	end
-Radio(options::AbstractVector{<:AbstractString}; default=nothing) = Radio([o => o for o in options], default)
-Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=nothing) = Radio(options, default)
-
-function Base.show(io::IO, m::MIME"text/html", radio::Radio)
-    groupname = randstring('a':'z')
-		
-	h = @htl("""
-		<form>$(
-		map(radio.options) do o
-			@htl("""<div>
-				<input 
-					type="radio" 
-					id=$(groupname * o.first) 
-					name=$(groupname) 
-					value=$(o.first)
-					checked=$(radio.default === o.first)
-					>
-
-                <label for=$(groupname * o.first)>$(
-					o.second
-				)</label>
-            </div>""")
-        end	
-		)
-		<script>
-		const form = currentScript.parentElement
-		const groupname = $(groupname)
-		
-        const selected_radio = form.querySelector('input[checked]')
-
-		let val = selected_radio?.value
-
-		Object.defineProperty(form, "value", {
-			get: () => val,
-			set: (newval) => {
-				val = newval
-				const i = document.getElementById(groupname + newval)
-				if(i != null){
-					i.checked = true
-				}
-			},
-		})
-
-        form.oninput = (e) => {
-            val = e.target.value
-            // and bubble upwards
-        }
-
-        
-		</script>
-		</form>
-	""")
-	show(io, m, h)
-end
-
-Base.get(radio::Radio) = radio.default
-
-	
-	Bonds.initial_value(select::Radio) = select.default
-	Bonds.possible_values(select::Radio) = 
-		first.(select.options)
-	function Bonds.validate_value(select::Radio, val)
-		val ∈ (first(p) for p in select.options)
-	end
-	result
-end
-
-# ╔═╡ 7c4303a1-19be-41a2-a6c7-90146e01401d
-md"""
-nothing checked by defualt, the initial value should be `nothing`
-"""
-
-# ╔═╡ d9522557-07e6-4a51-ae92-3abe7a7d2732
-r1s = [];
 
 # ╔═╡ d611e6f7-c574-4f0f-a46f-48ec8cf4b5aa
 begin
@@ -1061,6 +1061,18 @@ bose
 # ╔═╡ a238ec69-d38b-464a-9b36-959531574d19
 ose1
 
+# ╔═╡ a95684ea-4612-45d6-b63f-41c051b53ed8
+br1 = @bind r1 Radio(["a" => "default", teststr => teststr])
+
+# ╔═╡ a5612030-0781-4cf1-b8f0-409bd3886154
+br1
+
+# ╔═╡ c2b3a7a4-8c9e-49cc-b5d0-85ad1c08fd72
+r1
+
+# ╔═╡ 69a94f6a-420a-4587-bbad-1219a390862d
+push!(r1s, r1)
+
 # ╔═╡ 78473a2f-0a64-4aa5-a60a-94031a4167b8
 bms = @bind ms1 MultiSelect(["a" => "default", teststr => teststr])
 
@@ -1078,18 +1090,6 @@ bf
 
 # ╔═╡ 5ed47c49-9a31-4948-8473-0311b54eb146
 f1
-
-# ╔═╡ a95684ea-4612-45d6-b63f-41c051b53ed8
-br1 = @bind r1 Radio(["a" => "default", teststr => teststr])
-
-# ╔═╡ a5612030-0781-4cf1-b8f0-409bd3886154
-br1
-
-# ╔═╡ c2b3a7a4-8c9e-49cc-b5d0-85ad1c08fd72
-r1
-
-# ╔═╡ 69a94f6a-420a-4587-bbad-1219a390862d
-push!(r1s, r1)
 
 # ╔═╡ a1666896-baf6-466c-b680-5f3e3dffff68
 bd = @bind d1 DateField()
