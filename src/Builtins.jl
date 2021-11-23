@@ -577,8 +577,8 @@ begin
 		)</select>"""))
 	end
 
-	Base.get(select::Select) = select.default
-	Bonds.initial_value(select::Select) = select.default
+	Base.get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
+	Bonds.initial_value(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
 	
 	Bonds.possible_values(select::Select) = (string(i) for i in 1:length(select.options))
 	
