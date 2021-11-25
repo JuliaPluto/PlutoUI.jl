@@ -64,22 +64,10 @@ import AbstractPlutoDingetjes.Bonds
 
 # ╔═╡ d088bcdb-d851-4ad7-b5a0-751c1f348995
 begin
-	local result = begin
-		"""A Slider on the given `range`.
-
-	## Examples
-	`@bind x OldSlider(1:10)`
-
-	`@bind x OldSlider(0.00 : 0.01 : 0.30)`
-
-	`@bind x OldSlider(1:10; default=8, show_value=true)`
-
-	"""
 	struct OldSlider
 		range::AbstractRange
 		default::Real
 		show_value::Bool
-	end
 	end
 	
 	
@@ -111,7 +99,7 @@ begin
 		val isa Real && (minimum(slider.range) - 0.0001 <= val <= maximum(slider.range) + 0.0001)
 	end
 
-	result
+	OldSlider
 end
 
 # ╔═╡ 96084236-68f1-49b4-b866-027e7c80b5d8
@@ -468,32 +456,11 @@ begin
 	result
 end
 
-# ╔═╡ 519f4da9-0205-486e-aea6-9dd5db6b38e0
-
-
 # ╔═╡ edfdbaee-ec31-40c2-9ad5-28250fe6b651
 begin
-	local result = begin
-	"""
-	A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
-
-	See [`MultiSelect`](@ref) for a version that allows multiple selected items.
-
-	`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
-
-	See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select)
-
-	# Examples
-	`@bind veg OldSelect(["potato", "carrot"])`
-
-	`@bind veg OldSelect(["potato" => "🥔", "carrot" => "🥕"])`
-
-	`@bind veg OldSelect(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
-	"""
 	struct OldSelect
 		options::Vector{Pair{<:AbstractString,<:Any}}
 		default::Union{Missing, AbstractString}
-	end
 	end
 	
 	OldSelect(options::AbstractVector{<:AbstractString}; default=missing) = OldSelect([o => o for o in options], default)
@@ -512,7 +479,7 @@ begin
 		)</select>"""))
 	end
 	
-	result
+	OldSelect
 end
 
 # ╔═╡ eb4e17fd-07ba-4031-a39f-0d9fccd3d886
@@ -523,15 +490,17 @@ begin
 
 	See [`MultiSelect`](@ref) for a version that allows multiple selected items.
 
-	`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
-
-	See the [Mozilla docs about `select`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select)
+	`options` can also be an array of pairs `key::Any => display_value::String`. The `key` is returned via `@bind`; the `display_value` is shown.
 
 	# Examples
 	`@bind veg Select(["potato", "carrot"])`
 
 	`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
+	
+	`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
 
+	In all three cases, `veg` will be either `"potato"` or `"carrot"`.
+	
 	The *key* can be any object, like a string, number, or even a function:
 	
 	```julia
@@ -540,7 +509,6 @@ begin
 	f(0.5)
 	```
 
-	`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
 	"""
 	struct Select
 		options::AbstractVector{Pair}
@@ -1212,7 +1180,6 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═d8c60294-0ca6-4cb0-b51d-9f6d6b370b28
 # ╠═fbc6e4c1-4bd8-43a2-ac82-e6f76033fd8e
 # ╟─eb4e17fd-07ba-4031-a39f-0d9fccd3d886
-# ╠═519f4da9-0205-486e-aea6-9dd5db6b38e0
 # ╠═57a7d0c9-2f4a-44e6-9b7a-0bbd98611c9d
 # ╠═c9a291c5-b5f5-40a6-acb3-eff4882c1516
 # ╠═9729fa52-7cff-4905-9d1c-1d0eefc8ad6e
@@ -1229,7 +1196,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═609ab7f4-4fc4-4122-986d-9bfe54fa715d
 # ╠═6459df3f-143f-4d1a-a238-4447b11cc56c
 # ╠═f3bef89c-61ac-4dcf-bf47-3824f11db26f
-# ╠═42e9e5ab-7d34-4300-a6c0-47f5cde658d8
+# ╟─42e9e5ab-7d34-4300-a6c0-47f5cde658d8
 # ╠═57232d88-b74f-4823-be61-8db450c93f5c
 # ╟─7c4303a1-19be-41a2-a6c7-90146e01401d
 # ╠═a95684ea-4612-45d6-b63f-41c051b53ed8
