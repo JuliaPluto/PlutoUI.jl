@@ -79,7 +79,7 @@ begin
 				right=nothing,
 			) = let
 			
-			if show_compat_warning_ref[] && (!isnothing(left) || !isnothing(right))
+			if show_compat_warning_ref[] && (left !== nothing || right !== nothing)
 				@warn "Compat: The keyword arguments `left` and `right` will be removed in the future, use the `default` keyword argument instead."
 			end
 			start = something(left, minimum(default))
