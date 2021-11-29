@@ -102,7 +102,7 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     el = DateField()
     @test default(el) === nothing
     el = TimeField()
-    @test default(el) === nothing
+    @test default(el) === "" # ugh 
 
     el = FilePicker()
     @test default(el) === nothing
