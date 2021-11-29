@@ -206,7 +206,7 @@ begin
 	end
 	end
 	
-	NumberField(range::AbstractRange; default=missing) = NumberField(range, (default === missing) ? first(range) : default)
+	NumberField(range::AbstractRange{<:T}; default=missing) where T = NumberField(range, (default === missing) ? first(range) : convert(T,default))
 	
 	function Base.show(io::IO, ::MIME"text/html", numberfield::NumberField)
 		print(io, """<input type="number" min="$(first(numberfield.range))" step="$(step(numberfield.range))" max="$(last(numberfield.range))" value="$(numberfield.default)">""")

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.1
+# v0.17.2
 
 using Markdown
 using InteractiveUtils
@@ -460,10 +460,23 @@ begin
 	Show
 end
 
+# ╔═╡ 753c42ad-ca1b-42b9-99f1-cfe18a1a74f4
+function is_inside_pluto(m::Module)::Bool
+	if isdefined(m, :PlutoForceDisplay)
+		return m.PlutoForceDisplay
+	else
+		isdefined(m, :PlutoRunner) && parentmodule(m) === Main
+	end
+end
+
 # ╔═╡ 9d82ca2b-664d-461e-a93f-61c467bd983a
 p = let
-	url = "https://user-images.githubusercontent.com/6933510/116753174-fa40ab80-aa06-11eb-94d7-88f4171970b2.jpeg"
-	data = read(download(url))
+	data = if is_inside_pluto(@__MODULE__)
+		url = "https://user-images.githubusercontent.com/6933510/116753174-fa40ab80-aa06-11eb-94d7-88f4171970b2.jpeg"
+		read(download(url))
+	else
+		UInt8[]
+	end
 	Show(MIME"image/jpg"(), data)
 end
 
@@ -475,15 +488,6 @@ end
 
 # ╔═╡ d24dfd97-5100-45f4-be12-ad30f98cc519
 aside(embed_display(p))
-
-# ╔═╡ 753c42ad-ca1b-42b9-99f1-cfe18a1a74f4
-function is_inside_pluto(m::Module)::Bool
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) === Main
-	end
-end
 
 # ╔═╡ 87d8c9ad-0d67-409b-a1b7-ca40241225e3
 """
