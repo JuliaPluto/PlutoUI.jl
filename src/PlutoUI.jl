@@ -11,9 +11,11 @@ const PKG_ROOT_DIR = normpath(joinpath(@__DIR__, ".."))
     include("./Builtins.jl")
 end
 include("./Resource.jl")
-include("./RangeSlider.jl")
 include("./DisplayTricks.jl")
 
+@reexport module RangeSliderNotebook
+    include("./RangeSlider.jl")
+end
 @reexport module TerminalNotebook
     include("./TerminalNotebook.jl")
 end
