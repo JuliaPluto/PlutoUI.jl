@@ -205,9 +205,11 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     el = RangeSlider(0.0:π:10; default = 0:10)
     @test default(el) == 0.0:π:10
 
-    el = RangeSlider(1:1//3:10)
-    @test default(el) == 1:1//3:10
-    el = RangeSlider(1:1//3:10; default = 5:17//3)
-    @test default(el) == 5:17//3
+    el = RangeSlider(1:(1//3):10)
+    @test default(el) == 1:(1//3):10
+    el = RangeSlider(1:(1//3):10; default = 4:5)
+    @test default(el) == 4:1//3:5
+    el = RangeSlider(1:(1//3):10; default = 4:1//3:(17//3))
+    @test default(el) == 4:1//3:(17//3)
 end
 
