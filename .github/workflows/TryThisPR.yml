@@ -1,0 +1,36 @@
+name: "Automatic PR comment: Try this PR!"
+
+on:
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: "1.16.1"
+      - uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            require("fs").writeFileSync("context.json", JSON.stringify(context))
+  
+      - name: Generate comment
+        id: generate-comment
+        run: |
+          deno eval '
+          const context = JSON.parse(await Deno.readTextFile("context.json"));
+          import { generate_comment } from "https://cdn.jsdelivr.net/gh/fonsp/action-try-pr-test@0.1.2/generate.mjs";
+          await Deno.writeTextFile("comment.txt", await generate_comment(context));
+          '
+      - uses: actions/github-script@v5
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number, owner: context.repo.owner, repo: context.repo.repo,
+              body: require("fs").readFileSync("comment.txt").toString()
+            })
+  
