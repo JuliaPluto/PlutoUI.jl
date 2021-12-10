@@ -142,14 +142,14 @@ begin
 
 		start_index = findfirst(isequal(slider.default), slider.values)
 		
-		show(io, m, @htl("""
-				<input 
+		show(io, m, @htl(
+			"""<input 
 				type="range" 
 				min=1
 				max=$(length(slider.values))
 				value=$(start_index)
-				>
-				$(slider.show_value ? @htl(
+				>$(
+					slider.show_value ? @htl(
 					"""<script>
 					const input_el = currentScript.previousElementSibling
 					const output_el = currentScript.nextElementSibling
@@ -158,11 +158,9 @@ begin
 					input_el.addEventListener("input", () => {
 						output_el.value = displays[input_el.valueAsNumber - 1]
 					})
-					</script>
-					<output>$(string(slider.default))</output>"""
-				) : nothing)
-				
-				"""))
+					</script><output>$(string(slider.default))</output>"""
+				) : nothing
+				)"""))
 	end
 
 	Base.get(slider::Slider) = slider.default
@@ -309,10 +307,9 @@ begin
 	CounterButton() = CounterButton("Click")
 	
 	function Base.show(io::IO, m::MIME"text/html", button::CounterButton)
-		show(io, m, @htl("""
-		<span>
-		<input type="button" value="$(button.label)">
-		<script>
+		show(io, m, @htl(
+			"""<span><input type="button" value="$(button.label)"
+			><script>
 		let count = 0
 		const span = currentScript.parentElement
 		const button = span.firstElementChild
@@ -326,9 +323,7 @@ begin
 		e.stopPropagation()
 			
 		})
-		</script>
-		</span>
-		"""))
+		</script></span>"""))
 	end
 	
 	Base.get(button::CounterButton) = button.label
@@ -468,8 +463,8 @@ begin
 	OldSelect(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing) = OldSelect(options, default)
 	
 	function Base.show(io::IO, m::MIME"text/html", select::OldSelect)
-		show(io, m, @htl("""
-				<select>$(
+		show(io, m, @htl(
+			"""<select>$(
 		map(select.options) do o
 				@htl(
 				"<option value=$(o.first) selected=$(!ismissing(select.default) && o.first == select.default)>$(
@@ -534,8 +529,8 @@ begin
 		end
 
 		
-		show(io, m, @htl("""
-				<select>$(
+		show(io, m, @htl(
+			"""<select>$(
 		map(enumerate(select.options)) do (i,o)
 				@htl(
 				"<option value=$(i) selected=$(!ismissing(select.default) && o.first == select.default)>$(
@@ -610,25 +605,22 @@ Radio(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=nothing) 
 function Base.show(io::IO, m::MIME"text/html", radio::Radio)
     groupname = randstring('a':'z')
 		
-	h = @htl("""
-		<form>$(
+	h = @htl(
+		"""<form>$(
 		map(radio.options) do o
-			@htl("""<div>
-				<input 
+			@htl(
+				"""<div><input 
 					type="radio" 
 					id=$(groupname * o.first) 
 					name=$(groupname) 
 					value=$(o.first)
 					checked=$(radio.default === o.first)
-					>
-
-                <label for=$(groupname * o.first)>$(
+					><label for=$(groupname * o.first)>$(
 					o.second
-				)</label>
-            </div>""")
+				)</label></div>"""
+			)
         end	
-		)
-		<script>
+		)<script>
 		const form = currentScript.parentElement
 		const groupname = $(groupname)
 		
@@ -653,9 +645,7 @@ function Base.show(io::IO, m::MIME"text/html", radio::Radio)
         }
 
         
-		</script>
-		</form>
-	""")
+		</script></form>""")
 	show(io, m, h)
 end
 
@@ -718,8 +708,8 @@ MultiSelect(options::AbstractVector{<:AbstractString}; default=missing, size=mis
 MultiSelect(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=missing, size=missing) = MultiSelect(options, default, size)
 
 function Base.show(io::IO, m::MIME"text/html", select::MultiSelect)
-	show(io, m, @htl("""
-			<select title='Cmd+Click or Ctrl+Click to select multiple items.' multiple size=$(select.size)>$(
+	show(io, m, @htl(
+		"""<select title='Cmd+Click or Ctrl+Click to select multiple items.' multiple size=$(select.size)>$(
 	map(select.options) do o
 			@htl(
 			"<option value=$(o.first) selected=$(!ismissing(select.default) && o.first ∈ select.default)>$(

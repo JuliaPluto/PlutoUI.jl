@@ -133,12 +133,11 @@ begin
 		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
 			return Base.show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
 		end
-		output = @htl("""
-		<span>
-		$(cb.element)
-		<button id=$(cb.secret_key)>Confirm</button>
-		
-		<script id=$(cb.secret_key)>
+		output = @htl(
+			"""<span>$(
+				cb.element
+			)<button id=$(cb.secret_key)>Confirm</button
+			><script id=$(cb.secret_key)>
 		
 		let key = $(cb.secret_key)
 		
@@ -199,9 +198,7 @@ begin
 			configurable: true,
 		});
 	
-		</script>
-		</span>
-		""")
+		</script></span>""")
 		Base.show(io, m, output)
 	end
 
