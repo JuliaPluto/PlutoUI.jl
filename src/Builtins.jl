@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.2
+# v0.17.3
 
 using Markdown
 using InteractiveUtils
@@ -20,6 +20,14 @@ using HypertextLiteral
 # ╔═╡ 57232d88-b74f-4823-be61-8db450c93f5c
 using Markdown: withtag, htmlesc
 
+# ╔═╡ e8c5ba24-10e9-49e8-8c11-0add092637f8
+"""
+	@skip_as_script expression
+
+Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
+"""
+macro skip_as_script(ex) skip_as_script(__module__) ? esc(ex) : nothing end
+
 # ╔═╡ d738b448-387b-4942-af82-cc93042705a4
 function skip_as_script(m::Module)
 	if isdefined(m, :PlutoForceDisplay)
@@ -28,14 +36,6 @@ function skip_as_script(m::Module)
 		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
 	end
 end
-
-# ╔═╡ e8c5ba24-10e9-49e8-8c11-0add092637f8
-"""
-	@skip_as_script expression
-
-Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
-"""
-macro skip_as_script(ex) skip_as_script(__module__) ? esc(ex) : nothing end
 
 # ╔═╡ e1bbe1d7-68ef-4ee1-8174-d1ae1f822acb
 macro only_as_script(ex) skip_as_script(__module__) ? nothing : esc(ex) end
@@ -719,7 +719,7 @@ MultiSelect(options::AbstractVector{<:Pair{<:AbstractString,<:Any}}; default=mis
 
 function Base.show(io::IO, m::MIME"text/html", select::MultiSelect)
 	show(io, m, @htl("""
-			<select multiple size=$(select.size)>$(
+			<select title='Cmd+Click or Ctrl+Click to select multiple items.' multiple size=$(select.size)>$(
 	map(select.options) do o
 			@htl(
 			"<option value=$(o.first) selected=$(!ismissing(select.default) && o.first ∈ select.default)>$(
