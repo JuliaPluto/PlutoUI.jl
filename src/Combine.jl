@@ -123,6 +123,7 @@ return result
 begin
 	Base.@kwdef struct CombinedBonds
 		display_content::Any
+		captured_names::Union{Nothing,NTuple{N,Symbol} where N}
 		captured_bonds::Vector{Any}
 		secret_key::String
 	end
@@ -173,7 +174,13 @@ begin
 	end
 
 	function Bonds.initial_value(cb::CombinedBonds)
-		map(Bonds.initial_value, cb.captured_bonds)
+		vals = tuple((Bonds.initial_value(b) for b in cb.captured_bonds)...)
+
+		if cb.captured_names === nothing
+			vals
+		else
+			NamedTuple{cb.captured_names}(vals)
+		end
 	end
 	function Bonds.validate_value(cb::CombinedBonds, from_js)
 		if from_js isa Vector && length(from_js) == length(cb.captured_bonds)
@@ -189,10 +196,21 @@ begin
 		@assert from_js isa Vector
 		@assert length(from_js) == length(cb.captured_bonds)
 
-		[
+		vals = tuple((
 			Bonds.transform_value(bond, val_js)
 			for (bond, val_js) in zip(cb.captured_bonds, from_js)
-		]
+		)...)
+
+		if cb.captured_names === nothing
+			vals
+		else
+			NamedTuple{cb.captured_names}(vals)
+		end
+		
+		# [
+		# 	Bonds.transform_value(bond, val_js)
+		# 	for (bond, val_js) in zip(cb.captured_bonds, from_js)
+		# ]
 	end
 	
 	# TODO:
@@ -207,24 +225,32 @@ end
 combine(render_function::Function)
 ```
 
-Combine multiple input elements into one.
+Combine multiple input elements into one. The combined values are sent to `@bind` as a single tuple.
+
+`render_function` is a function that you write yourself, take a look at the examples below.
 
 # Examples
 
 ## 🐶 & 🐱
+
+We use the [`do` syntax](https://docs.julialang.org/en/v1/manual/functions/#Do-Block-Syntax-for-Function-Arguments) to write our `render_function`. The `Child` function is wrapped around each input, to let `combine` know which values to combine.
 
 ```julia
 @bind values combine() do Child
 	md""\"
 	# Hi there!
 
-	I have \$(Child(Slider(1:10))) dogs and \$(Child(Slider(5:10))) cats.
+	I have \$(
+		Child(Slider(1:10))
+	) dogs and \$(
+		Child(Slider(5:100))
+	) cats.
 
 	Would you like to see them? \$(Child(CheckBox(true)))
 	""\"
 end
 
-values == [1, 5, true] # (initially)
+values == (1, 5, true) # (initially)
 ```
 
 
@@ -243,22 +269,61 @@ The `combine` function is most useful when you want to generate your input eleme
 	<h6>Wind speeds</h6>
 	<ul>
 	\$([
-		@htl("<li>\$(name): \$(Child(Slider(1:100)))")
+		@htl("<li>\$(name): \$(Child(Slider(1:100)))</li>")
 		for name in ["North", "East", "South", "West"]
 	])
 	</ul>
 	""\")
 end
 
-speeds == [1, 1, 1, 1] # (initially)
+speeds == (1, 1, 1, 1) # (initially)
 
 # after moving the sliders:
-speeds == [100, 36, 73, 60]
+speeds == (100, 36, 73, 60)
 ```
 
 > The output looks like:
 > 
 > ![screenshot of running the code above inside Pluto](https://user-images.githubusercontent.com/6933510/145588612-14824654-5c73-45f8-983c-8913c7101a78.png)
+
+
+# Named variant
+
+In the last example, we used `Child` to wrap around contained inputs:
+```julia
+Child(Slider(1:100))
+```
+We can also use the **named variant**, which looks like:
+```julia
+Child("East", Slider(1:100))
+```
+
+When you use the *named variant* for all children, **the bound value will be `NamedTuple`, instead of a `Tuple`**.
+
+Let's rewrite our example to use the *named variant*:
+
+```julia
+@bind speeds combine() do Child
+	@htl(""\"
+	<h6>Wind speeds</h6>
+	<ul>
+	\$([
+		@htl("<li>\$(name): \$(Child(name, Slider(1:100)))</li>")
+		for name in ["North", "East", "South", "West"]
+	])
+	</ul>
+	""\")
+end
+
+speeds == (North=1, East=1, South=1, West=1) # (initially)
+
+# after moving the sliders:
+speeds == (North=100, East=36, South=73, West=60)
+
+md"The Eastern wind speed is \$(speeds.East)."
+```
+
+
 
 # Why?
 The standard way to combine multiple inputs into one output is to use `@bind` multiple times. Our initial example could more easily be written as:
@@ -280,17 +345,25 @@ The `combine` function is useful when you are generating inputs **dynamically**,
 function combine(f::Function)
 	key = String(rand('a':'z', 10))
 
+	captured_names = Symbol[]
 	captured_bonds = []
 
 	function combined_child(x)
 		push!(captured_bonds, x)
 		@htl("""<pl-combined_child key=$(key)>$(x)</pl-combined_child>""")
 	end
+	function combined_child(name::Union{String,Symbol}, x)
+		push!(captured_names, Symbol(name))
+		combined_child(x)
+	end
 
 	result = f(combined_child)
+
+	@assert isempty(captured_names) || length(captured_names) == length(captured_bonds) "Some children do not have a name. Make sure that all calls of `Child` provide two arguments."
 	
 	CombinedBonds(;
 		secret_key = key,
+		captured_names = isempty(captured_names) ? nothing : tuple(captured_names...),
 		captured_bonds = captured_bonds,
 		display_content = result,
 	)
@@ -333,6 +406,22 @@ end
 
 # ╔═╡ d7985844-5944-42b9-ad41-599cd72eea82
 @skip_as_script speeds
+
+# ╔═╡ 39be652f-bcd7-4a4f-8b03-5167285dc7a2
+@skip_as_script @bind speeds_named combine() do Child
+	@htl("""
+	<h3>Wind speeds</h3>
+	<ul>
+	$([
+		@htl("<li>$(name): $(Child(name, Slider(1:100)))")
+		for name in ["North", "East", "South", "West"]
+	])
+	</ul>
+	""")
+end
+
+# ╔═╡ c8e09bf5-eae4-492f-946e-4bb55ff7e161
+@skip_as_script speeds_named
 
 # ╔═╡ c3176549-7c46-4d89-9c76-817c6bfcbb71
 @skip_as_script rb = @bind together combine() do Child
@@ -399,7 +488,7 @@ md"""
 # ╔═╡ 3396a5ba-533e-4e0d-ab4f-c633459bd81a
 @skip_as_script cb1 = combine() do Child
 	md"""
-	Left: $(Child(Slider(1:10))), right: $(Child(Scrubbable(5)))
+	Left: $(Child(:left, Slider(1:10))), right: $(Child(:right, Scrubbable(5)))
 	"""
 end
 
@@ -442,6 +531,8 @@ end
 # ╠═8dcb2498-00cf-49a8-8074-301fe88b76ea
 # ╠═801fb021-73a0-4114-a36a-328e84f00b51
 # ╠═d7985844-5944-42b9-ad41-599cd72eea82
+# ╠═39be652f-bcd7-4a4f-8b03-5167285dc7a2
+# ╠═c8e09bf5-eae4-492f-946e-4bb55ff7e161
 # ╠═c3176549-7c46-4d89-9c76-817c6bfcbb71
 # ╠═5300b80d-4097-4b85-ad2a-3a54b01559bf
 # ╠═6d4f62a6-e3d9-416f-a1e3-694c31cfbb31

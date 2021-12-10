@@ -225,7 +225,20 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
         """)
     end
 
-    @test default(el) == [sin, 5, true]
+    @test default(el) == (sin, 5, true)
+
+    el = combine() do Child
+        # @htl instead of md" because Julia VS Code is too buggy
+        @htl("""
+        # Hi there!
+
+        I have $(Child(:fun, Slider([sin, cos]))) dogs and $(Child(:x, Slider(5:10))) cats.
+
+        Would you like to see them? $(Child(:y, CheckBox(true)))
+        """)
+    end
+
+    @test default(el) == (fun = sin, x = 5, y = true)
 
     el = combine() do Child
         @htl("""
@@ -233,7 +246,7 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
         """)
     end
 
-    @test all(default(el) .=== [missing])
+    @test default(el) === (missing,)
 
 end
 
