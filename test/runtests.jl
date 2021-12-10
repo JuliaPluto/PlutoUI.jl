@@ -1,6 +1,7 @@
 using PlutoUI
 using Test
 import AbstractPlutoDingetjes
+using HypertextLiteral
 
 # has to be outside of the begin block for julia 1.0 compat
 struct Uhm end
@@ -215,5 +216,40 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
 
     el = confirm(Slider([sin, cos]))
     @test default(el) == sin
+
+    el = combine() do Child
+        # @htl instead of md" because Julia VS Code is too buggy
+        @htl("""
+        # Hi there!
+
+        I have $(Child(Slider([sin, cos]))) dogs and $(Child(Slider(5:10))) cats.
+
+        Would you like to see them? $(Child(CheckBox(true)))
+        """)
+    end
+
+    @test default(el) == (sin, 5, true)
+
+    el = combine() do Child
+        # @htl instead of md" because Julia VS Code is too buggy
+        @htl("""
+        # Hi there!
+
+        I have $(Child(:fun, Slider([sin, cos]))) dogs and $(Child(:x, Slider(5:10))) cats.
+
+        Would you like to see them? $(Child(:y, CheckBox(true)))
+        """)
+    end
+
+    @test default(el) == (fun = sin, x = 5, y = true)
+
+    el = combine() do Child
+        @htl("""
+        $(Child(html"<input>"))
+        """)
+    end
+
+    @test default(el) === (missing,)
+
 end
 

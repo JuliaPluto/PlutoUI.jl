@@ -34,6 +34,9 @@ end
 @reexport module ConfirmNotebook
     include("./Confirm.jl")
 end
+@reexport module CombineNotebook
+    include("./Combine.jl")
+end
 
 # this is a submodule
 module ExperimentalLayout
