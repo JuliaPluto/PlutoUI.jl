@@ -2,7 +2,7 @@
 
 [![Run with binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fonsp/pluto-on-binder/v0.17.3/?urlpath=pluto/sample/PlutoUI.jl.jl)
 
-A tiny package to make `html"<input>"` a bit more Julian. Use it with the [`@bind` macro in Pluto](https://github.com/fonsp/Pluto.jl).
+A tiny package to make `html"<input>"` a bit more Julian. Use it with the [`@bind`](https://juliapluto.github.io/sample-notebook-previews/Interactivity.html) macro in [Pluto](https://github.com/fonsp/Pluto.jl).
 
 For **documentation**, read the [**PlutoUI.jl sample notebook** inside Pluto](https://juliapluto.github.io/sample-notebook-previews/PlutoUI.jl.html), or [read the docstrings](https://juliahub.com/docs/PlutoUI/).
 
