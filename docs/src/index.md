@@ -80,3 +80,8 @@ FilePicker
 DownloadButton
 # Clock
 ```
+
+# High-level components
+```@docs
+combine
+```
