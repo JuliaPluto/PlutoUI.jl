@@ -52,6 +52,9 @@ macro only_as_script(ex) skip_as_script(__module__) ? nothing : esc(ex) end
 # ╔═╡ 5028fc01-4e14-4550-8ae6-48703b86dc21
 import AbstractPlutoDingetjes.Bonds
 
+# ╔═╡ e9d5e84d-b6b1-434d-9580-c08b0c45b9dd
+import AbstractPlutoDingetjes
+
 # ╔═╡ ccbe4423-801b-4c20-ad2d-ee89d5cfa859
 md"""
 # Holding intermediate updates
@@ -127,6 +130,9 @@ begin
 	end
 
 	function Base.show(io::IO, m::MIME"text/html", cb::ConfirmBond)
+		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
+			return Base.show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
+		end
 		output = @htl("""
 		<span>
 		$(cb.element)
@@ -356,6 +362,7 @@ end
 # ╟─dadf2f40-1764-47a4-b560-683b6479d77f
 # ╠═1b737805-a411-4585-b215-d0f99eafac0c
 # ╠═5028fc01-4e14-4550-8ae6-48703b86dc21
+# ╠═e9d5e84d-b6b1-434d-9580-c08b0c45b9dd
 # ╟─ccbe4423-801b-4c20-ad2d-ee89d5cfa859
 # ╠═ad5cffa5-313c-4de9-9360-005365b40780
 # ╠═a20da18f-7a74-43ca-9b66-1f3b82efa0c3
