@@ -324,6 +324,10 @@ md"The Eastern wind speed is \$(speeds.East)."
 ```
 
 
+> The output looks like:
+> 
+> ![screenshot of running the code above inside Pluto](https://user-images.githubusercontent.com/6933510/145615489-b3fb910d-0dc1-408b-882f-b05ca0129b18.gif)
+
 
 # Why?
 The standard way to combine multiple inputs into one output is to use `@bind` multiple times. Our initial example could more easily be written as:
