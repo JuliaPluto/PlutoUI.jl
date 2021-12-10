@@ -82,10 +82,10 @@ function LocalResource(path::AbstractString, html_attributes::Pair...)
     ## Recommended alternatives (images)
     1. Go to [imgur.com](https://imgur.com) and drag&drop the image to the page. Right click on the image, and select "Copy image location". You can now use the image like so: `PlutoUI.Resource("https://i.imgur.com/SAzsMMA.jpg")`.
     2. If your notebook is part of a git repository, place the image in the repository and use a relative path: `PlutoUI.LocalResource("../images/cat.jpg")`."""
-    mime = mime_fromfilename(path; default="")
+    mime = mime_fromfilename(path)
     src = join([
 		"data:", 
-		string(mime),
+		string(something(mime,"")),
 		";base64,", 
 		Base64.base64encode(read(path))
 	])
@@ -151,7 +151,7 @@ function mime_fromfilename(filename; default=nothing, filename_maxlength=2000)
 	if length(filename) > filename_maxlength
 		default
     else
-		get(mimepairs, '.' * split(split(split(filename, '?')[1], '#')[1], '.')[end], default)
+		get(mimepairs, lowercase('.' * split(split(split(filename, '?')[1], '#')[1], '.')[end]), default)
 	end
 end
 
