@@ -62,16 +62,6 @@ md"""
 ## The magic
 """
 
-# ╔═╡ b01e0179-3594-4d44-831a-12028e3bf48e
-@htl(
-	"""
-	<script>
-
-	console.log(Generators)
-	</script>
-	"""
-)
-
 # ╔═╡ 957858f8-4ace-4cae-bb16-49569daa9869
 const set_input_value_compat = HypertextLiteral.JavaScript("""
 (() => {
@@ -320,7 +310,7 @@ t
 )
 
 # ╔═╡ d7985844-5944-42b9-ad41-599cd72eea82
-speeds
+@skip_as_script speeds
 
 # ╔═╡ 5a0196d0-e19f-4202-b36d-18ab9be839b3
 md"""
@@ -340,7 +330,7 @@ md"""
 end
 
 # ╔═╡ bb9eddc3-208c-4113-8988-311eb1dcfcd4
-push!(itvs, itv)
+@skip_as_script push!(itvs, itv)
 
 # ╔═╡ 7de50435-e962-4405-b06d-83fbe9436cff
 md"""
@@ -371,7 +361,6 @@ end
 # ╠═a20da18f-7a74-43ca-9b66-1f3b82efa0c3
 # ╟─85918609-5e1f-4040-99be-61c2dd8ff654
 # ╠═19613f3f-5825-45a4-8951-8ff1043d0867
-# ╠═b01e0179-3594-4d44-831a-12028e3bf48e
 # ╟─957858f8-4ace-4cae-bb16-49569daa9869
 # ╟─6c8a03e4-7d8e-4aa4-a750-7b815622147d
 # ╠═38b7eeb9-80bb-4a3a-a2d2-809fc423625c
@@ -380,7 +369,7 @@ end
 # ╠═8dcb2498-00cf-49a8-8074-301fe88b76ea
 # ╠═fc92b3fc-6143-477c-a413-84dcd1b4cfc0
 # ╠═363a65ec-218c-43a2-b740-8061fac25011
-# ╟─801fb021-73a0-4114-a36a-328e84f00b51
+# ╠═801fb021-73a0-4114-a36a-328e84f00b51
 # ╠═d7985844-5944-42b9-ad41-599cd72eea82
 # ╟─5a0196d0-e19f-4202-b36d-18ab9be839b3
 # ╟─3d3a6abb-bea7-41e2-862d-9536a9687ea5
