@@ -64,7 +64,12 @@ md"""
 
 # ╔═╡ 957858f8-4ace-4cae-bb16-49569daa9869
 const set_input_value_compat = HypertextLiteral.JavaScript("""
-setBoundElementValueLikePluto ?? ((input, new_value) => {
+(() => {
+	let result = null
+	try {
+	result = setBoundElementValueLikePluto
+} catch (e) {
+	result = ((input, new_value) => {
 	// fallback in case https://github.com/fonsp/Pluto.jl/pull/1755 is not available
     if (new_value == null) {
         //@ts-ignore
@@ -109,6 +114,9 @@ setBoundElementValueLikePluto ?? ((input, new_value) => {
         input.value = new_value
     }
 })
+}
+return result
+})()
 """)
 
 # ╔═╡ 19613f3f-5825-45a4-8951-8ff1043d0867
