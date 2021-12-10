@@ -31,6 +31,9 @@ end
 @reexport module ScrubbableNotebook
     include("./Scrubbable.jl")
 end
+@reexport module ConfirmNotebook
+    include("./Confirm.jl")
+end
 @reexport module CombineNotebook
     include("./Combine.jl")
 end

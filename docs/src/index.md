@@ -84,4 +84,5 @@ DownloadButton
 # High-level components
 ```@docs
 combine
+confirm
 ```

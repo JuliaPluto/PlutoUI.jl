@@ -214,6 +214,9 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     @test default(el) == 4:1//3:(17//3)
 
 
+    el = confirm(Slider([sin, cos]))
+    @test default(el) == sin
+
     el = combine() do Child
         # @htl instead of md" because Julia VS Code is too buggy
         @htl("""
