@@ -211,5 +211,9 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     @test default(el) == 4:1//3:5
     el = RangeSlider(1:(1//3):10; default = 4:1//3:(17//3))
     @test default(el) == 4:1//3:(17//3)
+
+
+    el = confirm(Slider([sin, cos]))
+    @test default(el) == sin
 end
 
