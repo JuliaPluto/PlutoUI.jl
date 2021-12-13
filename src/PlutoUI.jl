@@ -10,6 +10,8 @@ const PKG_ROOT_DIR = normpath(joinpath(@__DIR__, ".."))
 @reexport module BuiltinsNotebook
     include("./Builtins.jl")
 end
+const ColorPicker = BuiltinsNotebook.ColorPicker
+
 include("./Resource.jl")
 include("./DisplayTricks.jl")
 
