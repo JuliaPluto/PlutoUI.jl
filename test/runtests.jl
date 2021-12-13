@@ -2,6 +2,7 @@ using PlutoUI
 using Test
 import AbstractPlutoDingetjes
 using HypertextLiteral
+import ColorTypes: RGB, N0f8, Colorant
 
 # has to be outside of the begin block for julia 1.0 compat
 struct Uhm end
@@ -99,6 +100,15 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     el = ColorStringPicker("#0f0f0f")
     @test default(el) == "#0f0f0f"
     el = ColorStringPicker(default = "#0f0f0f")
+
+    gray = RGB{N0f8}(0.5, 0.5, 0.5)
+    el = ColorPicker()
+    @test default(el) == RGB{N0f8}(0.0, 0.0, 0.0)
+    el = ColorPicker(gray)
+    @test default(el) == gray
+    el = ColorPicker(default = gray)
+    @test default(el) == gray
+
 
     el = DateField()
     @test default(el) === nothing
