@@ -122,6 +122,33 @@ return result
 })()
 """)
 
+# ╔═╡ 3f6a3cbc-632d-413d-990e-0f06730bd27c
+begin
+	local output = begin
+	"""
+	```julia
+	RenderCallback(callback::Function, x::Any)
+	```
+	An HTML display passthrough of `x` (displays the same content), but when it is displayed, a callback function is invoked. `disable_callback!` can remove a callback.
+	"""
+	struct RenderCallback
+		callback_ref::Ref{Union{Function,Nothing}}
+		content::Any
+	end
+	end
+			
+	function disable_callback!(rc::RenderCallback)
+		rc.callback_ref[] = nothing
+	end
+	function Base.show(io::IO, m::MIME"text/html", rc::RenderCallback)
+		if rc.callback_ref[] !== nothing
+			rc.callback_ref[]()
+		end
+		Base.show(io, m, rc.content)
+	end
+	output
+end
+
 # ╔═╡ 19613f3f-5825-45a4-8951-8ff1043d0867
 begin
 	Base.@kwdef struct CombinedBonds
@@ -356,17 +383,69 @@ function combine(f::Function)
 	captured_names = Symbol[]
 	captured_bonds = []
 
-	function combined_child(x)
-		push!(captured_bonds, x)
+	function combined_child_element(x)
 		@htl("""<pl-combined_child key=$(key)>$(x)</pl-combined_child>""")
 	end
-	function combined_child(name::Union{String,Symbol}, x)
-		push!(captured_names, Symbol(name))
-		combined_child(x)
+
+	
+	created_callbacks = RenderCallback[]
+
+	#=
+	
+	This is the function that will wrap around contained input elements.
+	
+	Besides wrapping the input inside a special HTML element 
+	(with `combined_child_element`), it also secretly adds the element to 
+	`captured_bonds`. 
+	
+	This allows us to know exactly which elements are contained in the combine,
+	which we use for `Bonds.initial_value`, `Bonds.transform_value`, etc.
+	
+	This function could be a lot simpler:
+
+	```
+	function Child(x)
+		push!(captured_bonds, x)
+		combined_child_element(x)
+	end
+	```
+	
+	But instead, it's complicated!
+	
+	The reason is that we want to capture the combined bonds not in the order
+	that they are wrapped (i.e. when `Child` is called), but in the order that they
+	are **displayed** in, because this matches the order that our JavaScript code
+	will find the special elements in.
+	
+	=#
+	function Child(x)
+		rc = RenderCallback(combined_child_element(x)) do
+			push!(captured_bonds, x)
+		end
+		push!(created_callbacks, rc)
+		rc
+	end
+	# the same, but with `name`
+	function Child(name::Union{String,Symbol}, x)
+		rc = RenderCallback(combined_child_element(x)) do
+			push!(captured_bonds, x)
+			push!(captured_names, Symbol(name))
+		end
+		push!(created_callbacks, rc)
+		rc
 	end
 
-	result = f(combined_child)
+	# call the user's render function
+	result = f(Child)
 
+	# Trigger HTML display once, which will also render the Child elements, and 
+	# fire our callbacks
+	repr(MIME"text/html"(), result)
+	
+	# disable callbacks
+	disable_callback!.(created_callbacks)
+	
+	# lets see what we got
 	@assert isempty(captured_names) || length(captured_names) == length(captured_bonds) "Some children do not have a name. Make sure that all calls of `Child` provide two arguments."
 	
 	CombinedBonds(;
@@ -379,6 +458,24 @@ end
 
 # ╔═╡ ad5cffa5-313c-4de9-9360-005365b40780
 export combine
+
+# ╔═╡ 5f8af778-d25b-462f-afb9-295c0e4cb12e
+RenderCallback(@htl("hello")) do
+	nothing
+end
+
+# ╔═╡ 0d6800f3-9cdc-4531-982d-d7607748d8f5
+let
+	values = []
+	rc = RenderCallback(@htl("asdf")) do
+		push!(values, 123)
+	end
+	repr(MIME"text/html"(), rc)
+	disable_callback!(rc)
+	repr(MIME"text/html"(), rc)
+	repr(MIME"text/html"(), rc)
+	values
+end
 
 # ╔═╡ 6c8a03e4-7d8e-4aa4-a750-7b815622147d
 md"""
@@ -464,6 +561,26 @@ md"""
 ### Initial value & transform
 """
 
+# ╔═╡ 3cd1f92a-a088-4695-8eea-ada08e01a7c2
+@skip_as_script begin
+	it2vs = []
+	it2b = @bind it2v combine() do Child
+
+		z = Child(Slider(1:10))
+		
+		@htl("""
+		<p>Hello world!</p>
+		$(z)
+		$(Child(Slider([sin, cos, tan])))
+		$(z)
+		
+		""")
+	end
+end
+
+# ╔═╡ 62368acd-d035-4795-804b-0f024d7333a7
+@skip_as_script push!(it2vs, it2v)
+
 # ╔═╡ 0b643ed9-914a-475b-a1ce-d840df1fc223
 @skip_as_script begin
 	itvs = []
@@ -478,7 +595,7 @@ md"""
 end
 
 # ╔═╡ 59a199f4-4ccc-4319-9d32-03da3adbb5db
-@skip_as_script itb
+# @skip_as_script itb
 
 # ╔═╡ cc3e475e-d2c2-4b40-a1ba-033576aefdae
 md"""
@@ -534,6 +651,9 @@ end
 # ╟─85918609-5e1f-4040-99be-61c2dd8ff654
 # ╠═19613f3f-5825-45a4-8951-8ff1043d0867
 # ╟─957858f8-4ace-4cae-bb16-49569daa9869
+# ╠═3f6a3cbc-632d-413d-990e-0f06730bd27c
+# ╠═5f8af778-d25b-462f-afb9-295c0e4cb12e
+# ╠═0d6800f3-9cdc-4531-982d-d7607748d8f5
 # ╟─6c8a03e4-7d8e-4aa4-a750-7b815622147d
 # ╠═38b7eeb9-80bb-4a3a-a2d2-809fc423625c
 # ╠═f08680b2-ed28-4fac-838c-2eca7e75c6dc
@@ -547,6 +667,8 @@ end
 # ╠═6d4f62a6-e3d9-416f-a1e3-694c31cfbb31
 # ╟─5a0196d0-e19f-4202-b36d-18ab9be839b3
 # ╟─3d3a6abb-bea7-41e2-862d-9536a9687ea5
+# ╠═3cd1f92a-a088-4695-8eea-ada08e01a7c2
+# ╠═62368acd-d035-4795-804b-0f024d7333a7
 # ╠═0b643ed9-914a-475b-a1ce-d840df1fc223
 # ╠═59a199f4-4ccc-4319-9d32-03da3adbb5db
 # ╟─cc3e475e-d2c2-4b40-a1ba-033576aefdae
