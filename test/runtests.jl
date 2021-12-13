@@ -227,6 +227,7 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     el = confirm(Slider([sin, cos]))
     @test default(el) == sin
 
+    import PlutoUI: combine
     el = combine() do Child
         # @htl instead of md" because Julia VS Code is too buggy
         @htl("""
