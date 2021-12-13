@@ -34,9 +34,11 @@ end
 @reexport module ConfirmNotebook
     include("./Confirm.jl")
 end
-@reexport module CombineNotebook
+module CombineNotebook
     include("./Combine.jl")
 end
+# not exporting to avoid clash with DataFrames.combine
+const combine = CombineNotebook.combine
 
 # this is a submodule
 module ExperimentalLayout
