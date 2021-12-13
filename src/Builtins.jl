@@ -1176,11 +1176,11 @@ _color_to_hex(_hex_to_color("#f0f000"))
 # ╔═╡ b63f68ae-70f1-4042-ac2c-a76e09b0d686
 bco = @bind co1 ColorPicker()
 
-# ╔═╡ 24a2719c-c997-42d1-b884-15debc973c83
-bco
-
 # ╔═╡ 2c216333-ad18-49c9-b9ec-c547d750aec6
 co1
+
+# ╔═╡ 24a2719c-c997-42d1-b884-15debc973c83
+bco
 
 # ╔═╡ 98f1d654-5629-4fea-9b7a-270ecbf46d57
 md"""
@@ -1207,7 +1207,7 @@ Hello \$br world!
 const br = HTML("<br>")
 
 # ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, br
+export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
