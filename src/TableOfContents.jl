@@ -72,7 +72,7 @@ const render = (el) => html`\${el.map(h => {
 		e.preventDefault();
 		h.scrollIntoView({
 			behavior: 'smooth', 
-			block: 'center'
+			block: 'start'
 		})
 	}
 
