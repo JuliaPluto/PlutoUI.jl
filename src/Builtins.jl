@@ -481,33 +481,34 @@ end
 begin
 	local result = begin
 	"""
-		Select(options; [default])
+	```julia
+	Select(options::Vector; [default])
+	# or with a custom display value:
+	Select(options::Vector{Pair{Any,String}}; [default::Any])
+	```
 
-	A dropdown menu (`<select>`) - the user can choose an element of the `options` vector.
-
-	`options` can also be an array of pairs `bound_value => display_value`. 
-	`bound_value` is returned via `@bind`; it is shown in the dropdown menu as `string(display_value)`.
+	A dropdown menu - the user can choose an element of the `options` vector.
 
 	See [`MultiSelect`](@ref) for a version that allows multiple selected items.
 
-
 	# Examples
-	`@bind veg Select(["potato", "carrot"])`
-
-	`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
+	```julia
+	@bind veg Select(["potato", "carrot"])
+	```
 	
-	`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
-
-	In all three cases, `veg` will be either `"potato"` or `"carrot"`.
+	```julia
+	@bind f Select([sin, cos, tan, sqrt])
 	
-	The *key* can be any object, like a string, number, or even a function:
+	f(0.5)
+	```
+
+	You can also specify a display value by giving pairs `bound_value => display_value`:
 	
 	```julia
 	@bind f Select([cos => "cosine function", sin => "sine function"])
 
 	f(0.5)
 	```
-
 	"""
 	struct Select
 		options::AbstractVector{Pair}
