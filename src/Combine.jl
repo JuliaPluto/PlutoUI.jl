@@ -60,6 +60,12 @@ md"""
 # Combining bonds
 """
 
+# ╔═╡ ad5cffa5-313c-4de9-9360-005365b40780
+export combine
+
+# ╔═╡ bafa80c7-bb2b-4c08-a9ae-5e2b7d9abe07
+
+
 # ╔═╡ 85918609-5e1f-4040-99be-61c2dd8ff654
 md"""
 ## The magic
@@ -250,10 +256,32 @@ begin
 	
 end
 
-# ╔═╡ a20da18f-7a74-43ca-9b66-1f3b82efa0c3
+# ╔═╡ c8e01722-3372-4692-bc8a-037846c950c2
+"""
+Same as `repr(MIME"text/html"(), x)` but the `IOContext` is set up to match the one used by Pluto to render. This means that if the object being rendered wants to use `AbstractPlutoDingetjes.is_supported_by_display`, they can.
+"""
+render_hmtl_with_pluto_display_features(x) = sprint() do io
+	Base.show(
+		IOContext(io, 
+			:pluto_supported_integration_features => [
+				AbstractPlutoDingetjes,
+				AbstractPlutoDingetjes.Bonds,
+				AbstractPlutoDingetjes.Bonds.initial_value,
+				AbstractPlutoDingetjes.Bonds.transform_value,
+				AbstractPlutoDingetjes.Bonds.possible_values,
+			],
+			:color => false, :limit => true, 
+			:displaysize => (18, 88), :is_pluto => true, 
+		),
+		MIME"text/html"(),
+		x
+	)
+end
+
+# ╔═╡ 157a2e04-4ccd-4de6-b998-ef94fcdd962b
 """
 ```julia
-combine(render_function::Function)
+PlutoUI.combine(render_function::Function)
 ```
 
 Combine multiple input elements into one. The combined values are sent to `@bind` as a single tuple.
@@ -267,7 +295,7 @@ Combine multiple input elements into one. The combined values are sent to `@bind
 We use the [`do` syntax](https://docs.julialang.org/en/v1/manual/functions/#Do-Block-Syntax-for-Function-Arguments) to write our `render_function`. The `Child` function is wrapped around each input, to let `combine` know which values to combine.
 
 ```julia
-@bind values combine() do Child
+@bind values PlutoUI.combine() do Child
 	md""\"
 	# Hi there!
 
@@ -295,17 +323,21 @@ values == (1, 5, true) # (initially)
 The `combine` function is most useful when you want to generate your input elements _dynamically_. This example uses [HypertextLiteral.jl](https://github.com/MechanicalRabbit/HypertextLiteral.jl) for the `@htl` macro:
 
 ```julia
-@bind speeds combine() do Child
-	@htl(""\"
-	<h6>Wind speeds</h6>
-	<ul>
-	\$([
-		@htl("<li>\$(name): \$(Child(Slider(1:100)))</li>")
-		for name in ["North", "East", "South", "West"]
-	])
-	</ul>
-	""\")
+function wind_speeds(directions)
+	PlutoUI.combine() do Child
+		@htl(""\"
+		<h6>Wind speeds</h6>
+		<ul>
+		\$([
+			@htl("<li>\$(name): \$(Child(Slider(1:100)))</li>")
+			for name in directions
+		])
+		</ul>
+		""\")
+	end
 end
+
+@bind speeds wind_speeds(["North", "East", "South", "West"])
 
 speeds == (1, 1, 1, 1) # (initially)
 
@@ -334,17 +366,21 @@ When you use the *named variant* for all children, **the bound value will be `Na
 Let's rewrite our example to use the *named variant*:
 
 ```julia
-@bind speeds combine() do Child
-	@htl(""\"
-	<h6>Wind speeds</h6>
-	<ul>
-	\$([
-		@htl("<li>\$(name): \$(Child(name, Slider(1:100)))</li>")
-		for name in ["North", "East", "South", "West"]
-	])
-	</ul>
-	""\")
+function wind_speeds(directions)
+	PlutoUI.combine() do Child
+		@htl(""\"
+		<h6>Wind speeds</h6>
+		<ul>
+		\$([
+			@htl("<li>\$(name): \$(Child(name, Slider(1:100)))</li>")
+			for name in directions
+		])
+		</ul>
+		""\")
+	end
 end
+
+@bind speeds wind_speeds(["North", "East", "South", "West"])
 
 speeds == (North=1, East=1, South=1, West=1) # (initially)
 
@@ -361,6 +397,20 @@ md"The Eastern wind speed is \$(speeds.East)."
 
 
 # Why?
+## You can make a new widget!
+You can use `combine` to **create a brand new widget** yourself, by combining existing ones!
+
+In the example above, we created a new widget called `wind_speeds`. You could **put this function in a package** (e.g. `WeatherUI.jl`) and people could use it like so:
+
+```julia
+import WeatherUI: wind_speeds
+
+@bind speeds wind_speeds(["North", "East"])
+```
+
+In other words: you can use `combine` to create application-specific UI elements, and you can put those in your package!
+
+## Difference with repeated `@bind`
 The standard way to combine multiple inputs into one output is to use `@bind` multiple times. Our initial example could more easily be written as:
 ```julia
 md""\"
@@ -377,7 +427,7 @@ The `combine` function is useful when you are generating inputs **dynamically**,
 - The number of parameters is dynamic! For example, you can load in a table in one cell, and then use `combine` in another cell to select which rows you want to use.
 
 """
-function combine(f::Function)
+function _combine(f::Function)
 	key = String(rand('a':'z', 10))
 
 	captured_names = Symbol[]
@@ -420,6 +470,7 @@ function combine(f::Function)
 	=#
 	function Child(x)
 		rc = RenderCallback(combined_child_element(x)) do
+			# @info "Rendering" x stacktrace()
 			push!(captured_bonds, x)
 		end
 		push!(created_callbacks, rc)
@@ -438,9 +489,11 @@ function combine(f::Function)
 	# call the user's render function
 	result = f(Child)
 
-	# Trigger HTML display once, which will also render the Child elements, and 
-	# fire our callbacks
-	repr(MIME"text/html"(), result)
+	# Trigger HTML display, which will also render the Child elements, and fire our callbacks.
+	# We store the result because we don't want to re-render the contents every time the combine is rendered: if the displayed content contains lazy generators, then blablablalbl difficult but fixed now -fons
+	display_html = render_hmtl_with_pluto_display_features(result)
+
+	# @info "Captured" captured_bonds length(created_callbacks)
 	
 	# disable callbacks
 	disable_callback!.(created_callbacks)
@@ -452,12 +505,10 @@ function combine(f::Function)
 		secret_key = key,
 		captured_names = isempty(captured_names) ? nothing : tuple(captured_names...),
 		captured_bonds = captured_bonds,
-		display_content = result,
+		display_content = HTML(display_html),
 	)
 end
-
-# ╔═╡ ad5cffa5-313c-4de9-9360-005365b40780
-export combine
+# combine(f::Function) = _combine(f)
 
 # ╔═╡ 5f8af778-d25b-462f-afb9-295c0e4cb12e
 RenderCallback(@htl("hello")) do
@@ -605,6 +656,25 @@ Should be `[[missing, sin], [50, sin]]`
 # ╔═╡ 127dd58b-9ba0-41d8-91e6-357d9ec63e6b
 @skip_as_script push!(itvs, itv)
 
+# ╔═╡ 55133b9c-ea1e-4f19-bb52-d541bc461fcd
+@skip_as_script begin
+	☎️s = []
+	☎️c = combine() do Child
+		@htl("""
+		$((
+			Child(Slider(LinRange(rand(), rand()+1, 10))) for x in 1:5
+		))
+		""")
+	end
+	☎️b = @bind ☎️ ☎️c
+end
+
+# ╔═╡ 1fa7b945-3102-4a05-b7a1-5610c65aac0f
+@skip_as_script ☎️c.captured_bonds
+
+# ╔═╡ 0a87a4d3-299e-4ec6-82be-5b43a1e29077
+@skip_as_script push!(☎️s, ☎️)
+
 # ╔═╡ 7de50435-e962-4405-b06d-83fbe9436cff
 md"""
 ### Combine inside combine
@@ -647,8 +717,10 @@ end
 # ╠═aa3b170e-86fd-42e2-a82e-99e25436c65e
 # ╟─ccbe4423-801b-4c20-ad2d-ee89d5cfa859
 # ╠═ad5cffa5-313c-4de9-9360-005365b40780
-# ╠═a20da18f-7a74-43ca-9b66-1f3b82efa0c3
+# ╠═157a2e04-4ccd-4de6-b998-ef94fcdd962b
+# ╠═bafa80c7-bb2b-4c08-a9ae-5e2b7d9abe07
 # ╟─85918609-5e1f-4040-99be-61c2dd8ff654
+# ╟─c8e01722-3372-4692-bc8a-037846c950c2
 # ╠═19613f3f-5825-45a4-8951-8ff1043d0867
 # ╟─957858f8-4ace-4cae-bb16-49569daa9869
 # ╠═3f6a3cbc-632d-413d-990e-0f06730bd27c
@@ -673,6 +745,9 @@ end
 # ╠═59a199f4-4ccc-4319-9d32-03da3adbb5db
 # ╟─cc3e475e-d2c2-4b40-a1ba-033576aefdae
 # ╠═127dd58b-9ba0-41d8-91e6-357d9ec63e6b
+# ╠═55133b9c-ea1e-4f19-bb52-d541bc461fcd
+# ╠═1fa7b945-3102-4a05-b7a1-5610c65aac0f
+# ╠═0a87a4d3-299e-4ec6-82be-5b43a1e29077
 # ╟─7de50435-e962-4405-b06d-83fbe9436cff
 # ╠═3396a5ba-533e-4e0d-ab4f-c633459bd81a
 # ╠═829f90ac-c4d9-4af9-984a-b4e52a075460
