@@ -134,7 +134,7 @@ begin
 			return Base.show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
 		end
 		output = @htl(
-			"""<span>$(
+			"""<span style='display: content;'>$(
 				cb.element
 			)<button id=$(cb.secret_key)>Confirm</button
 			><script id=$(cb.secret_key)>
