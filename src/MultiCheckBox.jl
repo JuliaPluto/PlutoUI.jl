@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.0
+# v0.17.3
 
 using Markdown
 using InteractiveUtils
@@ -55,82 +55,84 @@ subarrays(x) = (
 # ╔═╡ 430e2c1a-832f-11eb-024a-13e3989fd7c2
 begin
 	export MultiCheckBox
+    local result = begin
+    """A group of checkboxes (`<input type="checkbox">`) - the user can choose enable or disable of the `options`, an array of `Strings`.
+    The value returned via `@bind` is a list containing the currently checked items.
 
-"""A group of checkboxes (`<input type="checkbox">`) - the user can choose enable or disable of the `options`, an array of `Strings`.
-The value returned via `@bind` is a list containing the currently checked items.
+    See also: [`MultiSelect`](@ref).
 
-See also: [`MultiSelect`](@ref).
+    `options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
 
-`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
+    `defaults` specifies which options should be checked initally.
 
-`defaults` specifies which options should be checked initally.
+    `orientation` specifies whether the options should be arranged in `:row`'s `:column`'s.
 
-`orientation` specifies whether the options should be arranged in `:row`'s `:column`'s.
+    `select_all` specifies whether or not to include a "Select All" checkbox.
 
-`select_all` specifies whether or not to include a "Select All" checkbox.
+    # Examples
+    `@bind snacks MultiCheckBox(["🥕", "🐟", "🍌"]))`
 
-# Examples
-`@bind snacks MultiCheckBox(["🥕", "🐟", "🍌"]))`
+    `@bind snacks MultiCheckBox(["🥕" => "🐰", "🐟" => "🐱", "🍌" => "🐵"]; default=["🥕", "🍌"])`
 
-`@bind snacks MultiCheckBox(["🥕" => "🐰", "🐟" => "🐱", "🍌" => "🐵"]; default=["🥕", "🍌"])`
-
-`@bind animals MultiCheckBox(["🐰", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"]; orientation=:column, select_all=true)`"""
-struct MultiCheckBox
-    options::Array{Pair{<:AbstractString,<:Any},1}
-    default::Union{Missing,AbstractVector{AbstractString}}
-    orientation::Symbol
-    select_all::Bool
-end
-
-MultiCheckBox(options::Array{<:AbstractString,1}; default=String[], orientation=:row, select_all=false) = MultiCheckBox([o => o for o in options], default, orientation, select_all)
-MultiCheckBox(options::Array{<:Pair{<:AbstractString,<:Any},1}; default=String[], orientation=:row, select_all=false) = MultiCheckBox(options, default, orientation, select_all)
-
-function Base.show(io::IO, m::MIME"text/html", multicheckbox::MultiCheckBox)
-    if multicheckbox.orientation == :column 
-        flex_direction = "column"
-    elseif multicheckbox.orientation == :row
-        flex_direction = "row"
-    else
-        error("Invalid orientation $orientation. Orientation should be :row or :column")
+    `@bind animals MultiCheckBox(["🐰", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"]; orientation=:column, select_all=true)`"""
+    struct MultiCheckBox{BT,DT}
+        options::AbstractVector{Pair{BT,DT}}
+        default::Union{Missing,AbstractVector{BT}}
+        orientation::Symbol
+        select_all::Bool
+    end
     end
 
-    js = read(joinpath(@__DIR__, "..", "assets", "multicheckbox.js"), String)
-    css = read(joinpath(@__DIR__, "..", "assets", "multicheckbox.css"), String)
+    MultiCheckBox(options::AbstractVector{<:Pair{BT,DT}}; default=missing, orientation=:row, select_all=false) where {BT,DT} = MultiCheckBox(options, default, orientation, select_all)
+        
+    MultiCheckBox(options::AbstractVector{BT}; default=missing, orientation=:row, select_all=false) where BT = MultiCheckBox{BT,BT}(Pair{BT,BT}[o => o for o in options], default, orientation, select_all)
 
-    labels = String[]
-    vals = String[]
-    default_checked = Bool[]
-    for (k, v) in multicheckbox.options
-        push!(labels, v)
-        push!(vals, k)
-        push!(default_checked, k in multicheckbox.default)
+    const js = read(joinpath(@__DIR__, "..", "assets", "multicheckbox.js"), String)
+    const css = read(joinpath(@__DIR__, "..", "assets", "multicheckbox.css"), String)
+
+    function Base.show(io::IO, m::MIME"text/html", mc::MultiCheckBox)
+        @assert mc.orientation == :column || mc.orientation == :row "Invalid orientation $(mc.orientation). Orientation should be :row or :column"
+
+        defaults = coalesce(mc.default, [])
+        
+        show(io, m, @htl("""
+        <multi-checkbox class="mc-container" style="flex-direction: $(mc.orientation);"></multi-checkbox>
+        <script type="text/javascript">
+            const labels = $([string(v) for (k,v) in mc.options]);
+            const values = $(1:length(mc.options));
+            const checked = $([k in defaults for (k,v) in mc.options]);
+            const includeSelectAll = $(mc.select_all);
+            $(HypertextLiteral.JavaScript(js))
+        </script>
+        <style type="text/css">$(css)</style>
+        """))
     end
 
-    show(io, m, @htl("""
-    <multi-checkbox class="multicheckbox-container" style="flex-direction: $(flex_direction);"></multi-checkbox>
-    <script type="text/javascript">
-        const labels = $(labels);
-        const values = $(vals);
-        const checked = $(default_checked);
-        const defaults = $(multicheckbox.default);
-        const includeSelectAll = $(multicheckbox.select_all);
-        $(HypertextLiteral.JavaScript(js))
-    </script>
-    <style type="text/css">
-        $(css)
-    </style>
-    """))
-end
-
-Base.get(select::MultiCheckBox) = ismissing(select.default) ? Any[] : select.default
-
-	Bonds.initial_value(select::MultiCheckBox) = 
-		ismissing(select.default) ? Any[] : select.default
-	Bonds.possible_values(select::MultiCheckBox) = 
-		subarrays(first.(select.options))
-	function Bonds.validate_value(select::MultiCheckBox, val)
-		val isa Vector && val ⊆ (first(p) for p in select.options)
-	end
+    Base.get(select::MultiCheckBox) = Bonds.initial_value(select)
+    Bonds.initial_value(select::MultiCheckBox{BT,DT}) where {BT,DT} = 
+        ismissing(select.default) ? BT[] : select.default
+    Bonds.possible_values(select::MultiCheckBox) = 
+        subarrays((string(i) for i in 1:length(select.options)))
+    
+    function Bonds.transform_value(select::MultiCheckBox{BT,DT}, val_from_js) where {BT,DT}
+        # val_from_js will be a vector of Strings, but let's allow Integers as well, there's no harm in that
+        @assert val_from_js isa Vector
+        
+        val_nums = (
+            v isa Integer ? v : tryparse(Int64, v)
+            for v in val_from_js
+        )
+        
+        BT[select.options[v].first for v in val_nums]
+    end
+    
+    function Bonds.validate_value(select::MultiCheckBox, val)
+        val isa Vector && all(val_from_js) do v
+            val_num = v isa Integer ? v : tryparse(Int64, v)
+            1 ≤ val_num ≤ length(select.options)
+        end
+    end
+    result
 end
 
 # ╔═╡ 8bfaf4c8-557d-433e-a228-aac493746efc
@@ -138,6 +140,15 @@ end
 
 # ╔═╡ 8e9f3962-d86c-4e07-b5d3-f31ee5361ca2
 animals
+
+# ╔═╡ d8613c4f-6936-4fb2-9b9f-acf34377091f
+@bind funcs MultiCheckBox([sin, cos, tan]; default=[sin, tan])
+
+# ╔═╡ 92fe974e-cc6c-4387-8c6e-85813b222f25
+funcs
+
+# ╔═╡ 1dd8a041-60c0-4b26-8207-3dc9cca0d3eb
+[f(0.5) for f in funcs]
 
 # ╔═╡ a8a7e90d-8bbf-4ab6-90a8-24a10885fb0a
 @bind animals2 MultiCheckBox(["\"🐰\\\"", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"]; orientation=:column, default=["🐿️" , "🐝"])
@@ -152,6 +163,9 @@ MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "
 # ╟─a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 # ╠═8bfaf4c8-557d-433e-a228-aac493746efc
 # ╠═8e9f3962-d86c-4e07-b5d3-f31ee5361ca2
+# ╠═d8613c4f-6936-4fb2-9b9f-acf34377091f
+# ╠═92fe974e-cc6c-4387-8c6e-85813b222f25
+# ╠═1dd8a041-60c0-4b26-8207-3dc9cca0d3eb
 # ╠═a8a7e90d-8bbf-4ab6-90a8-24a10885fb0a
 # ╠═6123cf6d-fc29-4a8f-a5a1-4366cc6457b6
 # ╠═60183ad1-4919-4402-83fb-d53b86dda0a6
