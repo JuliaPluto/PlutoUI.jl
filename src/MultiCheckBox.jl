@@ -94,13 +94,30 @@ begin
         @assert mc.orientation == :column || mc.orientation == :row "Invalid orientation $(mc.orientation). Orientation should be :row or :column"
 
         defaults = coalesce(mc.default, [])
-        
+
+		# Old:
+		# checked = [k in defaults for (k,v) in mc.options]
+		# 
+		# More complicated to fix https://github.com/JuliaPluto/PlutoUI.jl/issues/106
+		defaults_copy = copy(defaults)
+		checked = [
+			let
+				i = findfirst(isequal(k), defaults_copy)
+				if i === nothing
+					false
+				else
+					deleteat!(defaults_copy, i)
+					true
+				end
+			end
+		for (k,v) in mc.options]
+		
         show(io, m, @htl("""
         <multi-checkbox class="mc-container" style="flex-direction: $(mc.orientation);"></multi-checkbox>
         <script type="text/javascript">
             const labels = $([string(v) for (k,v) in mc.options]);
             const values = $(1:length(mc.options));
-            const checked = $([k in defaults for (k,v) in mc.options]);
+            const checked = $(checked);
             const includeSelectAll = $(mc.select_all);
             $(HypertextLiteral.JavaScript(js))
         </script>
@@ -159,6 +176,15 @@ animals2
 # ╔═╡ 60183ad1-4919-4402-83fb-d53b86dda0a6
 MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "🐝",  "🐪"])
 
+# ╔═╡ ad6dcdec-2fc9-45d2-8828-62ac857b4afa
+@bind snacks MultiCheckBox(
+	["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
+	default=["🐱", "🐱"]
+)
+
+# ╔═╡ abe4c3e0-6e1e-4e26-a4fa-bd60f31c1a4c
+snacks
+
 # ╔═╡ Cell order:
 # ╟─a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 # ╠═8bfaf4c8-557d-433e-a228-aac493746efc
@@ -169,6 +195,8 @@ MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "
 # ╠═a8a7e90d-8bbf-4ab6-90a8-24a10885fb0a
 # ╠═6123cf6d-fc29-4a8f-a5a1-4366cc6457b6
 # ╠═60183ad1-4919-4402-83fb-d53b86dda0a6
+# ╠═abe4c3e0-6e1e-4e26-a4fa-bd60f31c1a4c
+# ╠═ad6dcdec-2fc9-45d2-8828-62ac857b4afa
 # ╟─c8350f43-0d30-45d0-873b-ff56c5801ac1
 # ╟─79c4dc76-efa2-4b7f-99ea-243e3a17f81c
 # ╟─499ca710-1a50-4aa1-87d8-d213416e8e30
