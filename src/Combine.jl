@@ -163,7 +163,7 @@ begin
 			return Base.show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
 		end
 		output = @htl(
-			"""<span>$(
+			"""<span style='display: contents;'>$(
 				cb.display_content
 			)<script id=$(cb.secret_key)>
 		const div = currentScript.parentElement
