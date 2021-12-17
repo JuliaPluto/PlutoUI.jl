@@ -82,8 +82,7 @@ begin
 				max=$(last(slider.range))
 
 				value=$(slider.default)
-				oninput=$(slider.show_value ? "this.nextElementSibling.value=this.value" : "")
-				>
+				oninput=$(slider.show_value ? "this.nextElementSibling.value=this.value" : "")>
 
 				$(
 				slider.show_value ? @htl("<output>$(slider.default)</output>") : nothing
@@ -147,8 +146,8 @@ begin
 				type="range" 
 				min=1
 				max=$(length(slider.values))
-				value=$(start_index)
-				>$(
+				value=$(start_index)>
+				$(
 					slider.show_value ? @htl(
 					"""<script>
 					const input_el = currentScript.previousElementSibling
@@ -811,8 +810,8 @@ DateField
 function Base.show(io::IO, m::MIME"text/html", datefield::DateField)
 	show(io, m, @htl("""<input
 				type="date"
-				value=$(datefield.default === nothing ? "" : Dates.format(datefield.default, "Y-mm-dd"))
-			>"""))
+				value=$(datefield.default === nothing ? "" : Dates.format(datefield.default, "Y-mm-dd"))>
+			"""))
 end
 Base.get(datefield::DateField) = datefield.default === nothing ? nothing : Dates.DateTime(datefield.default)
 	Bonds.initial_value(datefield::DateField) = 
@@ -848,8 +847,8 @@ function Base.show(io::IO, m::MIME"text/html", timefield::TimeField)
 		type='time'
 		value=$(
 			timefield.default === nothing ? nothing : Dates.format(timefield.default, "HH:MM")
-		)
-	>"))
+		)>
+	"))
 end
 Base.get(timefield::TimeField) = timefield.default === nothing ?  "" : Dates.format(timefield.default, "HH:MM")
 	Bonds.initial_value(timefield::TimeField) = 
