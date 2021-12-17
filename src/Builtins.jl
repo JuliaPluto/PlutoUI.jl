@@ -74,22 +74,19 @@ begin
 	OldSlider(range::AbstractRange; default=missing, show_value=false) = OldSlider(range, (default === missing) ? first(range) : default, show_value)
 	
 	function Base.show(io::IO, m::MIME"text/html", slider::OldSlider)
-		show(io, m, @htl("""
-				<input 
-				type="range" 
-				min=$(first(slider.range))
-				step=$(step(slider.range))
-				max=$(last(slider.range))
-
-				value=$(slider.default)
-				oninput=$(slider.show_value ? "this.nextElementSibling.value=this.value" : "")
-				>
-
-				$(
-				slider.show_value ? @htl("<output>$(slider.default)</output>") : nothing
-				)
-				
-				"""))
+		show(io, m, 
+			@htl("""<input $((
+					type="range",
+					min=first(slider.range),
+					step=step(slider.range),
+					max=last(slider.range),
+					value=slider.default,
+					oninput=(slider.show_value ? "this.nextElementSibling.value=this.value" : ""),
+				))>$(
+					slider.show_value ? 
+						@htl("<output>$(slider.default)</output>") : 
+						nothing
+				)"""))
 	end
 
 	Base.get(slider::OldSlider) = slider.default
@@ -143,12 +140,12 @@ begin
 		start_index = findfirst(isequal(slider.default), slider.values)
 		
 		show(io, m, @htl(
-			"""<input 
-				type="range" 
-				min=1
-				max=$(length(slider.values))
-				value=$(start_index)
-				>$(
+			"""<input $((
+				type="range",
+				min=1,
+				max=length(slider.values),
+				value=start_index,
+			))>$(
 					slider.show_value ? @htl(
 					"""<script>
 					const input_el = currentScript.previousElementSibling
@@ -160,7 +157,7 @@ begin
 					})
 					</script><output>$(string(slider.default))</output>"""
 				) : nothing
-				)"""))
+			)"""))
 	end
 
 	Base.get(slider::Slider) = slider.default
@@ -206,8 +203,14 @@ begin
 	
 	NumberField(range::AbstractRange{<:T}; default=missing) where T = NumberField(range, (default === missing) ? first(range) : convert(T,default))
 	
-	function Base.show(io::IO, ::MIME"text/html", numberfield::NumberField)
-		print(io, """<input type="number" min="$(first(numberfield.range))" step="$(step(numberfield.range))" max="$(last(numberfield.range))" value="$(numberfield.default)">""")
+	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
+		show(io, m, @htl("""<input $((
+				type="number",
+				min=first(numberfield.range),
+				step=step(numberfield.range),
+				max=last(numberfield.range),
+				value=numberfield.default
+			))>"""))
 	end
 	
 	Base.get(numberfield::NumberField) = numberfield.default
@@ -308,8 +311,7 @@ begin
 	
 	function Base.show(io::IO, m::MIME"text/html", button::CounterButton)
 		show(io, m, @htl(
-			"""<span><input type="button" value="$(button.label)"
-			><script>
+			"""<span><input type="button" value=$(button.label)><script>
 		let count = 0
 		const span = currentScript.parentElement
 		const button = span.firstElementChild
@@ -609,13 +611,13 @@ function Base.show(io::IO, m::MIME"text/html", radio::Radio)
 		"""<form>$(
 		map(radio.options) do o
 			@htl(
-				"""<div><input 
-					type="radio" 
-					id=$(groupname * o.first) 
-					name=$(groupname) 
-					value=$(o.first)
-					checked=$(radio.default === o.first)
-					><label for=$(groupname * o.first)>$(
+				"""<div><input $((
+					type="radio",
+					id=(groupname * o.first),
+					name=groupname,
+					value=o.first,
+					checked=(radio.default === o.first),
+				))><label for=$(groupname * o.first)>$(
 					o.second
 				)</label></div>"""
 			)
@@ -660,6 +662,9 @@ Base.get(radio::Radio) = radio.default
 	end
 	result
 end
+
+# ╔═╡ 04ed1e71-d806-423e-b99c-476ea702feb3
+Radio(["a", "b"]; default="b")
 
 # ╔═╡ 7c4303a1-19be-41a2-a6c7-90146e01401d
 md"""
@@ -809,10 +814,10 @@ DateField
 	end
 
 function Base.show(io::IO, m::MIME"text/html", datefield::DateField)
-	show(io, m, @htl("""<input
-				type="date"
-				value=$(datefield.default === nothing ? "" : Dates.format(datefield.default, "Y-mm-dd"))
-			>"""))
+	show(io, m, @htl("<input $((
+			type="date",
+			value=(datefield.default === nothing ? "" : Dates.format(datefield.default, "Y-mm-dd")),
+		))>"))
 end
 Base.get(datefield::DateField) = datefield.default === nothing ? nothing : Dates.DateTime(datefield.default)
 	Bonds.initial_value(datefield::DateField) = 
@@ -844,12 +849,12 @@ TimeField
 end
 
 function Base.show(io::IO, m::MIME"text/html", timefield::TimeField)
-	show(io, m, @htl("<input
-		type='time'
-		value=$(
-			timefield.default === nothing ? nothing : Dates.format(timefield.default, "HH:MM")
-		)
-	>"))
+	show(io, m, @htl("<input $((
+			type="time",
+			value=(
+				timefield.default === nothing ? nothing : Dates.format(timefield.default, "HH:MM"),
+			)
+		))>"))
 end
 Base.get(timefield::TimeField) = timefield.default === nothing ?  "" : Dates.format(timefield.default, "HH:MM")
 	Bonds.initial_value(timefield::TimeField) = 
@@ -1013,6 +1018,15 @@ bos
 
 # ╔═╡ 05f6a603-b738-47b1-b335-acaaf480a240
 os1, os2, os3
+
+# ╔═╡ f7870d7f-992d-4d64-85aa-7621ab16244f
+nf1b = @bind nf1 NumberField(1:10)
+
+# ╔═╡ 893e22e1-a1e1-43cb-84fe-4931f3ba35c1
+nf1b
+
+# ╔═╡ 7089edb6-720d-4df5-b3ca-da17d48b107e
+nf1
 
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
 @bind b1 Button(teststr)
@@ -1238,6 +1252,9 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═629e5d68-580f-4d6b-be14-5a109091e6b7
 # ╠═05f6a603-b738-47b1-b335-acaaf480a240
 # ╟─f59eef32-4732-46db-87b0-3564433ce43e
+# ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
+# ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
+# ╠═7089edb6-720d-4df5-b3ca-da17d48b107e
 # ╟─b7c21c22-17f5-44b8-98de-a261d5c7192b
 # ╠═7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
 # ╠═c6d68308-53e7-4c60-8649-8f0161f28d70
@@ -1284,6 +1301,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═f3bef89c-61ac-4dcf-bf47-3824f11db26f
 # ╟─42e9e5ab-7d34-4300-a6c0-47f5cde658d8
 # ╠═57232d88-b74f-4823-be61-8db450c93f5c
+# ╠═04ed1e71-d806-423e-b99c-476ea702feb3
 # ╟─7c4303a1-19be-41a2-a6c7-90146e01401d
 # ╠═a95684ea-4612-45d6-b63f-41c051b53ed8
 # ╠═a5612030-0781-4cf1-b8f0-409bd3886154
