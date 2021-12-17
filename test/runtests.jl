@@ -129,6 +129,16 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
         el = f(["sin" => "asdf"]; default = ["sin"])
         @test default(el) == ["sin"]
     end
+    
+    el = MultiSelect([sin, cos, tan, sqrt])
+    @test default(el) |> isempty
+    @test default(el) isa Vector{Function}
+    el = MultiSelect([
+        cos => "cosine function", 
+        sin => "sine function",
+    ])
+    @test default(el) |> isempty
+    @test default(el) isa Vector{Function}
 
 
     el = Select(["asdf", "x"])
