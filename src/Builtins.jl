@@ -878,12 +878,13 @@ local result = begin
 
 Use `default` to set the initial value.
 
-See the [Mozilla docs about `<input type="color">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color)
-
 # Examples
 `@bind color ColorStringPicker()`
 
 `@bind color ColorStringPicker(default="#aabbcc")`
+
+# See also
+[`ColorPicker`](@ref)
 """
 ColorStringPicker
 end
@@ -899,6 +900,84 @@ Base.get(colorStringPicker::ColorStringPicker) = colorStringPicker.default
 		Bonds.InfinitePossibilities()
 	function Bonds.validate_value(c::ColorStringPicker, val)
 		val isa String && val[1] == "#"
+	end
+
+	result
+end
+
+# ╔═╡ 1d95c38d-d336-436d-a62e-0a3786c321ca
+ColorStringPicker("#ffffff")
+
+# ╔═╡ 724125f3-7699-4103-a5d8-bc6a00fab0ff
+ColorStringPicker(default="#abbaff")
+
+# ╔═╡ 632f6d08-0091-41d7-afb6-bdc7c5e4e837
+import ColorTypes: RGB, N0f8, Colorant
+
+# ╔═╡ 363236e7-fb6c-4b6f-a8a1-fef5bcadb570
+function _hex_to_color(val::String)
+	val[2:end]
+	rgb_str = val[2:3], val[4:5], val[6:7]
+	RGB{N0f8}(reinterpret(N0f8, [parse.(UInt8, rgb_str, base=16)])...)
+end
+
+# ╔═╡ b329dcff-e69b-47d3-8b05-56562416cd89
+_hex_to_color("#f0f000")
+
+# ╔═╡ 6eece14b-7034-4f12-a98a-d127459f3cdf
+function _color_to_hex(val::RGB{N0f8})
+
+	"#" * join(string.(reinterpret.(UInt8, (val.r,val.g,val.b)); base=16, pad=2))
+end
+
+# ╔═╡ e1a67bd4-7fa9-4e15-8975-2c71e704de8c
+begin
+	local result = begin
+	Base.@kwdef struct ColorPicker{T <: RGB{N0f8}}
+	    default::T=zero(RGB{N0f8})
+		
+		# ColorPicker(; default::RGB{N0f8}) = new{RGB{N0f8}}(default)
+	end
+	@doc """
+	A color input - the user can pick an RGB color, the color is returned as a `Colorant`, a type from the package [Colors.jl](https://github.com/JuliaGraphics/Colors.jl).
+	
+	Use `default` to set the initial value.
+	
+	# Examples
+	```julia
+	@bind color1 ColorPicker()
+	```
+	
+	```julia
+	using Colors
+	
+	@bind color2 ColorPicker(default=colorant"#aabbcc")
+	```
+	"""
+	ColorPicker
+	end
+
+	function Base.show(io::IO, m::MIME"text/html", cp::ColorPicker)
+		# compat code
+		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
+			return show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
+		end
+		show(io, m, @htl("<input type=color value=$(_color_to_hex(cp.default))>"))
+	end
+	
+	Base.get(cp::ColorPicker) = cp.default
+	Bonds.initial_value(cp::ColorPicker) = cp.default
+	
+	Bonds.possible_values(cp::ColorPicker) = Bonds.InfinitePossibilities()
+	
+	function Bonds.validate_value(cp::ColorPicker, val)
+		val isa String && val[1] == "#"
+	end
+
+	function Bonds.transform_value(cp::ColorPicker, val)
+		val[2:end]
+		rgb_str = val[2:3], val[4:5], val[6:7]
+		RGB{N0f8}(reinterpret(N0f8, [parse.(UInt8, rgb_str, base=16)])...)
 	end
 
 	result
@@ -1097,19 +1176,36 @@ ti3
 ti2
 
 # ╔═╡ b123275c-48fd-4e4a-8461-4875f7c18293
-bco = @bind co1 ColorStringPicker()
+bcs = @bind cs1 ColorStringPicker()
 
 # ╔═╡ 883673fb-b8d0-49fb-ab8c-32e972894ec2
-bco
+bcs
 
 # ╔═╡ 78463563-4d1f-49f0-875f-8a30cf445a2d
+cs1
+
+# ╔═╡ 5f70cfea-0f98-428a-a01f-c3f019081869
+_color_to_hex(_hex_to_color("#f0f000"))
+
+# ╔═╡ b63f68ae-70f1-4042-ac2c-a76e09b0d686
+bco = @bind co1 ColorPicker()
+
+# ╔═╡ 2c216333-ad18-49c9-b9ec-c547d750aec6
 co1
 
-# ╔═╡ 1d95c38d-d336-436d-a62e-0a3786c321ca
-ColorStringPicker("#ffffff")
+# ╔═╡ 24a2719c-c997-42d1-b884-15debc973c83
+bco
 
-# ╔═╡ 724125f3-7699-4103-a5d8-bc6a00fab0ff
-ColorStringPicker(default="#abbaff")
+# ╔═╡ 98f1d654-5629-4fea-9b7a-270ecbf46d57
+md"""
+You would normally use `colorant"#f0f000"` from `Colors.jl` to generate this default value.
+"""
+
+# ╔═╡ c2f4590c-8d86-408b-bc7b-1e1592aed8d3
+ColorPicker(default=_hex_to_color("#f0f000"))
+
+# ╔═╡ 524cf3d8-79f5-4b1b-8ea2-9cb9055944e1
+ColorPicker(_hex_to_color("#f0f000"))
 
 # ╔═╡ 9ade9240-1fea-4cb7-a571-a98b13cc29b2
 """
@@ -1125,7 +1221,7 @@ Hello \$br world!
 const br = HTML("<br>")
 
 # ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, br
+export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
@@ -1244,4 +1340,16 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═78463563-4d1f-49f0-875f-8a30cf445a2d
 # ╠═1d95c38d-d336-436d-a62e-0a3786c321ca
 # ╠═724125f3-7699-4103-a5d8-bc6a00fab0ff
+# ╠═632f6d08-0091-41d7-afb6-bdc7c5e4e837
+# ╟─e1a67bd4-7fa9-4e15-8975-2c71e704de8c
+# ╟─363236e7-fb6c-4b6f-a8a1-fef5bcadb570
+# ╠═b329dcff-e69b-47d3-8b05-56562416cd89
+# ╟─6eece14b-7034-4f12-a98a-d127459f3cdf
+# ╠═5f70cfea-0f98-428a-a01f-c3f019081869
+# ╠═2c216333-ad18-49c9-b9ec-c547d750aec6
+# ╠═b63f68ae-70f1-4042-ac2c-a76e09b0d686
+# ╠═24a2719c-c997-42d1-b884-15debc973c83
+# ╟─98f1d654-5629-4fea-9b7a-270ecbf46d57
+# ╠═c2f4590c-8d86-408b-bc7b-1e1592aed8d3
+# ╠═524cf3d8-79f5-4b1b-8ea2-9cb9055944e1
 # ╟─9ade9240-1fea-4cb7-a571-a98b13cc29b2
