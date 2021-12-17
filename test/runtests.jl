@@ -140,6 +140,16 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
         @test default(el) isa Vector{Function}
     end
     
+    el = MultiCheckBox(
+        ["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
+        default=["🐱", "🐱"]
+    )
+    @test default(el) == ["🐱", "🐱"]
+    el = MultiCheckBox(
+        ["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
+        default=["🐱"]
+    )
+    @test default(el) == ["🐱"]
 
 
     el = Select(["asdf", "x"])
