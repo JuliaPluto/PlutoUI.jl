@@ -60,12 +60,6 @@ md"""
 # Combining bonds
 """
 
-# ╔═╡ ad5cffa5-313c-4de9-9360-005365b40780
-export combine
-
-# ╔═╡ bafa80c7-bb2b-4c08-a9ae-5e2b7d9abe07
-
-
 # ╔═╡ 85918609-5e1f-4040-99be-61c2dd8ff654
 md"""
 ## The magic
@@ -278,6 +272,89 @@ render_hmtl_with_pluto_display_features(x) = sprint() do io
 	)
 end
 
+# ╔═╡ bafa80c7-bb2b-4c08-a9ae-5e2b7d9abe07
+function _combine(f::Function)
+	key = String(rand('a':'z', 10))
+
+	captured_names = Symbol[]
+	captured_bonds = []
+
+	function combined_child_element(x)
+		@htl("""<pl-combined_child key=$(key)>$(x)</pl-combined_child>""")
+	end
+
+	
+	created_callbacks = RenderCallback[]
+
+	#=
+	
+	This is the function that will wrap around contained input elements.
+	
+	Besides wrapping the input inside a special HTML element 
+	(with `combined_child_element`), it also secretly adds the element to 
+	`captured_bonds`. 
+	
+	This allows us to know exactly which elements are contained in the combine,
+	which we use for `Bonds.initial_value`, `Bonds.transform_value`, etc.
+	
+	This function could be a lot simpler:
+
+	```
+	function Child(x)
+		push!(captured_bonds, x)
+		combined_child_element(x)
+	end
+	```
+	
+	But instead, it's complicated!
+	
+	The reason is that we want to capture the combined bonds not in the order
+	that they are wrapped (i.e. when `Child` is called), but in the order that they
+	are **displayed** in, because this matches the order that our JavaScript code
+	will find the special elements in.
+	
+	=#
+	function Child(x)
+		rc = RenderCallback(combined_child_element(x)) do
+			# @info "Rendering" x stacktrace()
+			push!(captured_bonds, x)
+		end
+		push!(created_callbacks, rc)
+		rc
+	end
+	# the same, but with `name`
+	function Child(name::Union{String,Symbol}, x)
+		rc = RenderCallback(combined_child_element(x)) do
+			push!(captured_bonds, x)
+			push!(captured_names, Symbol(name))
+		end
+		push!(created_callbacks, rc)
+		rc
+	end
+
+	# call the user's render function
+	result = f(Child)
+
+	# Trigger HTML display, which will also render the Child elements, and fire our callbacks.
+	# We store the result because we don't want to re-render the contents every time the combine is rendered: if the displayed content contains lazy generators, then blablablalbl difficult but fixed now -fons
+	display_html = render_hmtl_with_pluto_display_features(result)
+
+	# @info "Captured" captured_bonds length(created_callbacks)
+	
+	# disable callbacks
+	disable_callback!.(created_callbacks)
+	
+	# lets see what we got
+	@assert isempty(captured_names) || length(captured_names) == length(captured_bonds) "Some children do not have a name. Make sure that all calls of `Child` provide two arguments."
+	
+	CombinedBonds(;
+		secret_key = key,
+		captured_names = isempty(captured_names) ? nothing : tuple(captured_names...),
+		captured_bonds = captured_bonds,
+		display_content = HTML(display_html),
+	)
+end
+
 # ╔═╡ 157a2e04-4ccd-4de6-b998-ef94fcdd962b
 """
 ```julia
@@ -427,88 +504,10 @@ The `combine` function is useful when you are generating inputs **dynamically**,
 - The number of parameters is dynamic! For example, you can load in a table in one cell, and then use `combine` in another cell to select which rows you want to use.
 
 """
-function _combine(f::Function)
-	key = String(rand('a':'z', 10))
+combine(f::Function) = _combine(f)
 
-	captured_names = Symbol[]
-	captured_bonds = []
-
-	function combined_child_element(x)
-		@htl("""<pl-combined_child key=$(key)>$(x)</pl-combined_child>""")
-	end
-
-	
-	created_callbacks = RenderCallback[]
-
-	#=
-	
-	This is the function that will wrap around contained input elements.
-	
-	Besides wrapping the input inside a special HTML element 
-	(with `combined_child_element`), it also secretly adds the element to 
-	`captured_bonds`. 
-	
-	This allows us to know exactly which elements are contained in the combine,
-	which we use for `Bonds.initial_value`, `Bonds.transform_value`, etc.
-	
-	This function could be a lot simpler:
-
-	```
-	function Child(x)
-		push!(captured_bonds, x)
-		combined_child_element(x)
-	end
-	```
-	
-	But instead, it's complicated!
-	
-	The reason is that we want to capture the combined bonds not in the order
-	that they are wrapped (i.e. when `Child` is called), but in the order that they
-	are **displayed** in, because this matches the order that our JavaScript code
-	will find the special elements in.
-	
-	=#
-	function Child(x)
-		rc = RenderCallback(combined_child_element(x)) do
-			# @info "Rendering" x stacktrace()
-			push!(captured_bonds, x)
-		end
-		push!(created_callbacks, rc)
-		rc
-	end
-	# the same, but with `name`
-	function Child(name::Union{String,Symbol}, x)
-		rc = RenderCallback(combined_child_element(x)) do
-			push!(captured_bonds, x)
-			push!(captured_names, Symbol(name))
-		end
-		push!(created_callbacks, rc)
-		rc
-	end
-
-	# call the user's render function
-	result = f(Child)
-
-	# Trigger HTML display, which will also render the Child elements, and fire our callbacks.
-	# We store the result because we don't want to re-render the contents every time the combine is rendered: if the displayed content contains lazy generators, then blablablalbl difficult but fixed now -fons
-	display_html = render_hmtl_with_pluto_display_features(result)
-
-	# @info "Captured" captured_bonds length(created_callbacks)
-	
-	# disable callbacks
-	disable_callback!.(created_callbacks)
-	
-	# lets see what we got
-	@assert isempty(captured_names) || length(captured_names) == length(captured_bonds) "Some children do not have a name. Make sure that all calls of `Child` provide two arguments."
-	
-	CombinedBonds(;
-		secret_key = key,
-		captured_names = isempty(captured_names) ? nothing : tuple(captured_names...),
-		captured_bonds = captured_bonds,
-		display_content = HTML(display_html),
-	)
-end
-# combine(f::Function) = _combine(f)
+# ╔═╡ ad5cffa5-313c-4de9-9360-005365b40780
+export combine
 
 # ╔═╡ 5f8af778-d25b-462f-afb9-295c0e4cb12e
 RenderCallback(@htl("hello")) do
