@@ -173,7 +173,7 @@ function with_terminal(f, args...; color=true, show_value=true)
 end
 
 # ╔═╡ fe8c0c2f-8555-44f0-ae30-628ad4860157
-export with_terminal
+export with_terminal, @with_terminal
 
 # ╔═╡ bb087be9-fc7e-46a1-9ff3-2a5f97a27add
 function is_inside_pluto(m::Module)::Bool
@@ -263,7 +263,7 @@ Just keeping this here in case someone wants to un-@skip\_as\_script it
 """
 
 # ╔═╡ e8f72c6d-1b48-4b30-acee-4ec519682070
-@skip_as_script macro with_terminal(expr)
+macro with_terminal(expr)
 	quote
 		$(with_terminal)() do
 			$(esc(expr))
