@@ -483,29 +483,34 @@ end
 begin
 	local result = begin
 	"""
-	A dropdown menu (`<select>`) - the user can choose one of the `options`, an array of `String`s.
+	```julia
+	Select(options::Vector; [default])
+	# or with a custom display value:
+	Select(options::Vector{Pair{Any,String}}; [default::Any])
+	```
+
+	A dropdown menu - the user can choose an element of the `options` vector.
 
 	See [`MultiSelect`](@ref) for a version that allows multiple selected items.
 
-	`options` can also be an array of pairs `key::Any => display_value::String`. The `key` is returned via `@bind`; the `display_value` is shown.
-
 	# Examples
-	`@bind veg Select(["potato", "carrot"])`
-
-	`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"])`
+	```julia
+	@bind veg Select(["potato", "carrot"])
+	```
 	
-	`@bind veg Select(["potato" => "🥔", "carrot" => "🥕"], default="carrot")`
-
-	In all three cases, `veg` will be either `"potato"` or `"carrot"`.
+	```julia
+	@bind f Select([sin, cos, tan, sqrt])
 	
-	The *key* can be any object, like a string, number, or even a function:
+	f(0.5)
+	```
+
+	You can also specify a display value by giving pairs `bound_value => display_value`:
 	
 	```julia
 	@bind f Select([cos => "cosine function", sin => "sine function"])
 
 	f(0.5)
 	```
-
 	"""
 	struct Select
 		options::AbstractVector{Pair}
@@ -683,11 +688,15 @@ subarrays(x) = (
 # ╔═╡ 5bacf96d-f24b-4e8b-81c7-47140f286e27
 begin
 local result = begin
-	"""A multi-selector (`<select multi>`) - the user can choose one or more of the `options`, an array of `Strings.
+"""
+	MultiSelect(options; [default], [size])
+
+A multi-selector (`<select multi>`) - the user can choose one or more of the `options`.
 
 See [`Select`](@ref) for a version that allows only one selected item.
 
-`options` can also be an array of pairs `key::String => value::Any`. The `key` is returned via `@bind`; the `value` is shown.
+`options` can a vector, or an array of pairs `bound_value::AbstractString => display_value`. 
+`bound_value` is returned via `@bind`; it is shown in the widget as `string(display_value)`.
 
 The `size` keyword argument may be used to specify how many rows should be visible at once.
 
