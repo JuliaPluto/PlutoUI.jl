@@ -9,10 +9,8 @@ for (let i = 0; i < labels.length; i++) {
   const boxId = `${my_id}-box-${i}`;
 
   const item = document.createElement("div");
-  item.classList.add("multicheckbox");
 
   const checkbox = document.createElement("input");
-  checkbox.classList.add("multicheckbox");
   checkbox.type = "checkbox";
   checkbox.id = boxId;
   checkbox.name = labels[i];
@@ -22,7 +20,6 @@ for (let i = 0; i < labels.length; i++) {
   item.appendChild(checkbox);
 
   const label = document.createElement("label");
-  label.classList.add("multicheckbox");
   label.htmlFor = boxId;
   label.innerText = labels[i];
   item.appendChild(label);
@@ -44,19 +41,16 @@ function updateSelectAll() {}
 if (includeSelectAll) {
   // Add select-all checkbox.
   const selectAllItem = document.createElement("div");
-  selectAllItem.classList.add("multicheckbox");
   selectAllItem.classList.add(`select-all`);
 
   const selectID = `${my_id}-select-all`
   
   const selectAllInput = document.createElement("input");
-  selectAllInput.classList.add("multicheckbox");
   selectAllInput.type = "checkbox";
   selectAllInput.id = selectID;
   selectAllItem.appendChild(selectAllInput);
 
   const selectAllLabel = document.createElement("label");
-  selectAllLabel.classList.add("multicheckbox");
   selectAllLabel.htmlFor = selectID;
   selectAllLabel.innerText = "Select All";
   selectAllItem.appendChild(selectAllLabel);

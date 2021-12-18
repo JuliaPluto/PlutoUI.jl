@@ -134,7 +134,7 @@ begin
 		for (k,v) in mc.options]
 		
         show(io, m, @htl("""
-        <multi-checkbox class="mc-container" style="flex-direction: $(mc.orientation);"></multi-checkbox>
+        <plj-multi-checkbox style="flex-direction: $(mc.orientation);"></plj-multi-checkbox>
         <script type="text/javascript">
             const labels = $([string(v) for (k,v) in mc.options]);
             const values = $(1:length(mc.options));

@@ -1,24 +1,24 @@
-.multicheckbox-container {
+plj-multi-checkbox {
   display: flex;
   flex-wrap: wrap;
   /* max-height: 8em; */
 }
 
-.multicheckbox {
+plj-multi-checkbox * {
   display: flex;
 }
 
-div.multicheckbox {
+plj-multi-checkbox > div {
   margin: 0.1em 0.3em;
   align-items: center;
 }
 
-label.multicheckbox,
-input.multicheckbox {
+plj-multi-checkbox label,
+plj-multi-checkbox input {
   cursor: pointer;
 }
 
-.select-all {
+plj-multi-checkbox .select-all {
   font-style: italic;
   color: hsl(0, 0%, 25%, 0.7);
 }
