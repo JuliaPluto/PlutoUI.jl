@@ -45,4 +45,19 @@ module ExperimentalLayout
     include("./Layout.jl")
 end
 
+
+"""
+Components in this module are still experimental, and after a trial period (with breaking changes!), they will be added to PlutoUI as public API. Use with caution.
+
+Currently included: [`PlutoUI.Experimental.transformed_value`](@ref).
+"""
+module Experimental
+module TransformedValueNotebook
+    include("./TransformedValue.jl")
+end
+
+const transformed_value = TransformedValueNotebook.transformed_value
+
+end
+
 end
