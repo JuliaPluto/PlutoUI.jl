@@ -1,7 +1,7 @@
 name = "PlutoUI"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 authors = ["Fons van der Plas <fons@plutojl.org>"]
-version = "0.7.25"
+version = "0.7.26"
 
 [deps]
 AbstractPlutoDingetjes = "6e696c72-6542-2067-7265-42206c756150"
