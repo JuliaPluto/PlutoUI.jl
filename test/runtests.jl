@@ -3,6 +3,7 @@ using Test
 import AbstractPlutoDingetjes
 using HypertextLiteral
 import ColorTypes: RGB, N0f8, Colorant
+import Logging
 
 # has to be outside of the begin block for julia 1.0 compat
 struct Uhm end
@@ -296,12 +297,28 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
         transform = input -> repeat(input[1], input[2])
 
         # use `transformed_value` to add the value tranformation to our widget
-        new_widget = transformed_value(transform, old_widget)
-        return new_widget
+        transformed_value(transform, old_widget)
     end
     
     @test default(el) == "fonsfonsfons"
     
+    el = transformed_value(
+        transformed_value(
+            PlutoUI.combine() do Child
+                @htl("""
+                $(Child(Slider([sin, cos])))			
+                $(Child(Slider(5:7)))
+                """)
+            end
+        ) do x
+            Ref(reverse(x))
+        end
+    ) do x
+        first(x[])
+    end
     
+    @test_logs min_level=Logging.Info transformed_value(log, html"<input type=range>")
+    
+    @test default(el) == 5
 end
 

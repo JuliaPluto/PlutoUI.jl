@@ -77,7 +77,7 @@ begin
 	struct TransformedWidget{T}
 		x::T
 		transform::Function
-		initial_value::Union{Nothing,Function}
+		get_initial_value::Union{Nothing,Function}
 	end
 
 	function Base.show(io::IO, m::MIME"text/html", tw::TransformedWidget)
@@ -93,13 +93,19 @@ begin
 	end
 
 	function Bonds.initial_value(tw::TransformedWidget)
-		if tw.initial_value !== nothing
-			tw.initial_value()
+		if tw.get_initial_value !== nothing
+			tw.get_initial_value()
 		else
-			try
-				Bonds.transform_value(tw, Bonds.initial_value(tw.x))
-			catch
+			child_initial_value = Bonds.initial_value(tw.x)
+			if child_initial_value === missing
 				missing
+			else
+				try
+					tw.transform(child_initial_value)
+				catch e
+					@warn "`PlutoUI.transformed_value`: Failed to apply my transform function to the initial value of my contained element." child_initial_value exception=(e,catch_backtrace())
+					missing
+				end
 			end
 		end
 	end
@@ -118,7 +124,7 @@ end
 # ╔═╡ 78795f88-46b9-40af-8100-4e05cfaf3b85
 """
 ```julia
-transformed_value(transform::Function, widget::Any; [initial_value::Function])
+transformed_value(transform::Function, widget::Any)
 ```
 
 Create a new widget that wraps around an existing one, with a **value transformation**. 
@@ -171,11 +177,11 @@ end
 ![screenshot of the above code in action](https://user-images.githubusercontent.com/6933510/146782947-45d67770-03fe-4cf7-82ce-0b9f877688f4.gif)
 
 """
-function transformed_value(f::Function, x::Any; initial_value::Union{Nothing,Function}=nothing)
+function transformed_value(f::Function, x::Any; get_initial_value::Union{Nothing,Function}=nothing)
 	TransformedWidget(
 		x,
 		f,
-		initial_value
+		get_initial_value
 	)
 end
 
