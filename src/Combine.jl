@@ -280,7 +280,7 @@ function _combine(f::Function)
 	captured_bonds = []
 
 	function combined_child_element(x)
-		@htl("""<pl-combined_child key=$(key)>$(x)</pl-combined_child>""")
+		@htl("""<pl-combined_child key=$(key) style='display: contents;'>$(x)</pl-combined_child>""")
 	end
 
 	
