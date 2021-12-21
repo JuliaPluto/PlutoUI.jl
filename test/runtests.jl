@@ -282,6 +282,26 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     end
 
     @test default(el) === (missing,)
+    
+    
+    import PlutoUI.Experimental: transformed_value
+    
+    el = let
+        old_widget = PlutoUI.combine() do Child
+            @htl("""$(Child(TextField(default="fons"))) $(Child(Slider(1:10; default=3)))""")
+        end
+        
+        # Note that the input to `transform` is now a Tuple!
+        # (This is the output of `PlutoUI.combine`)
+        transform = input -> repeat(input[1], input[2])
 
+        # use `transformed_value` to add the value tranformation to our widget
+        new_widget = transformed_value(transform, old_widget)
+        return new_widget
+    end
+    
+    @test default(el) == "fonsfonsfons"
+    
+    
 end
 
