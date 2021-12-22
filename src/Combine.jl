@@ -168,7 +168,7 @@ begin
 			)<script id=$(cb.secret_key)>
 		const div = currentScript.parentElement
 		let key = $(cb.secret_key)
-		const inputs = div.querySelectorAll(`pl-combined_child[key='\${key}'] > *:first-child`)
+		const inputs = div.querySelectorAll(`pl-combined-child[key='\${key}'] > *:first-child`)
 		
 		const values = Array(inputs.length)
 		
@@ -280,7 +280,7 @@ function _combine(f::Function)
 	captured_bonds = []
 
 	function combined_child_element(x)
-		@htl("""<pl-combined_child key=$(key) style='display: contents;'>$(x)</pl-combined_child>""")
+		@htl("""<pl-combined-child key=$(key) style='display: contents;'>$(x)</pl-combined-child>""")
 	end
 
 	
