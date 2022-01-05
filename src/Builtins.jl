@@ -796,6 +796,43 @@ Base.get(datefield::DateField) = datefield.default === nothing ? nothing : Dates
 	result
 end
 
+# ╔═╡ 702133cc-246d-42f7-84a1-a6a01716c5e2
+begin
+	local result = begin
+		Base.@kwdef struct DatePicker
+			default::Union{Dates.TimeType,Nothing}=nothing
+		end
+	@doc """A date input - the user can pick a date, the date is returned as a `Dates.Date`.
+	
+	Use `default` to set the initial value.
+	
+	# Examples
+	```julia
+	@bind date1 DatePicker()
+	```
+	
+	```julia
+	@bind date2 DatePicker(default=today())
+	```
+	"""
+	DatePicker
+	end
+	
+	function Base.show(io::IO, m::MIME"text/html", dp::DatePicker)
+		show(io, m, @htl("<input $((
+				type="date",
+				value=(dp.default === nothing ? "" : Dates.format(dp.default, "Y-mm-dd")),
+			))>"))
+	end
+	Base.get(dp::DatePicker) = dp.default === nothing ? nothing : Dates.DateTime(dp.default)
+	Bonds.initial_value(dp::DatePicker) =
+		dp.default === nothing ? nothing : Dates.DateTime(dp.default)
+	Bonds.possible_values(dp::DatePicker) =
+		Bonds.InfinitePossibilities()
+	
+	result
+end
+
 # ╔═╡ ea7c4d05-c516-4f07-9d48-7df9ce997939
 begin
 local result = begin
@@ -1311,7 +1348,7 @@ Hello \$br world!
 const br = HTML("<br>")
 
 # ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, ColorPicker, br
+export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, DatePicker, TimeField, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
@@ -1420,6 +1457,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═65bdad5e-a51b-4009-8b8e-ce93286ee5e4
 # ╠═4f1a909d-d21a-4e60-a615-8146ba249794
 # ╠═d52cc4d9-cdb0-46b6-a59f-5eeaa1990f20
+# ╠═702133cc-246d-42f7-84a1-a6a01716c5e2
 # ╟─ea7c4d05-c516-4f07-9d48-7df9ce997939
 # ╠═3aefce73-f133-43e0-8680-5c17b7f90979
 # ╠═d128f5ac-7304-486c-8258-f05f4bd18632
