@@ -27,7 +27,7 @@ HypertextLiteral = "0.9"
 IOCapture = "0.2"
 JSON = "^0.21.1"
 Reexport = "^1"
-julia = "1.1"
+julia = "1.4"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
