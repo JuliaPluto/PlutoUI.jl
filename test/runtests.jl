@@ -320,5 +320,17 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     @test_logs min_level=Logging.Info transformed_value(log, html"<input type=range>")
     
     @test default(el) == 5
+    
+    import PlutoUI.Experimental: wrapped
+    
+    el = wrapped() do Child
+        @htl("""
+        Hello!
+        $(Child(Slider([sin, cos])))
+        """)
+    end
+    
+    @test default(el) == sin
+    
 end
 
