@@ -812,7 +812,11 @@ See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org
 # Examples
 `@bind lunch_time TimeField()`
 
-`@bind lunch_time TimeField(default=now())`"""
+`@bind lunch_time TimeField(default=now())`
+
+# See also
+[`TimePicker`](@ref)
+"""
 TimeField
 end
 
@@ -835,6 +839,48 @@ end
 
 # ╔═╡ 4c9c1e24-235f-44f6-83f3-9f985f7fb536
 # bti
+
+# ╔═╡ 5cff9494-55d5-4154-8a57-fb73a82e2036
+begin
+	local result = begin
+		Base.@kwdef struct TimePicker
+	    default::Union{Dates.TimeType,Nothing}=nothing
+	end
+	@doc """A time input - the user can pick a time, the time is returned as a `Dates.Time`.
+	
+	Use `default` to set the initial value.
+	
+	# Examples
+	```julia
+	@bind time1 TimePicker()
+	```
+	
+	```julia
+	@bind time2 TimePicker(default=now())
+	```
+	"""
+	TimePicker
+	end
+	
+	function Base.show(io::IO, m::MIME"text/html", tp::TimePicker)
+		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
+			return show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
+		end
+		show(io, m, @htl("<input
+			type=time
+			value=$(
+				tp.default === nothing ? nothing : Dates.format(tp.default, "HH:MM")
+			)>"
+		))
+	end
+	
+	Base.get(tp::TimePicker) = tp.default
+	Bonds.initial_value(tp::TimePicker) = tp.default
+	Bonds.possible_values(tp::TimePicker) = Bonds.InfinitePossibilities()
+	Bonds.transform_value(tp::TimePicker, val) = Dates.Time(val)
+	
+	result
+end
 
 # ╔═╡ e9feb20c-3667-4ea9-9278-6b68ece1de6c
 begin
@@ -1265,6 +1311,18 @@ ti3
 # ╔═╡ 3171441c-a98b-4a5a-aedd-09ad3b445b9e
 ti2
 
+# ╔═╡ 585cff2d-df71-4901-83cd-00b4452bc9a3
+btp = @bind tp3 TimePicker()
+
+# ╔═╡ 32ae2138-090f-4a60-b8f3-4b8d9a3273de
+tp3
+
+# ╔═╡ 4036b76d-39b4-4baf-86e6-ad11bca1586e
+@bind tp2 TimePicker(Dates.Time(15, 45))
+
+# ╔═╡ fd5f027f-3dc8-4457-9bc6-06475218242f
+tp2
+
 # ╔═╡ b123275c-48fd-4e4a-8461-4875f7c18293
 bcs = @bind cs1 ColorStringPicker()
 
@@ -1311,7 +1369,7 @@ Hello \$br world!
 const br = HTML("<br>")
 
 # ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, ColorPicker, br
+export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, TimePicker, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
@@ -1428,6 +1486,11 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═7a377816-30ed-4f9f-b03f-08da4548e55f
 # ╠═a51dc258-1e80-4cd4-9337-b9f685db244c
 # ╠═3171441c-a98b-4a5a-aedd-09ad3b445b9e
+# ╟─5cff9494-55d5-4154-8a57-fb73a82e2036
+# ╠═585cff2d-df71-4901-83cd-00b4452bc9a3
+# ╠═32ae2138-090f-4a60-b8f3-4b8d9a3273de
+# ╠═4036b76d-39b4-4baf-86e6-ad11bca1586e
+# ╠═fd5f027f-3dc8-4457-9bc6-06475218242f
 # ╟─e9feb20c-3667-4ea9-9278-6b68ece1de6c
 # ╠═b123275c-48fd-4e4a-8461-4875f7c18293
 # ╠═883673fb-b8d0-49fb-ab8c-32e972894ec2
