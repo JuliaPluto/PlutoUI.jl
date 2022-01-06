@@ -844,43 +844,61 @@ end
 begin
 	local result = begin
 		Base.@kwdef struct TimePicker
-	    default::Union{Dates.TimeType,Nothing}=nothing
+		    default::Union{Dates.TimeType,Nothing}=nothing
+			show_seconds::Bool = false
+		end
+		@doc """A time input - the user can pick a time, the time is returned as a `Dates.Time`.
+		
+		Use `default` to set the initial value.
+		
+		# Examples
+		```julia
+		@bind time1 TimePicker()
+		```
+		
+		```julia
+		@bind time2 TimePicker(default=now())
+		```
+		"""
+		TimePicker
 	end
-	@doc """A time input - the user can pick a time, the time is returned as a `Dates.Time`.
-	
-	Use `default` to set the initial value.
-	
-	# Examples
-	```julia
-	@bind time1 TimePicker()
-	```
-	
-	```julia
-	@bind time2 TimePicker(default=now())
-	```
-	"""
-	TimePicker
-	end
+
+	TimePicker(default) = TimePicker(default=default, show_seconds=false)
 	
 	function Base.show(io::IO, m::MIME"text/html", tp::TimePicker)
 		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
 			return show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
 		end
-		show(io, m, @htl("<input
-			type=time
-			value=$(
-				tp.default === nothing ? nothing : Dates.format(tp.default, "HH:MM")
-			)>"
-		))
+		t, step = _fmt_time(tp)
+		show(io, m, @htl("<input type=time value=$(t) step=$(step)>"))
+	end
+
+	function _fmt_time(t)
+		if t.show_seconds
+			fmt = "HH:MM:SS"
+			step = 1
+		else
+			fmt = "HH:MM"
+			step = 0
+		end
+		if isnothing(t.default)
+			t = nothing
+		else
+			t = Dates.format(t.default, fmt)
+		end
+		return t, step
 	end
 	
 	Base.get(tp::TimePicker) = tp.default
 	Bonds.initial_value(tp::TimePicker) = tp.default
 	Bonds.possible_values(tp::TimePicker) = Bonds.InfinitePossibilities()
-	Bonds.transform_value(tp::TimePicker, val) = Dates.Time(val)
+	Bonds.transform_value(tp::TimePicker, val) = isempty(val) ? nothing : Dates.Time(val)
 	
 	result
 end
+
+# ╔═╡ 59aef1dd-368c-4710-84fb-ec19c8e0cf13
+@htl("<input type=time value=12:34:59 step=-1>")
 
 # ╔═╡ e9feb20c-3667-4ea9-9278-6b68ece1de6c
 begin
@@ -1312,16 +1330,28 @@ ti3
 ti2
 
 # ╔═╡ 585cff2d-df71-4901-83cd-00b4452bc9a3
-btp = @bind tp3 TimePicker()
+btp1 = @bind tp1 TimePicker()
 
-# ╔═╡ 32ae2138-090f-4a60-b8f3-4b8d9a3273de
+# ╔═╡ 80186eeb-417c-4c95-9a3d-e556bb3284a8
+tp1
+
+# ╔═╡ 2ab08455-80dd-4b62-b0ee-a61481d2ffb9
+btp2 = @bind tp2 TimePicker(show_seconds=true)
+
+# ╔═╡ 04403fcf-83af-44a0-84fa-64b5b3bdfdd2
+tp2
+
+# ╔═╡ f5ca10d7-c0de-41b4-95a6-384f92852074
+btp3 = @bind tp3 TimePicker(Dates.Time(23,59,44))
+
+# ╔═╡ a38a6349-5281-4fcd-9de9-45f4b06db927
 tp3
 
-# ╔═╡ 4036b76d-39b4-4baf-86e6-ad11bca1586e
-@bind tp2 TimePicker(Dates.Time(15, 45))
+# ╔═╡ ef3ccc10-efc1-4ee3-9c36-94849d29d699
+btp4 = @bind tp4 TimePicker(default=Dates.Time(23,59,44), show_seconds=true)
 
-# ╔═╡ fd5f027f-3dc8-4457-9bc6-06475218242f
-tp2
+# ╔═╡ f39d4ed3-1815-4eaa-9923-23ebf778e4e6
+tp4
 
 # ╔═╡ b123275c-48fd-4e4a-8461-4875f7c18293
 bcs = @bind cs1 ColorStringPicker()
@@ -1486,11 +1516,16 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═7a377816-30ed-4f9f-b03f-08da4548e55f
 # ╠═a51dc258-1e80-4cd4-9337-b9f685db244c
 # ╠═3171441c-a98b-4a5a-aedd-09ad3b445b9e
-# ╟─5cff9494-55d5-4154-8a57-fb73a82e2036
+# ╠═5cff9494-55d5-4154-8a57-fb73a82e2036
 # ╠═585cff2d-df71-4901-83cd-00b4452bc9a3
-# ╠═32ae2138-090f-4a60-b8f3-4b8d9a3273de
-# ╠═4036b76d-39b4-4baf-86e6-ad11bca1586e
-# ╠═fd5f027f-3dc8-4457-9bc6-06475218242f
+# ╠═59aef1dd-368c-4710-84fb-ec19c8e0cf13
+# ╠═80186eeb-417c-4c95-9a3d-e556bb3284a8
+# ╠═2ab08455-80dd-4b62-b0ee-a61481d2ffb9
+# ╠═04403fcf-83af-44a0-84fa-64b5b3bdfdd2
+# ╠═f5ca10d7-c0de-41b4-95a6-384f92852074
+# ╠═a38a6349-5281-4fcd-9de9-45f4b06db927
+# ╠═ef3ccc10-efc1-4ee3-9c36-94849d29d699
+# ╠═f39d4ed3-1815-4eaa-9923-23ebf778e4e6
 # ╟─e9feb20c-3667-4ea9-9278-6b68ece1de6c
 # ╠═b123275c-48fd-4e4a-8461-4875f7c18293
 # ╠═883673fb-b8d0-49fb-ab8c-32e972894ec2
