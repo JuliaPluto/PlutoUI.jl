@@ -191,7 +191,6 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     @test default(el) == tan
 
 
-
     el = Scrubbable(60)
     @test default(el) === 60
     el = Scrubbable(60.0)
@@ -207,7 +206,18 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     @test default(el) isa Rational
 
 
-
+    @testset "Rounding default value: $f" for f in [Slider, NumberField]
+        el = f(1:10; default = 5.2)
+        @test default(el) == 5
+        el = f(1:.5:10; default = 5.4)
+        @test default(el) == 5.5
+        if f !== NumberField
+            el = f([60,10,-80]; default = 5.4)
+            @test default(el) == 10
+            el = Slider([sin, cos]; default = tan)
+            @test default(el) == sin # default is not in the list
+        end
+    end
 
 
 

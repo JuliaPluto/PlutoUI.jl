@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -99,7 +99,43 @@ begin
 	OldSlider
 end
 
-# ╔═╡ 96084236-68f1-49b4-b866-027e7c80b5d8
+# ╔═╡ e286f877-8b3c-4c74-a37c-a3458d66c1f8
+"""
+```julia
+closest(range::AbstractVector, x)
+```
+
+Return the element of `range` that is closest to `x`.
+"""
+function closest(range::AbstractRange, x::Real)
+	rmin = minimum(range)
+	rmax = maximum(range)
+
+	if x <= rmin
+		rmin
+	elseif x >= rmax
+		rmax
+	else
+		rstep = step(range)
+
+		int_val = (x - rmin) / rstep
+		range[round(Int, int_val) + 1]
+	end
+end
+
+# ╔═╡ db3aefaa-9539-4c46-ad9b-83763f9ef624
+# Like `argmin` in Julia 1.7
+argmin_compat(f,xs) = xs[findmin(Iterators.map(f,xs))[2]]
+
+# ╔═╡ 97fc914b-005f-4b4d-80cb-23016d589609
+function closest(values::AbstractVector{<:Real}, x::Real)
+	argmin_compat(y -> abs(y - x), values)
+end
+
+# ╔═╡ 0373d633-18bd-4936-a0ae-7a4f6f05372a
+closest(values::AbstractVector, x) = first(values)
+
+# ╔═╡ 0baae341-aa0d-42fd-9f21-d40dd5a03af9
 begin
 	local result = begin
 		"""A slider over the given values.
@@ -122,7 +158,10 @@ begin
 	
 	
 	function Slider(values::AbstractVector{T}; default=missing, show_value=false) where T
-		Slider(values, (default === missing) ? first(values) : convert(T, default), show_value)
+		Slider(values, (default === missing) ? first(values) : let
+			d = default
+			d ∈ values ? convert(T, d) : closest(values, d)
+		end, show_value)
 	end
 	
 	function Base.show(io::IO, m::MIME"text/html", slider::Slider)
@@ -201,7 +240,10 @@ begin
 	end
 	end
 	
-	NumberField(range::AbstractRange{<:T}; default=missing) where T = NumberField(range, (default === missing) ? first(range) : convert(T,default))
+	NumberField(range::AbstractRange{<:T}; default=missing) where T = NumberField(range, (default === missing) ? first(range) : let
+		d = default
+		d ∈ range ? convert(T, d) : closest(range, d)
+	end)
 	
 	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
 		show(io, m, @htl("""<input $((
@@ -1098,7 +1140,7 @@ bos
 os1, os2, os3
 
 # ╔═╡ f7870d7f-992d-4d64-85aa-7621ab16244f
-nf1b = @bind nf1 NumberField(1:10)
+nf1b = @bind nf1 NumberField(1:10; default=3.2)
 
 # ╔═╡ 893e22e1-a1e1-43cb-84fe-4931f3ba35c1
 nf1b
@@ -1325,7 +1367,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═a203d9d4-cd7b-4368-9f6d-e040a5757565
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
-# ╟─96084236-68f1-49b4-b866-027e7c80b5d8
+# ╟─0baae341-aa0d-42fd-9f21-d40dd5a03af9
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
 # ╠═5caa34e8-e501-4248-be65-ef9c6303d025
 # ╠═46a90b45-8fef-493e-9bd1-a71d1f9c53f6
@@ -1341,6 +1383,10 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═e440a357-1656-4cc4-8191-146fe82fbc8c
 # ╠═629e5d68-580f-4d6b-be14-5a109091e6b7
 # ╠═05f6a603-b738-47b1-b335-acaaf480a240
+# ╟─e286f877-8b3c-4c74-a37c-a3458d66c1f8
+# ╠═97fc914b-005f-4b4d-80cb-23016d589609
+# ╠═db3aefaa-9539-4c46-ad9b-83763f9ef624
+# ╠═0373d633-18bd-4936-a0ae-7a4f6f05372a
 # ╟─f59eef32-4732-46db-87b0-3564433ce43e
 # ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
 # ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
