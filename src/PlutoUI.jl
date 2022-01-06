@@ -58,6 +58,12 @@ end
 
 const transformed_value = TransformedValueNotebook.transformed_value
 
+module WrappedNotebook
+    import ...PlutoUI: combine
+    import ..Experimental: transformed_value
+    include("./Wrapped.jl")
 end
+const wrapped = WrappedNotebook.wrapped
 
+end
 end
