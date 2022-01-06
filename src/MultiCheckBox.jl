@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -21,6 +21,9 @@ using HypertextLiteral
 md"""
 # MultiCheckBox
 """
+
+# ╔═╡ 1c914889-9c98-4aa5-b24f-3027b74feb4a
+animals_count = Ref(0)
 
 # ╔═╡ c8350f43-0d30-45d0-873b-ff56c5801ac1
 md"""
@@ -45,6 +48,37 @@ end
 
 # ╔═╡ 631c14bf-e2d3-4a24-8ddc-095a3dab80ef
 import AbstractPlutoDingetjes.Bonds
+
+# ╔═╡ 3cd18f51-b4a3-403f-98cc-ee68f0a52858
+jss = raw"""
+plj-multi-checkbox {
+    display: flex;
+    flex-wrap: wrap;
+    /* max-height: 8em; */
+}
+
+plj-multi-checkbox * {
+    display: flex;
+}
+
+plj-multi-checkbox > div {
+    margin: 0.1em 0.3em;
+    align-items: center;
+}
+
+plj-multi-checkbox label,
+plj-multi-checkbox input {
+    cursor: pointer;
+}
+
+plj-multi-checkbox .select-all {
+    font-style: italic;
+    color: hsl(0, 0%, 25%, 0.7);
+}
+"""
+
+# ╔═╡ f7f34430-e956-4f72-81ba-73d3b3a91725
+replace(jss, "    "=>"\t") |> clipboard
 
 # ╔═╡ c38de38d-e900-4309-a9f6-1392af2f245b
 subarrays(x) = (
@@ -108,9 +142,6 @@ begin
         
     MultiCheckBox(options::AbstractVector{BT}; default=missing, orientation=:row, select_all=false) where BT = MultiCheckBox{BT,BT}(Pair{BT,BT}[o => o for o in options], default, orientation, select_all)
 
-    const js = read(joinpath(@__DIR__, "..", "assets", "multicheckbox.js"), String)
-    const css = read(joinpath(@__DIR__, "..", "assets", "multicheckbox.css"), String)
-
     function Base.show(io::IO, m::MIME"text/html", mc::MultiCheckBox)
         @assert mc.orientation == :column || mc.orientation == :row "Invalid orientation $(mc.orientation). Orientation should be :row or :column"
 
@@ -136,13 +167,161 @@ begin
         show(io, m, @htl("""
         <plj-multi-checkbox style="flex-direction: $(mc.orientation);"></plj-multi-checkbox>
         <script type="text/javascript">
-            const labels = $([string(v) for (k,v) in mc.options]);
-            const values = $(1:length(mc.options));
-            const checked = $(checked);
-            const includeSelectAll = $(mc.select_all);
-            $(HypertextLiteral.JavaScript(js))
+		const labels = $([string(v) for (k,v) in mc.options]);
+		const values = $(1:length(mc.options));
+		const checked = $(checked);
+		const includeSelectAll = $(mc.select_all);
+
+		const container = (currentScript ? currentScript : this.currentScript).previousElementSibling
+		
+		const my_id = crypto.getRandomValues(new Uint32Array(1))[0].toString(36)
+		
+		// Add checkboxes
+		const inputEls = []
+		for (let i = 0; i < labels.length; i++) {
+			const boxId = `\${my_id}-box-\${i}`
+		
+			const item = document.createElement('div')
+		
+			const checkbox = document.createElement('input')
+			checkbox.type = 'checkbox'
+			checkbox.id = boxId
+			checkbox.name = labels[i]
+			checkbox.value = values[i]
+			checkbox.checked = checked[i]
+			inputEls.push(checkbox)
+			item.appendChild(checkbox)
+		
+			const label = document.createElement('label')
+			label.htmlFor = boxId
+			label.innerText = labels[i]
+			item.appendChild(label)
+		
+			container.appendChild(item)
+		}
+		
+		function setValue() {
+			container.value = inputEls.filter((o) => o.checked).map((o) => o.value)
+		}
+		// Add listeners
+		function sendEvent() {
+			setValue()
+			container.dispatchEvent(new CustomEvent('input'))
+		}
+		
+		function updateSelectAll() {}
+		
+		if (includeSelectAll) {
+			// Add select-all checkbox.
+			const selectAllItem = document.createElement('div')
+			selectAllItem.classList.add(`select-all`)
+		
+			const selectID = `\${my_id}-select-all`
+		
+			const selectAllInput = document.createElement('input')
+			selectAllInput.type = 'checkbox'
+			selectAllInput.id = selectID
+			selectAllItem.appendChild(selectAllInput)
+		
+			const selectAllLabel = document.createElement('label')
+			selectAllLabel.htmlFor = selectID
+			selectAllLabel.innerText = 'Select All'
+			selectAllItem.appendChild(selectAllLabel)
+		
+			container.prepend(selectAllItem)
+		
+			function onSelectAllClick(event) {
+				event.stopPropagation()
+				inputEls.forEach((o) => (o.checked = this.checked))
+				sendEvent()
+			}
+			selectAllInput.addEventListener('click', onSelectAllClick)
+            selectAllInput.addEventListener('input', e => e.stopPropagation())
+		
+			/// Taken from: https://stackoverflow.com/questions/10099158/how-to-deal-with-browser-differences-with-indeterminate-checkbox
+			/// Determine the checked state to give to a checkbox
+			/// with indeterminate state, so that it becomes checked
+			/// on click on IE, Chrome and Firefox 5+
+			function getCheckedStateForIndeterminate() {
+				// Create a unchecked checkbox with indeterminate state
+				const test = document.createElement('input')
+				test.type = 'checkbox'
+				test.checked = false
+				test.indeterminate = true
+		
+				// Try to click the checkbox
+				const body = document.body
+				body.appendChild(test) // Required to work on FF
+				test.click()
+				body.removeChild(test) // Required to work on FF
+		
+				// Check if the checkbox is now checked and cache the result
+				if (test.checked) {
+					getCheckedStateForIndeterminate = function () {
+						return false
+					}
+					return false
+				} else {
+					getCheckedStateForIndeterminate = function () {
+						return true
+					}
+					return true
+				}
+			}
+		
+			updateSelectAll = function () {
+				const checked = inputEls.map((o) => o.checked)
+				if (checked.every((x) => x)) {
+					selectAllInput.checked = true
+					selectAllInput.indeterminate = false
+				} else if (checked.some((x) => x)) {
+					selectAllInput.checked = getCheckedStateForIndeterminate()
+					selectAllInput.indeterminate = true
+				} else {
+					selectAllInput.checked = false
+					selectAllInput.indeterminate = false
+				}
+			}
+			// Call once at the beginning to initialize.
+			updateSelectAll()
+		}
+		
+		function onItemClick(event) {
+			event.stopPropagation()
+			updateSelectAll()
+			sendEvent()
+		}
+		setValue()
+		inputEls.forEach((el) => el.addEventListener('click', onItemClick))
+		inputEls.forEach((el) => el.addEventListener('input', e => e.stopPropagation()))
+		
         </script>
-        <style type="text/css">$(css)</style>
+        <style type="text/css">
+		plj-multi-checkbox {
+			display: flex;
+			flex-wrap: wrap;
+			/* max-height: 8em; */
+		}
+		
+		plj-multi-checkbox * {
+			display: flex;
+		}
+		
+		plj-multi-checkbox > div {
+			margin: 0.1em 0.3em;
+			align-items: center;
+		}
+		
+		plj-multi-checkbox label,
+		plj-multi-checkbox input {
+			cursor: pointer;
+		}
+		
+		plj-multi-checkbox .select-all {
+			font-style: italic;
+			color: hsl(0, 0%, 25%, 0.7);
+		}
+		</style>
         """))
     end
 
@@ -179,6 +358,12 @@ end
 # ╔═╡ 8e9f3962-d86c-4e07-b5d3-f31ee5361ca2
 animals
 
+# ╔═╡ 430475b3-7db2-4e09-9422-ac1d6ef32ee7
+let
+	animals
+	animals_count[] += 1
+end
+
 # ╔═╡ d8613c4f-6936-4fb2-9b9f-acf34377091f
 @bind funcs MultiCheckBox([sin, cos, tan]; default=[sin, tan])
 
@@ -210,6 +395,8 @@ snacks
 # ╟─a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 # ╠═8bfaf4c8-557d-433e-a228-aac493746efc
 # ╠═8e9f3962-d86c-4e07-b5d3-f31ee5361ca2
+# ╠═1c914889-9c98-4aa5-b24f-3027b74feb4a
+# ╠═430475b3-7db2-4e09-9422-ac1d6ef32ee7
 # ╠═d8613c4f-6936-4fb2-9b9f-acf34377091f
 # ╠═92fe974e-cc6c-4387-8c6e-85813b222f25
 # ╠═1dd8a041-60c0-4b26-8207-3dc9cca0d3eb
@@ -223,5 +410,7 @@ snacks
 # ╟─499ca710-1a50-4aa1-87d8-d213416e8e30
 # ╠═631c14bf-e2d3-4a24-8ddc-095a3dab80ef
 # ╠═b65c67ec-b79f-4f0e-85e6-78ff22b279d4
+# ╠═3cd18f51-b4a3-403f-98cc-ee68f0a52858
+# ╠═f7f34430-e956-4f72-81ba-73d3b3a91725
 # ╠═430e2c1a-832f-11eb-024a-13e3989fd7c2
 # ╠═c38de38d-e900-4309-a9f6-1392af2f245b
