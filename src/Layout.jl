@@ -327,7 +327,7 @@ function grid(items::AbstractMatrix;
 		column_gap::Union{String,Hyperscript.Unit}=1em,
 		row_gap::Union{String,Hyperscript.Unit}=0em,
 		class::Union{Nothing,String}=nothing,
-		style=Dict()
+		style::Dict=Dict()
 	)
 	Div(
 		Div.(vec(permutedims(items, [2,1])));
