@@ -49,37 +49,6 @@ end
 # ╔═╡ 631c14bf-e2d3-4a24-8ddc-095a3dab80ef
 import AbstractPlutoDingetjes.Bonds
 
-# ╔═╡ 3cd18f51-b4a3-403f-98cc-ee68f0a52858
-jss = raw"""
-plj-multi-checkbox {
-    display: flex;
-    flex-wrap: wrap;
-    /* max-height: 8em; */
-}
-
-plj-multi-checkbox * {
-    display: flex;
-}
-
-plj-multi-checkbox > div {
-    margin: 0.1em 0.3em;
-    align-items: center;
-}
-
-plj-multi-checkbox label,
-plj-multi-checkbox input {
-    cursor: pointer;
-}
-
-plj-multi-checkbox .select-all {
-    font-style: italic;
-    color: hsl(0, 0%, 25%, 0.7);
-}
-"""
-
-# ╔═╡ f7f34430-e956-4f72-81ba-73d3b3a91725
-replace(jss, "    "=>"\t") |> clipboard
-
 # ╔═╡ c38de38d-e900-4309-a9f6-1392af2f245b
 subarrays(x) = (
 	x[collect(I)]
@@ -410,7 +379,5 @@ snacks
 # ╟─499ca710-1a50-4aa1-87d8-d213416e8e30
 # ╠═631c14bf-e2d3-4a24-8ddc-095a3dab80ef
 # ╠═b65c67ec-b79f-4f0e-85e6-78ff22b279d4
-# ╠═3cd18f51-b4a3-403f-98cc-ee68f0a52858
-# ╠═f7f34430-e956-4f72-81ba-73d3b3a91725
 # ╠═430e2c1a-832f-11eb-024a-13e3989fd7c2
 # ╠═c38de38d-e900-4309-a9f6-1392af2f245b
