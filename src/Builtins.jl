@@ -62,6 +62,9 @@ import AbstractPlutoDingetjes
 # ╔═╡ a203d9d4-cd7b-4368-9f6d-e040a5757565
 import AbstractPlutoDingetjes.Bonds
 
+# ╔═╡ 42b84757-83d7-45cc-9d39-78288f56da79
+import Intervals: Interval
+
 # ╔═╡ d088bcdb-d851-4ad7-b5a0-751c1f348995
 begin
 	struct OldSlider
@@ -100,12 +103,13 @@ begin
 end
 
 # ╔═╡ e286f877-8b3c-4c74-a37c-a3458d66c1f8
+begin
 """
 ```julia
 closest(range::AbstractVector, x)
 ```
 
-Return the element of `range` that is closest to `x`.
+Return the element of Range `range` that is closest to `x`.
 """
 function closest(range::AbstractRange, x::Real)
 	rmin = minimum(range)
@@ -121,6 +125,26 @@ function closest(range::AbstractRange, x::Real)
 		int_val = (x - rmin) / rstep
 		range[round(Int, int_val) + 1]
 	end
+end
+"""
+```julia
+closest(range::Interval, x)
+```
+
+Return the element of Interval `range` that is closest to `x`.
+"""
+function closest(range::Interval, x::Real)
+	rmin = minimum(range)
+	rmax = maximum(range)
+
+	if x <= rmin
+		rmin
+	elseif x >= rmax
+		rmax
+	else
+		x
+	end
+end
 end
 
 # ╔═╡ db3aefaa-9539-4c46-ad9b-83763f9ef624
@@ -240,7 +264,7 @@ begin
 
 	"""
 	struct NumberField
-		range::AbstractRange
+		range::Union{AbstractRange, Interval}
 		default::Number
 	end
 	end
@@ -249,12 +273,28 @@ begin
 		d = default
 		d ∈ range ? convert(T, d) : closest(range, d)
 	end)
-	
+
+	function NumberField(range::String;
+		numeric_type::DataType=Int64,
+		default=missing)
+		parsed_range = parse(Interval{numeric_type}, range)
+		NumberField(
+			parsed_range,
+			if default === missing
+				something(first(range), convert(numeric_type, 0))
+			else
+				d = convert(numeric_type, default)
+				d ∈ parsed_range ? d : closest(parsed_range, d)
+			end)
+		end
+		
 	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
+		is_interval = typeof(numberfield.range) <: Interval
 		show(io, m, @htl("""<input $((
 				type="number",
 				min=first(numberfield.range),
-				step=step(numberfield.range),
+				step=
+	is_interval ? convert(typeof(numberfield.default), 1) : step(numberfield.range),
 				max=last(numberfield.range),
 				value=numberfield.default
 			))>"""))
@@ -262,6 +302,9 @@ begin
 	
 	Base.get(numberfield::NumberField) = numberfield.default
 	Bonds.initial_value(nf::NumberField) = nf.default
+	Bonds.transform_value(nf::NumberField, js) = convert(typeof(nf.default), js)
+
+	# TODO: make the two following functions for interval
 	Bonds.possible_values(nf::NumberField) = nf.range
 	function Bonds.validate_value(nf::NumberField, val)
 		val isa Real && (minimum(nf.range) - 0.0001 <= val <= maximum(nf.range) + 0.0001)
@@ -1184,13 +1227,19 @@ bos
 os1, os2, os3
 
 # ╔═╡ f7870d7f-992d-4d64-85aa-7621ab16244f
-nf1b = @bind nf1 NumberField(1:10; default=3.2)
+nf1b = @bind nf1 NumberField(1:0.1:10; default=3)
 
 # ╔═╡ 893e22e1-a1e1-43cb-84fe-4931f3ba35c1
 nf1b
 
 # ╔═╡ 7089edb6-720d-4df5-b3ca-da17d48b107e
 nf1
+
+# ╔═╡ 4e944081-7596-4d21-b804-1c847fa2ddc7
+nf_interval = @bind nf2 NumberField("[10 .. ]"; numeric_type=Float64, default=23)
+
+# ╔═╡ 7d012d81-aaac-4fa3-937b-06a2b7bed56e
+nf_interval
 
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
 @bind b1 Button(teststr)
@@ -1403,13 +1452,14 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
 # ╟─e1bbe1d7-68ef-4ee1-8174-d1ae1f822acb
 # ╟─d738b448-387b-4942-af82-cc93042705a4
-# ╟─81adbd39-5780-4cc6-a53f-a4472bacf1c0
+# ╠═81adbd39-5780-4cc6-a53f-a4472bacf1c0
 # ╠═d8f907cd-2f89-4d54-a311-998dc8ee148e
 # ╠═a0fb4f28-bfe4-4877-bf07-31acb9a56d2c
 # ╠═ac542b84-dbc8-47e2-8835-9e43582b6ad7
 # ╠═6da84fb9-a629-4e4c-819e-dd87a3e267ce
 # ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═a203d9d4-cd7b-4368-9f6d-e040a5757565
+# ╠═42b84757-83d7-45cc-9d39-78288f56da79
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
 # ╟─0baae341-aa0d-42fd-9f21-d40dd5a03af9
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
@@ -1431,10 +1481,12 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╟─97fc914b-005f-4b4d-80cb-23016d589609
 # ╟─db3aefaa-9539-4c46-ad9b-83763f9ef624
 # ╟─0373d633-18bd-4936-a0ae-7a4f6f05372a
-# ╟─f59eef32-4732-46db-87b0-3564433ce43e
+# ╠═f59eef32-4732-46db-87b0-3564433ce43e
 # ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
 # ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
 # ╠═7089edb6-720d-4df5-b3ca-da17d48b107e
+# ╠═4e944081-7596-4d21-b804-1c847fa2ddc7
+# ╠═7d012d81-aaac-4fa3-937b-06a2b7bed56e
 # ╟─b7c21c22-17f5-44b8-98de-a261d5c7192b
 # ╠═7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
 # ╠═c6d68308-53e7-4c60-8649-8f0161f28d70
