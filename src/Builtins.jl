@@ -422,42 +422,47 @@ begin
 	# single-line:
 	TextField(default="", placeholder=nothing)
 
-	# multi-line:
-	TextField(dims::Tuple{Int,Int}; default="", placeholder=nothing)
+	# with specified size:
+	TextField(size; default="", placeholder=nothing)
 	```
 	
 	A text input - the user can type text, the text is returned as `String` via `@bind`.
 
-	If `dims` is a tuple `(cols::Integer, row::Integer)`, a multi-line `<textarea>` will be shown, with the given dimensions.
+	# Keyword arguments
+	- `default`: the initial value
+	- `placeholder`: a value to display when the text input is empty
 
-	Use `default` to set the initial value, and `placeholder` to set a value to display when the text input is empty.
+	# `size` argument
+	- If `size` is a tuple `(cols::Integer, row::Integer)`, a **multi-line** `<textarea>` will be shown, with the given dimensions.
+	- If `size` is an integer, it controls the **width** of the single-line input.
 
 	# Examples
 	```julia
-	@bind poem TextField()
+	@bind author TextField()
 	```
-
+	
 	```julia
 	@bind poem TextField((30,5); default="Hello\\nJuliaCon!")
 	```
 	"""
 	struct TextField
-		dims::Union{Tuple{Integer,Integer},Nothing}
+		dims::Union{Tuple{Integer,Integer},Integer,Nothing}
 		default::AbstractString
 		placeholder::Union{AbstractString,Nothing}
 	end
 	end
 	
-	TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="", placeholder::Union{AbstractString,Nothing}=nothing) = TextField(dims, default, placeholder)
+	TextField(dims::Union{Tuple{Integer,Integer},Integer,Nothing}=nothing; default::AbstractString="", placeholder::Union{AbstractString,Nothing}=nothing) = TextField(dims, default, placeholder)
 	TextField(dims, default) = TextField(dims, default, nothing)
 	
 	function Base.show(io::IO, m::MIME"text/html", t::TextField)
 		show(io, m, 
-		if t.dims === nothing
+		if t.dims === nothing || t.dims isa Integer
 			@htl("""<input $((
 				type="text",
 				value=t.default,
 				placeholder=t.placeholder,
+				size=t.dims
 			))>""")
 		else
 			@htl("""<textarea $((
@@ -478,6 +483,12 @@ begin
 
 	result
 end
+
+# ╔═╡ 0b46ba0f-f6ff-4df2-bd2b-aeacda9e8865
+@htl("<input type=text maxlength=4>")
+
+# ╔═╡ f4c5199a-e195-42ed-b398-4197b2e85aec
+TextField(4)
 
 # ╔═╡ 4363f31e-1d71-4ad8-bfe8-04403d2d3621
 TextField((30,2), default=teststr);
@@ -1432,9 +1443,11 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═bcee47b1-0f45-4649-8517-0e93fa92bfe5
 # ╠═73656df8-ac9f-466d-a8d0-0a2e5dbdbd8c
 # ╠═e89ee9a3-5c78-4ff8-81e9-f44f5150d5f6
-# ╟─f81bb386-203b-4392-b974-a1e2146b1a08
+# ╠═f81bb386-203b-4392-b974-a1e2146b1a08
+# ╠═0b46ba0f-f6ff-4df2-bd2b-aeacda9e8865
 # ╠═1e522148-542a-4a2f-ad92-12421a6530dc
 # ╠═1ac4abe2-5f06-42c6-b614-fb9a00e65386
+# ╠═f4c5199a-e195-42ed-b398-4197b2e85aec
 # ╠═1d81db28-103b-4bde-9a9a-f3038ee9b10b
 # ╠═e25a2ec1-5dab-461e-bc47-6b3f1fe19d30
 # ╠═be68f41c-0730-461c-8782-7e8d7a745509
