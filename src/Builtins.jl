@@ -897,9 +897,6 @@ begin
 	result
 end
 
-# ╔═╡ 59aef1dd-368c-4710-84fb-ec19c8e0cf13
-@htl("<input type=time value=12:34:59 step=-1>")
-
 # ╔═╡ e9feb20c-3667-4ea9-9278-6b68ece1de6c
 begin
 local result = begin
@@ -1518,7 +1515,6 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═3171441c-a98b-4a5a-aedd-09ad3b445b9e
 # ╠═5cff9494-55d5-4154-8a57-fb73a82e2036
 # ╠═585cff2d-df71-4901-83cd-00b4452bc9a3
-# ╠═59aef1dd-368c-4710-84fb-ec19c8e0cf13
 # ╠═80186eeb-417c-4c95-9a3d-e556bb3284a8
 # ╠═2ab08455-80dd-4b62-b0ee-a61481d2ffb9
 # ╠═04403fcf-83af-44a0-84fa-64b5b3bdfdd2
