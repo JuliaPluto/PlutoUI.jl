@@ -198,7 +198,7 @@ begin
 						font-family: system-ui;
     					font-size: 15px;
     					margin-left: 3px;
-    					transform: translateY(-3px);
+    					transform: translateY(-4px);
     					display: inline-block;'>$(string(slider.default))</output>"""
 				) : nothing
 			)"""))
