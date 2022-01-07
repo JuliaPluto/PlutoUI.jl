@@ -1,7 +1,7 @@
 name = "PlutoUI"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 authors = ["Fons van der Plas <fons@plutojl.org>"]
-version = "0.7.27"
+version = "0.7.29"
 
 [deps]
 AbstractPlutoDingetjes = "6e696c72-6542-2067-7265-42206c756150"
@@ -27,7 +27,7 @@ HypertextLiteral = "0.9"
 IOCapture = "0.2"
 JSON = "^0.21.1"
 Reexport = "^1"
-julia = "1.1"
+julia = "1.4"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

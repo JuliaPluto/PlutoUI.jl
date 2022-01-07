@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.2
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -9,6 +9,29 @@ using Hyperscript
 
 # ╔═╡ dd45b118-7a4d-45b3-8961-0c4fb337841b
 using HypertextLiteral
+
+# ╔═╡ 753c42ad-ca1b-42b9-99f1-cfe18a1a74f4
+function is_inside_pluto(m::Module)::Bool
+	if isdefined(m, :PlutoForceDisplay)
+		return m.PlutoForceDisplay
+	else
+		isdefined(m, :PlutoRunner) && parentmodule(m) === Main
+	end
+end
+
+# ╔═╡ 87d8c9ad-0d67-409b-a1b7-ca40241225e3
+"""
+	@skip_as_script expression
+
+Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
+"""
+macro skip_as_script(ex) is_inside_pluto(__module__) ? esc(ex) : nothing end
+
+# ╔═╡ 9113b5a3-d1a6-4594-bb84-33f9ae56c9e5
+@skip_as_script begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+end
 
 # ╔═╡ b1e7e95f-d6af-47e5-b6d4-1252804331d9
 md"""
@@ -192,13 +215,14 @@ Div(x::Iterable; style::CSS="", class::Union{Nothing,String}=nothing) =
 	end
 
 # ╔═╡ d720ae98-f34f-4870-b09a-06499e2c936d
-hbox(contents::Iterable; style::Dict=Dict()) = Div(
+hbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
 	contents;
 	style=Dict(
 		"display" => "flex",
 		"flex-direction" => "row",
 		style...,
-	)
+	),
+	class=class
 )
 
 # ╔═╡ 06a2b4f2-056c-458e-9107-870ea7a25e2f
@@ -212,13 +236,14 @@ hbox([
 ])
 
 # ╔═╡ 762c27a1-c71b-4354-8794-621bd0020397
-vbox(contents::Iterable; style::Dict=Dict()) = Div(
+vbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
 	contents;
 	style=Dict(
 		"display" => "flex",
 		"flex-direction" => "column",
 		style...,
-	)
+	),
+	class=class
 )
 
 # ╔═╡ da22938c-ab2c-4a9a-9df3-c69000a33d78
@@ -301,6 +326,8 @@ function grid(items::AbstractMatrix;
 		fill_width::Bool=true,
 		column_gap::Union{String,Hyperscript.Unit}=1em,
 		row_gap::Union{String,Hyperscript.Unit}=0em,
+		class::Union{Nothing,String}=nothing,
+		style::Dict=Dict()
 	)
 	Div(
 		Div.(vec(permutedims(items, [2,1])));
@@ -309,7 +336,9 @@ function grid(items::AbstractMatrix;
 			"grid-template-columns" => "repeat($(size(items,2)), auto)",
 			"column-gap" => string(column_gap),
 			"row-gap" => string(row_gap),
+			style...
 		),
+		class=class
 	)
 end
 
@@ -460,15 +489,6 @@ begin
 	Show
 end
 
-# ╔═╡ 753c42ad-ca1b-42b9-99f1-cfe18a1a74f4
-function is_inside_pluto(m::Module)::Bool
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) === Main
-	end
-end
-
 # ╔═╡ 9d82ca2b-664d-461e-a93f-61c467bd983a
 p = let
 	data = if is_inside_pluto(@__MODULE__)
@@ -489,21 +509,10 @@ end
 # ╔═╡ d24dfd97-5100-45f4-be12-ad30f98cc519
 aside(embed_display(p))
 
-# ╔═╡ 87d8c9ad-0d67-409b-a1b7-ca40241225e3
-"""
-	@skip_as_script expression
-
-Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
-"""
-macro skip_as_script(ex) is_inside_pluto(__module__) ? esc(ex) : nothing end
-
-# ╔═╡ 9113b5a3-d1a6-4594-bb84-33f9ae56c9e5
-@skip_as_script begin
-	import Pkg
-	Pkg.activate("..")
-end
-
 # ╔═╡ Cell order:
+# ╟─753c42ad-ca1b-42b9-99f1-cfe18a1a74f4
+# ╟─87d8c9ad-0d67-409b-a1b7-ca40241225e3
+# ╠═9113b5a3-d1a6-4594-bb84-33f9ae56c9e5
 # ╟─b1e7e95f-d6af-47e5-b6d4-1252804331d9
 # ╠═306ee9a7-152f-4c4a-867d-a4303f4ddd6c
 # ╠═574ef2ab-6438-49f5-ba63-12e0b4f69c7a
@@ -517,7 +526,7 @@ end
 # ╠═f363e639-3799-4507-869c-b63c777988f5
 # ╠═13b03bde-3dec-4c56-8b8a-c484b2f644aa
 # ╠═d720ae98-f34f-4870-b09a-06499e2c936d
-# ╟─762c27a1-c71b-4354-8794-621bd0020397
+# ╠═762c27a1-c71b-4354-8794-621bd0020397
 # ╟─4c0dc6e3-2596-40f6-8155-a1ae0326c33d
 # ╠═a3599e04-eaff-4be7-9ee0-a792274002b2
 # ╠═05865376-f0ad-4d16-a9eb-336791315f75
@@ -567,6 +576,3 @@ end
 # ╟─87d374e1-e75f-468f-bc90-59d2013c361f
 # ╟─773685a4-a6f7-4f59-98d5-83adcd176a8e
 # ╟─9d82ca2b-664d-461e-a93f-61c467bd983a
-# ╟─753c42ad-ca1b-42b9-99f1-cfe18a1a74f4
-# ╟─87d8c9ad-0d67-409b-a1b7-ca40241225e3
-# ╠═9113b5a3-d1a6-4594-bb84-33f9ae56c9e5
