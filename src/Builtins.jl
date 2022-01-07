@@ -417,37 +417,59 @@ end
 # ╔═╡ f81bb386-203b-4392-b974-a1e2146b1a08
 begin
 	local result = begin
-	"""A text input (`<input type="text">`) - the user can type text, the text is returned as `String` via `@bind`.
+	"""
+	```julia
+	# single-line:
+	TextField(default="", placeholder=nothing)
 
-	If `dims` is a tuple `(cols::Integer, row::Integer)`, a `<textarea>` will be shown, with the given dimensions
+	# multi-line:
+	TextField(dims::Tuple{Int,Int}; default="", placeholder=nothing)
+	```
+	
+	A text input - the user can type text, the text is returned as `String` via `@bind`.
 
-	Use `default` to set the initial value.
+	If `dims` is a tuple `(cols::Integer, row::Integer)`, a multi-line `<textarea>` will be shown, with the given dimensions.
 
-	See the [Mozilla docs about `<input type="text">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text) and [`<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea)
+	Use `default` to set the initial value, and `placeholder` to set a value to display when the text input is empty.
 
 	# Examples
-	`@bind poem TextField()`
+	```julia
+	@bind poem TextField()
+	```
 
-	`@bind poem TextField((30,5); default="Hello\nJuliaCon!")`"""
+	```julia
+	@bind poem TextField((30,5); default="Hello\\nJuliaCon!")
+	```
+	"""
 	struct TextField
 		dims::Union{Tuple{Integer,Integer},Nothing}
 		default::AbstractString
+		placeholder::Union{AbstractString,Nothing}
 	end
 	end
 	
-	TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="") = TextField(dims, default)
+	TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="", placeholder::Union{AbstractString,Nothing}=nothing) = TextField(dims, default, placeholder)
+	TextField(dims, default) = TextField(dims, default, nothing)
 	
-	function Base.show(io::IO, m::MIME"text/html", textfield::TextField)
+	function Base.show(io::IO, m::MIME"text/html", t::TextField)
 		show(io, m, 
-		if textfield.dims === nothing
-			@htl("""<input type="text" value=$(textfield.default)>""")
+		if t.dims === nothing
+			@htl("""<input $((
+				type="text",
+				value=t.default,
+				placeholder=t.placeholder,
+			))>""")
 		else
-			@htl("""<textarea cols=$(textfield.dims[1]) rows=$(textfield.dims[2])>$(textfield.default)</textarea>""")
+			@htl("""<textarea $((
+				cols=t.dims[1],
+				rows=t.dims[2],
+				placeholder=t.placeholder,
+			))>$(t.default)</textarea>""")
 		end
 		)
 	end
 	
-	Base.get(textfield::TextField) = textfield.default
+	Base.get(t::TextField) = t.default
 	Bonds.initial_value(t::TextField) = t.default
 	Bonds.possible_values(t::TextField) = Bonds.InfinitePossibilities()
 	function Bonds.validate_value(t::TextField, val)
@@ -459,6 +481,12 @@ end
 
 # ╔═╡ 4363f31e-1d71-4ad8-bfe8-04403d2d3621
 TextField((30,2), default=teststr);
+
+# ╔═╡ 121dc1e7-080e-48dd-9105-afa5f7886fb7
+TextField(placeholder="Type something here!")
+
+# ╔═╡ 13ed4bfd-7bfa-49dd-a212-d7f6564af8e2
+TextField((5,5),placeholder="Type something here!")
 
 # ╔═╡ c9614498-54a8-4925-9353-7a13d3303916
 begin
@@ -1411,6 +1439,8 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═e25a2ec1-5dab-461e-bc47-6b3f1fe19d30
 # ╠═be68f41c-0730-461c-8782-7e8d7a745509
 # ╠═4363f31e-1d71-4ad8-bfe8-04403d2d3621
+# ╠═121dc1e7-080e-48dd-9105-afa5f7886fb7
+# ╠═13ed4bfd-7bfa-49dd-a212-d7f6564af8e2
 # ╠═00145a3e-cb62-4c54-807b-8d2bce6a9fc9
 # ╟─c9614498-54a8-4925-9353-7a13d3303916
 # ╠═970681ed-1c3a-4327-b636-8cb0cdd90dbb
