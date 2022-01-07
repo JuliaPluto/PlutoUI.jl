@@ -294,7 +294,7 @@ begin
 		# reference the bound variable - clicking the button will run this cell
 		go
 
-		md"My favorite number is $(rand())!"
+		md"My favorite number is \$(rand())!"
 	end
 	```
 	"""
@@ -346,7 +346,7 @@ begin
 		# reference the bound variable - clicking the button will run this cell
 		go
 
-		md"My favorite number is $(rand())!"
+		md"My favorite number is \$(rand())!"
 	end
 	```
 	"""
