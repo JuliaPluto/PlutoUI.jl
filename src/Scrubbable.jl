@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -13,6 +13,9 @@ macro bind(def, element)
         el
     end
 end
+
+# ╔═╡ b09cff15-804f-468f-ac3a-0ed825490a8b
+using HypertextLiteral
 
 # ╔═╡ 1e992cf1-7ea6-4c23-a573-3c867c22ada0
 md"""
@@ -195,7 +198,7 @@ if skip_as_script(@__MODULE__)
 end
 
 # ╔═╡ 58a5b0d2-88a6-4a83-bb26-05c05a51716b
-import AbstractPlutoDingetjes
+import AbstractPlutoDingetjes: AbstractPlutoDingetjes, Bonds
 
 # ╔═╡ 9c7ce2da-4ad8-11eb-14cd-cfcc8d2a6bf8
 begin
@@ -236,30 +239,30 @@ begin
 	`@bind coolness Scrubbable(0.80 : 0.01 : 1.00, format=".0%", prefix="you are 🌝 ", suffix=" cool")`
 	"""
 	Base.@kwdef struct Scrubbable
-		values::AbstractVector{<:Real}
+		values::Union{AbstractVector{<:Real},Nothing}=nothing
 		default::Real
 		format::Union{AbstractString,Nothing}=nothing
 		prefix::AbstractString=""
 		suffix::AbstractString=""
-        id::String=join(rand('a':'z', 16))
 	end
 	Scrubbable(range::AbstractVector; kwargs...) = Scrubbable(;values=range, default=range[1 + length(range) ÷ 2], kwargs...)
-	Scrubbable(x::Number; kwargs...) = Scrubbable(;values=default_range(x), default=x, kwargs...)
+	Scrubbable(x::Number; kwargs...) = Scrubbable(;values=nothing, default=x, kwargs...)
 	
 	Base.get(s::Scrubbable) = s.default
-
-	AbstractPlutoDingetjes.Bonds.initial_value(s::Scrubbable) = 
+	Bonds.initial_value(s::Scrubbable) = 
 		s.default
-	AbstractPlutoDingetjes.Bonds.possible_values(s::Scrubbable) = 
-		s.values
-	function AbstractPlutoDingetjes.Bonds.validate_value(s::Scrubbable, val)
+	Bonds.possible_values(s::Scrubbable) = 
+		s.values === nothing ? default_range(s.default) : s.values
+	function Bonds.validate_value(s::Scrubbable, val)
 		val isa Real && minimum(s.values) - 0.001 <= val <= maximum(s.values) + 0.001
 	end
 	
 	function Base.show(io::IO, m::MIME"text/html", s::Scrubbable)
+		values = Bonds.possible_values(s)
+		
 		format = if s.format === nothing
 			# TODO: auto format
-			if eltype(s.values) <: Integer
+			if eltype(values) <: Integer
 				""
 			else
 				".1f"
@@ -268,14 +271,14 @@ begin
 			String(s.format)
 		end
 
-		write(io, """<script id='$(s.id)'>
+		show(io, m, @htl("""<script>
 			// weird import to make it faster. The `await import` can still delay execution by one frame if it is already loaded...
 			window.d3format = window.d3format ?? await import("https://cdn.jsdelivr.net/npm/d3-format@2/+esm")
 
 			const argmin = xs => xs.indexOf(Math.min(...xs))
 			const closest_index = (xs, y) => argmin(xs.map(x => Math.abs(x-y)))
 
-			const values = $(string(collect(s.values)))
+			const values = $(collect(values))
 
 			const el = html`
 			<span title="Click and drag this number left or right!" style="cursor: col-resize;
@@ -293,7 +296,7 @@ begin
 			const initial_index = closest_index(values, $(s.default))
 			let current_index = initial_index
 
-			const formatter = s => $(repr(s.prefix)) + d3format.format($(repr(format)))(s) + $(repr(s.suffix))
+			const formatter = s => $(s.prefix) + d3format.format($(format))(s) + $(s.suffix)
 
 
 			Object.defineProperty(el, 'value', {
@@ -351,7 +354,7 @@ begin
 
 			return el
 
-			</script>""")
+			</script>"""))
 	end
 	
 	Scrubbable
@@ -407,6 +410,9 @@ end
 # ╔═╡ b081aa76-f080-4dd0-bcff-4bcc82a1c50a
 bc = @bind cool Scrubbable(199.1)
 
+# ╔═╡ 66bfb39b-f708-4148-8359-c651eabd3a2e
+cool
+
 # ╔═╡ 5c78e637-5733-4b0a-8dab-bf1cd9656d11
 HTML(join(repr.([MIME"text/html"()], [Scrubbable(1.0) for _ in 1:100])))
 
@@ -450,12 +456,14 @@ export Scrubbable
 # ╠═3f1c3fa5-2257-4c3a-aa75-0b3c59a7fcdc
 # ╠═2554121f-13e6-4b07-9c45-b2ccf154d07d
 # ╠═b081aa76-f080-4dd0-bcff-4bcc82a1c50a
+# ╠═66bfb39b-f708-4148-8359-c651eabd3a2e
 # ╠═8bce6b13-9600-49ca-a7ea-ba2f53028f1b
 # ╠═d17d259b-8379-46a7-ab54-cd2f697ec713
 # ╠═5c78e637-5733-4b0a-8dab-bf1cd9656d11
 # ╟─aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
 # ╟─1a649975-9e31-4ae8-8b2c-b615852cfc9d
-# ╟─8c1d2b3b-8fa1-4356-8a9d-dff10cd0a336
+# ╠═8c1d2b3b-8fa1-4356-8a9d-dff10cd0a336
 # ╠═58a5b0d2-88a6-4a83-bb26-05c05a51716b
+# ╠═b09cff15-804f-468f-ac3a-0ed825490a8b
 # ╠═9c7ce2da-4ad8-11eb-14cd-cfcc8d2a6bf8
 # ╠═1d34fec8-01cb-4bee-8144-d8cc13a87b8b
