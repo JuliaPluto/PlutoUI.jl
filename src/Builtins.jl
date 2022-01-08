@@ -194,7 +194,12 @@ begin
 					input_el.addEventListener("input", () => {
 						output_el.value = displays[input_el.valueAsNumber - 1]
 					})
-					</script><output>$(string(slider.default))</output>"""
+					</script><output style='
+						font-family: system-ui;
+    					font-size: 15px;
+    					margin-left: 3px;
+    					transform: translateY(-4px);
+    					display: inline-block;'>$(string(slider.default))</output>"""
 				) : nothing
 			)"""))
 	end
@@ -289,7 +294,7 @@ begin
 		# reference the bound variable - clicking the button will run this cell
 		go
 
-		md"My favorite number is $(rand())!"
+		md"My favorite number is \$(rand())!"
 	end
 	```
 	"""
@@ -341,7 +346,7 @@ begin
 		# reference the bound variable - clicking the button will run this cell
 		go
 
-		md"My favorite number is $(rand())!"
+		md"My favorite number is \$(rand())!"
 	end
 	```
 	"""
@@ -417,37 +422,64 @@ end
 # ╔═╡ f81bb386-203b-4392-b974-a1e2146b1a08
 begin
 	local result = begin
-	"""A text input (`<input type="text">`) - the user can type text, the text is returned as `String` via `@bind`.
+	"""
+	```julia
+	# single-line:
+	TextField(default="", placeholder=nothing)
 
-	If `dims` is a tuple `(cols::Integer, row::Integer)`, a `<textarea>` will be shown, with the given dimensions
+	# with specified size:
+	TextField(size; default="", placeholder=nothing)
+	```
+	
+	A text input - the user can type text, the text is returned as `String` via `@bind`.
 
-	Use `default` to set the initial value.
+	# Keyword arguments
+	- `default`: the initial value
+	- `placeholder`: a value to display when the text input is empty
 
-	See the [Mozilla docs about `<input type="text">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/text) and [`<textarea>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea)
+	# `size` argument
+	- If `size` is a tuple `(cols::Integer, row::Integer)`, a **multi-line** `<textarea>` will be shown, with the given dimensions.
+	- If `size` is an integer, it controls the **width** of the single-line input.
 
 	# Examples
-	`@bind poem TextField()`
-
-	`@bind poem TextField((30,5); default="Hello\nJuliaCon!")`"""
+	```julia
+	@bind author TextField()
+	```
+	
+	```julia
+	@bind poem TextField((30,5); default="Hello\\nJuliaCon!")
+	```
+	"""
 	struct TextField
-		dims::Union{Tuple{Integer,Integer},Nothing}
+		dims::Union{Tuple{Integer,Integer},Integer,Nothing}
 		default::AbstractString
+		placeholder::Union{AbstractString,Nothing}
 	end
 	end
 	
-	TextField(dims::Union{Tuple{Integer,Integer},Nothing}=nothing; default::AbstractString="") = TextField(dims, default)
+	TextField(dims::Union{Tuple{Integer,Integer},Integer,Nothing}=nothing; default::AbstractString="", placeholder::Union{AbstractString,Nothing}=nothing) = TextField(dims, default, placeholder)
+	TextField(dims, default) = TextField(dims, default, nothing)
 	
-	function Base.show(io::IO, m::MIME"text/html", textfield::TextField)
+	function Base.show(io::IO, m::MIME"text/html", t::TextField)
 		show(io, m, 
-		if textfield.dims === nothing
-			@htl("""<input type="text" value=$(textfield.default)>""")
+		if t.dims === nothing || t.dims isa Integer
+			@htl("""<input $((
+				type="text",
+				value=t.default,
+				placeholder=t.placeholder,
+				size=t.dims
+			))>""")
 		else
-			@htl("""<textarea cols=$(textfield.dims[1]) rows=$(textfield.dims[2])>$(textfield.default)</textarea>""")
+			@htl("""<textarea $((
+				cols=t.dims[1],
+				rows=t.dims[2],
+				placeholder=t.placeholder,
+			))>$(t.default)</textarea>""")
 		end
 		)
 	end
 	
-	Base.get(textfield::TextField) = textfield.default
+	Base.get(t::TextField) = t.default
 	Bonds.initial_value(t::TextField) = t.default
 	Bonds.possible_values(t::TextField) = Bonds.InfinitePossibilities()
 	function Bonds.validate_value(t::TextField, val)
@@ -457,8 +489,20 @@ begin
 	result
 end
 
+# ╔═╡ 0b46ba0f-f6ff-4df2-bd2b-aeacda9e8865
+@htl("<input type=text maxlength=4>")
+
+# ╔═╡ f4c5199a-e195-42ed-b398-4197b2e85aec
+TextField(4)
+
 # ╔═╡ 4363f31e-1d71-4ad8-bfe8-04403d2d3621
 TextField((30,2), default=teststr);
+
+# ╔═╡ 121dc1e7-080e-48dd-9105-afa5f7886fb7
+TextField(placeholder="Type something here!")
+
+# ╔═╡ 13ed4bfd-7bfa-49dd-a212-d7f6564af8e2
+TextField((5,5),placeholder="Type something here!")
 
 # ╔═╡ c9614498-54a8-4925-9353-7a13d3303916
 begin
@@ -1469,9 +1513,9 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═629e5d68-580f-4d6b-be14-5a109091e6b7
 # ╠═05f6a603-b738-47b1-b335-acaaf480a240
 # ╟─e286f877-8b3c-4c74-a37c-a3458d66c1f8
-# ╠═97fc914b-005f-4b4d-80cb-23016d589609
-# ╠═db3aefaa-9539-4c46-ad9b-83763f9ef624
-# ╠═0373d633-18bd-4936-a0ae-7a4f6f05372a
+# ╟─97fc914b-005f-4b4d-80cb-23016d589609
+# ╟─db3aefaa-9539-4c46-ad9b-83763f9ef624
+# ╟─0373d633-18bd-4936-a0ae-7a4f6f05372a
 # ╟─f59eef32-4732-46db-87b0-3564433ce43e
 # ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
 # ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
@@ -1489,13 +1533,17 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═bcee47b1-0f45-4649-8517-0e93fa92bfe5
 # ╠═73656df8-ac9f-466d-a8d0-0a2e5dbdbd8c
 # ╠═e89ee9a3-5c78-4ff8-81e9-f44f5150d5f6
-# ╟─f81bb386-203b-4392-b974-a1e2146b1a08
+# ╠═f81bb386-203b-4392-b974-a1e2146b1a08
+# ╠═0b46ba0f-f6ff-4df2-bd2b-aeacda9e8865
 # ╠═1e522148-542a-4a2f-ad92-12421a6530dc
 # ╠═1ac4abe2-5f06-42c6-b614-fb9a00e65386
+# ╠═f4c5199a-e195-42ed-b398-4197b2e85aec
 # ╠═1d81db28-103b-4bde-9a9a-f3038ee9b10b
 # ╠═e25a2ec1-5dab-461e-bc47-6b3f1fe19d30
 # ╠═be68f41c-0730-461c-8782-7e8d7a745509
 # ╠═4363f31e-1d71-4ad8-bfe8-04403d2d3621
+# ╠═121dc1e7-080e-48dd-9105-afa5f7886fb7
+# ╠═13ed4bfd-7bfa-49dd-a212-d7f6564af8e2
 # ╠═00145a3e-cb62-4c54-807b-8d2bce6a9fc9
 # ╟─c9614498-54a8-4925-9353-7a13d3303916
 # ╠═970681ed-1c3a-4327-b636-8cb0cdd90dbb
