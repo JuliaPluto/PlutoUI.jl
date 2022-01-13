@@ -17,6 +17,9 @@ end
 # ╔═╡ a0fb4f28-bfe4-4877-bf07-31acb9a56d2c
 using HypertextLiteral
 
+# ╔═╡ 5ee60e1a-74f9-40dd-a320-050af850398b
+using UnboundRanges
+
 # ╔═╡ 57232d88-b74f-4823-be61-8db450c93f5c
 using Markdown: withtag, htmlesc
 
@@ -62,9 +65,6 @@ import AbstractPlutoDingetjes
 # ╔═╡ a203d9d4-cd7b-4368-9f6d-e040a5757565
 import AbstractPlutoDingetjes.Bonds
 
-# ╔═╡ 42b84757-83d7-45cc-9d39-78288f56da79
-import Intervals: Interval, Closed, Open
-
 # ╔═╡ d088bcdb-d851-4ad7-b5a0-751c1f348995
 begin
 	struct OldSlider
@@ -106,43 +106,25 @@ end
 begin
 """
 ```julia
-closest(range::AbstractVector, x)
+closest(range::AbstractRange, x)
 ```
 
 Return the element of Range `range` that is closest to `x`.
 """
 function closest(range::AbstractRange, x::Real)
-	rmin = minimum(range)
-	rmax = maximum(range)
+	rmin = first(range)
+	rmax = last(range)
 
-	if x <= rmin
+	if !isnothing(rmin) && x <= rmin
 		rmin
-	elseif x >= rmax
+	elseif !isnothing(rmax) && x >= rmax
 		rmax
 	else
 		rstep = step(range)
 
-		int_val = (x - rmin) / rstep
+		int_val = isnothing(rmin) ? (rmax - x) / rstep : (x - rmin) / rstep
+		@show int_val
 		range[round(Int, int_val) + 1]
-	end
-end
-"""
-```julia
-closest(range::Interval, x)
-```
-
-Return the element of Interval `range` that is closest to `x`.
-"""
-function closest(range::Interval, x::Real)
-	rmin = minimum(range)
-	rmax = maximum(range)
-
-	if x <= rmin
-		rmin
-	elseif x >= rmax
-		rmax
-	else
-		x
 	end
 end
 end
@@ -250,29 +232,6 @@ end
 # ╔═╡ 629e5d68-580f-4d6b-be14-5a109091e6b7
 HTML(repr(MIME"text/html"(), Slider([sin, cos])))
 
-# ╔═╡ 1bb14186-a7d7-4d46-9589-29ba7744caa0
-function Base.extrema(interval::Interval{N, F, S}) where {N, F, S}
-	gap = N <: AbstractFloat ? 0.1 : 1
-	
-	fst = if  F == Closed
-		first(interval)
-	elseif F == Open
-		first(interval) + gap
-	else
-		nothing
-	end
-		
-	snd = if  S == Closed
-		last(interval)
-	elseif S == Open
-		last(interval) - gap
-	else
-		nothing
-	end
-
-	return (fst, snd)
-end
-
 # ╔═╡ f59eef32-4732-46db-87b0-3564433ce43e
 begin
 	local result = begin
@@ -285,46 +244,24 @@ begin
 
 	`@bind x NumberField(1:10; default=8)`
 
-	`@bind x NumberField("[10 .. ]"; default=12)`
-	
-	`@bind x NumberField("[ .. 10)"; default=5)`
-
 	"""
 	struct NumberField
-		range::Union{AbstractRange, Interval}
-		step::Union{String, Number}
+		range::AbstractRange
 		default::Number
 	end
 	end
 	
-	NumberField(range::AbstractRange{<:T}; default=missing) where T = NumberField(range, step(range), (default === missing) ? first(range) : let
+	NumberField(range::AbstractRange{<:T}; default=missing) where T = NumberField(range, (default === missing) ? something(first(range), 0) : let
 		d = default
 		d ∈ range ? convert(T, d) : closest(range, d)
 	end)
-
-	function NumberField(range::String;
-		numeric_type::DataType=Int64,
-		step::Union{Number, Missing}=missing,
-		default=missing)
-		parsed_range = parse(Interval{numeric_type}, range)
-		NumberField(
-			parsed_range,
-			ismissing(step) ? "any" : step,
-			if default === missing
-				something(first(parsed_range), convert(numeric_type, 0))
-			else
-				d = convert(numeric_type, default)
-				d ∈ parsed_range ? d : closest(parsed_range, d)
-			end)
-		end
 		
 	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
-		extremes = extrema(numberfield.range)
 		show(io, m, @htl("""<input $((
 				type="number",
-				min=first(extremes),
-				step=numberfield.step,
-				max=last(extremes),
+				min=first(numberfield.range),
+				step=step(numberfield.range),
+				max=last(numberfield.range),
 				value=numberfield.default
 			))>"""))
 	end
@@ -1264,15 +1201,10 @@ nf1b
 # ╔═╡ 7089edb6-720d-4df5-b3ca-da17d48b107e
 nf1
 
-# ╔═╡ 4e944081-7596-4d21-b804-1c847fa2ddc7
-nf_interval = @bind nf2 NumberField("(10.0 .. 20]";
-	numeric_type=Float64,
-	default=11)
+# ╔═╡ 8c55d5b8-4474-4cdc-90a1-c21b1318a189
+nf2b = @bind nf2 NumberField(unbounded:1:10;)
 
-# ╔═╡ 7d012d81-aaac-4fa3-937b-06a2b7bed56e
-nf_interval
-
-# ╔═╡ 38390bb2-0033-404d-8ef4-ede31e5ab0cd
+# ╔═╡ d72f45ed-1721-4f94-8828-c0d2c6ea7d5a
 nf2
 
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
@@ -1493,7 +1425,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═6da84fb9-a629-4e4c-819e-dd87a3e267ce
 # ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═a203d9d4-cd7b-4368-9f6d-e040a5757565
-# ╠═42b84757-83d7-45cc-9d39-78288f56da79
+# ╠═5ee60e1a-74f9-40dd-a320-050af850398b
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
 # ╟─0baae341-aa0d-42fd-9f21-d40dd5a03af9
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
@@ -1511,18 +1443,16 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═e440a357-1656-4cc4-8191-146fe82fbc8c
 # ╠═629e5d68-580f-4d6b-be14-5a109091e6b7
 # ╠═05f6a603-b738-47b1-b335-acaaf480a240
-# ╟─e286f877-8b3c-4c74-a37c-a3458d66c1f8
+# ╠═e286f877-8b3c-4c74-a37c-a3458d66c1f8
 # ╟─97fc914b-005f-4b4d-80cb-23016d589609
 # ╟─db3aefaa-9539-4c46-ad9b-83763f9ef624
 # ╟─0373d633-18bd-4936-a0ae-7a4f6f05372a
-# ╠═1bb14186-a7d7-4d46-9589-29ba7744caa0
 # ╠═f59eef32-4732-46db-87b0-3564433ce43e
 # ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
 # ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
 # ╠═7089edb6-720d-4df5-b3ca-da17d48b107e
-# ╠═4e944081-7596-4d21-b804-1c847fa2ddc7
-# ╠═7d012d81-aaac-4fa3-937b-06a2b7bed56e
-# ╠═38390bb2-0033-404d-8ef4-ede31e5ab0cd
+# ╠═8c55d5b8-4474-4cdc-90a1-c21b1318a189
+# ╠═d72f45ed-1721-4f94-8828-c0d2c6ea7d5a
 # ╟─b7c21c22-17f5-44b8-98de-a261d5c7192b
 # ╠═7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
 # ╠═c6d68308-53e7-4c60-8649-8f0161f28d70
