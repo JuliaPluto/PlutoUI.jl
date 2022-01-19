@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -36,6 +36,7 @@ end
 # ╔═╡ 38b7eeb9-80bb-4a3a-a2d2-809fc423625c
 if skip_as_script(@__MODULE__)
 	using PlutoUI
+	using PlutoUI: combine
 end
 
 # ╔═╡ ba94c9b3-55bf-486a-8bf3-eb0b3e65e536
@@ -136,8 +137,7 @@ begin
 		output = @htl(
 			"""<span style='display: contents;'>$(
 				cb.element
-			)<button id=$(cb.secret_key)>Confirm</button
-			><script id=$(cb.secret_key)>
+			)<input type=submit id=$(cb.secret_key)><script id=$(cb.secret_key)>
 		
 		let key = $(cb.secret_key)
 		
