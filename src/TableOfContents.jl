@@ -63,15 +63,15 @@ const clickHandler = (event) => {
 document.addEventListener("click", clickHandler)
 
 let m = matchMedia("(max-width: 1000px)")
-
-m.addListener(
 /* Hide TOC on 1000px -> 999px
    Show TOC on  999px -> 1000px */
-  () => document
+let match_listener = () => document
 		.querySelector(".plutoui-toc")
 		.classList
 		.toggle("hide", m.matches)
-)
+
+m.addListener(match_listener)
+match_listener()
 
 const render = (el) => html`\${el.map(h => {
 	const parent_cell = getParentCell(h)
