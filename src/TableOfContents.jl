@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.17.5
 
 using Markdown
 using InteractiveUtils
@@ -51,6 +51,17 @@ const getHeaders = () => {
 const indent = $(repr(toc.indent))
 const aside = $(repr(toc.aside))
 
+const clickHandler = (event) => {
+	const path = (event.path || event.composedPath())
+	const toc = path.find(elem => elem?.classList?.contains?.("toc-toggle"))
+	if (toc) {
+		event.stopImmediatePropagation()
+		toc.closest(".plutoui-toc").classList.toggle("hide")
+	}
+}
+
+document.addEventListener("click", clickHandler)
+
 const render = (el) => html`\${el.map(h => {
 	const parent_cell = getParentCell(h)
 
@@ -80,7 +91,10 @@ const render = (el) => html`\${el.map(h => {
 })}`
 
 const tocNode = html`<nav class="plutoui-toc">
-	<header>$(toc.title)</header>
+	<header>
+     <span class="toc-toggle open-toc">📖</span>
+     <span class="toc-toggle closed-toc">📕</span>
+	$(toc.title)</header>
 	<section></section>
 </nav>`
 tocNode.classList.toggle("aside", aside)
@@ -92,7 +106,6 @@ const updateCallback = () => {
 	)
 }
 updateCallback()
-
 
 const notebook = document.querySelector("pluto-notebook")
 
@@ -127,6 +140,7 @@ invalidation.then(() => {
 	notebookObserver.disconnect()
 	bodyClassObserver.disconnect()
 	observers.current.forEach((o) => o.disconnect())
+	document.removeEventListener("click", clickHandler)
 })
 
 return tocNode
@@ -149,14 +163,34 @@ const toc_css = """
 		overflow: auto;
 		z-index: 40;
 		background: white;
+		transition: transform 618ms ease-in;
 	}
+}
+
+.plutoui-toc.hide{
+    transform: translateX(calc(100% - 36px));
+}
+
+.toc-toggle {
+	cursor: pointer;
+	padding: 1em;
+	margin: -1em;
+}
+
+.plutoui-toc.hide .open-toc{
+    display:none;
+}
+
+.plutoui-toc:not(.hide) .closed-toc{
+    display:none;
 }
 
 .plutoui-toc header {
 	display: block;
 	font-size: 1.5em;
-	margin-top: 0.67em;
-	margin-bottom: 0.67em;
+	margin-top: -0.1em;
+	margin-bottom: 0.4em;
+	padding-bottom: 0.4em;
 	margin-left: 0;
 	margin-right: 0;
 	font-weight: bold;
