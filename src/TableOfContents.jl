@@ -62,6 +62,17 @@ const clickHandler = (event) => {
 
 document.addEventListener("click", clickHandler)
 
+let m = matchMedia("(max-width: 1000px)")
+
+m.addListener(
+/* Hide TOC on 1000px -> 999px
+   Show TOC on  999px -> 1000px */
+  () => document
+		.querySelector(".plutoui-toc")
+		.classList
+		.toggle("hide", m.matches)
+)
+
 const render = (el) => html`\${el.map(h => {
 	const parent_cell = getParentCell(h)
 
@@ -148,41 +159,42 @@ return tocNode
 
 # ╔═╡ 731a4662-c329-42a2-ae71-7954140bb290
 const toc_css = """
-@media screen and (min-width: 1081px) {
-	.plutoui-toc.aside {
-		position:fixed; 
-		right: 1rem;
-		top: 5rem; 
-		width:25%; 
-		padding: 10px;
-		border: 3px solid rgba(0, 0, 0, 0.15);
-		border-radius: 10px;
-		box-shadow: 0 0 11px 0px #00000010;
-		/* That is, viewport minus top minus Live Docs */
-		max-height: calc(100vh - 5rem - 56px);
-		overflow: auto;
-		z-index: 40;
-		background: white;
-		transition: transform 618ms ease-in;
-	}
+
+.plutoui-toc.aside {
+	position:fixed;
+	right: 1rem;
+	top: 5rem;
+	width: min(80vw, 300px);
+	padding: 10px;
+	border: 3px solid rgba(0, 0, 0, 0.15);
+	border-radius: 10px;
+	box-shadow: 0 0 11px 0px #00000010;
+	/* That is, viewport minus top minus Live Docs */
+	max-height: calc(100vh - 5rem - 56px);
+	overflow: auto;
+	z-index: 40;
+	background: white;
+	transition: transform 200ms ease-in;
 }
 
-.plutoui-toc.hide{
-    transform: translateX(calc(100% - 36px));
+.plutoui-toc.hide {
+	transform: translateX(calc(100% - 28px));
+}
+
+.plutoui-toc.hide .open-toc, .plutoui-toc:not(.hide) .closed-toc {
+	display: none;
+}
+
+@media (prefers-reduced-motion) {
+  .plutoui-toc.aside {
+    transition-duration: 0s;
+  }
 }
 
 .toc-toggle {
 	cursor: pointer;
 	padding: 1em;
 	margin: -1em;
-}
-
-.plutoui-toc.hide .open-toc{
-    display:none;
-}
-
-.plutoui-toc:not(.hide) .closed-toc{
-    display:none;
 }
 
 .plutoui-toc header {
