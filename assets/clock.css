@@ -15,6 +15,11 @@ plutoui-analog {
     width: 20px;
     height: 20px;
 }
+@media (prefers-color-scheme: dark) {
+    plutoui-analog {
+        filter: invert(1) hue-rotate(180deg);
+    }
+}
 
 plutoui-analog > * {
     display: block;
@@ -48,7 +53,7 @@ plutoui-clock input {
 }
 
 plutoui-clock span {
-    font-family: "Roboto Mono", monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 0.75rem;
     word-spacing: -0.2rem;
 }
@@ -59,11 +64,11 @@ plutoui-clock span#unit {
 }
 
 plutoui-clock span#unit::after {
-    content: "secs / tick";
+    content: 'secs / tick';
 }
 
 plutoui-clock.inverted span#unit::after {
-    content: "ticks / sec";
+    content: 'ticks / sec';
 }
 
 plutoui-clock button {
@@ -72,11 +77,11 @@ plutoui-clock button {
 }
 
 plutoui-clock button::after {
-    content: "Stop";
+    content: 'Stop';
 }
 
 plutoui-clock.stopped button::after {
-    content: "Start";
+    content: 'Start';
 }
 
 plutoui-clock.fixed span,
