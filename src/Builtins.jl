@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.17.6
 
 using Markdown
 using InteractiveUtils
@@ -1376,10 +1376,16 @@ bdp1 = @bind dp1 DatePicker()
 dp1
 
 # ╔═╡ fffb87ad-85a4-4d18-a5f9-cb0bcdbdaa6f
-bdp2 = @bind dp2 DatePicker(Dates.Date(2012, 12, 12))
+bdp2 = @bind dp2 DatePicker(Dates.Date(2022, 4, 20))
 
 # ╔═╡ d9a04c66-9c11-4768-87c9-a66d4e1ba91c
 dp2
+
+# ╔═╡ 650f77b2-9fa5-4568-94cc-44d13b909ed5
+bdp3 = @bind dp3 DatePicker(default=Dates.Date(2022, 4))
+
+# ╔═╡ 3e4edd1c-5f4f-430a-9a8c-69417595b415
+dp3
 
 # ╔═╡ 3aefce73-f133-43e0-8680-5c17b7f90979
 bti = @bind ti3 TimeField()
@@ -1562,11 +1568,13 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═65bdad5e-a51b-4009-8b8e-ce93286ee5e4
 # ╠═4f1a909d-d21a-4e60-a615-8146ba249794
 # ╠═d52cc4d9-cdb0-46b6-a59f-5eeaa1990f20
-# ╠═702133cc-246d-42f7-84a1-a6a01716c5e2
+# ╟─702133cc-246d-42f7-84a1-a6a01716c5e2
 # ╠═494a163b-aed0-4e75-8ad1-c22ac46596c1
 # ╠═ab2bff58-f97e-4a21-b214-3266971d9fb0
 # ╠═fffb87ad-85a4-4d18-a5f9-cb0bcdbdaa6f
 # ╠═d9a04c66-9c11-4768-87c9-a66d4e1ba91c
+# ╠═650f77b2-9fa5-4568-94cc-44d13b909ed5
+# ╠═3e4edd1c-5f4f-430a-9a8c-69417595b415
 # ╟─ea7c4d05-c516-4f07-9d48-7df9ce997939
 # ╠═3aefce73-f133-43e0-8680-5c17b7f90979
 # ╠═d128f5ac-7304-486c-8258-f05f4bd18632
