@@ -148,7 +148,8 @@ const toc_css = """
 		max-height: calc(100vh - 5rem - 56px);
 		overflow: auto;
 		z-index: 40;
-		background: white;
+		background-color: var(--main-bg-color);
+
 	}
 }
 
