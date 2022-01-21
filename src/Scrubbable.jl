@@ -284,6 +284,7 @@ begin
 			<span title="Click and drag this number left or right!" style="cursor: col-resize;
 			touch-action: none;
 			background: rgb(252, 209, 204);
+			color: black;
 			padding: 0em .2em;
 			border-radius: .3em;
 			font-weight: bold;">$(s.default)</span>
