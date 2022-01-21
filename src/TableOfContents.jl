@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
@@ -71,7 +71,7 @@ let match_listener = () => document
 		.toggle("hide", m.matches)
 
 m.addListener(match_listener)
-match_listener()
+
 
 const render = (el) => html`\${el.map(h => {
 	const parent_cell = getParentCell(h)
@@ -108,8 +108,10 @@ const tocNode = html`<nav class="plutoui-toc">
 	$(toc.title)</header>
 	<section></section>
 </nav>`
+
 tocNode.classList.toggle("aside", aside)
 tocNode.classList.toggle("indent", indent)
+tocNode.classList.toggle("hide", m.matches)
 
 const updateCallback = () => {
 	tocNode.querySelector("section").replaceWith(
@@ -177,11 +179,13 @@ const toc_css = """
 	transition: transform 200ms ease-in;
 }
 
-.plutoui-toc.hide {
+.plutoui-toc.aside.hide {
 	transform: translateX(calc(100% - 28px));
 }
 
-.plutoui-toc.hide .open-toc, .plutoui-toc:not(.hide) .closed-toc {
+.plutoui-toc.aside.hide .open-toc,
+.plutoui-toc.aside:not(.hide) .closed-toc,
+.plutoui-toc:not(.aside) .closed-toc {
 	display: none;
 }
 
