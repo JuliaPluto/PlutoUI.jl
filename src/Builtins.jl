@@ -887,12 +887,6 @@ Base.get(datefield::DateField) = datefield.default === nothing ? nothing : Dates
 	result
 end
 
-# ╔═╡ 245822f5-3ac1-4135-9a4e-c29965b52687
-@bind afsddffd @htl("<input type=date>")
-
-# ╔═╡ 6aae445d-c79b-4a55-aab1-fb91c4a3546a
-Dates.Date("2022-12-31")
-
 # ╔═╡ ea7c4d05-c516-4f07-9d48-7df9ce997939
 begin
 local result = begin
@@ -1122,6 +1116,59 @@ begin
 		(isnothing(val) || isempty(val)) ? nothing : Dates.Time(val)
 	
 	Bonds.validate_value(tp::_TimePicker, s::String) = true # if it is not a valid time string, then `Bonds.transform_value` will fail, which is a safe failure.
+	result
+end
+
+# ╔═╡ 5156eed1-04a0-4fc4-95fd-11a086a57c4a
+begin
+	local result = begin
+		Base.@kwdef struct DatePicker
+			default::Union{Dates.TimeType,Nothing}=nothing
+		end
+	@doc """
+	```julia
+	DatePicker(; [default::Dates.Date])
+	```
+	
+	A date input - the user can pick a date, the date is returned as a `Dates.Date`.
+	
+	Use the `default` keyword argument to set the initial value. If no initial value is given, the bound value is set to `nothing` until a date is picked.
+	
+	# Examples
+	```julia
+	@bind date1 DatePicker()
+	```
+	
+	```julia
+	using Dates
+	
+	@bind date2 DatePicker(default=Date(2022, 12, 14))
+	```
+	"""
+	DatePicker
+	end
+	
+	function Base.show(io::IO, m::MIME"text/html", dp::DatePicker)
+		show(io, m, @htl("<input $((
+				type="date",
+				value=(dp.default === nothing ? "" : Dates.format(dp.default, "Y-mm-dd")),
+			))>"))
+	end
+	
+	Base.get(dp::DatePicker) = Bonds.initial_value(dp)
+	Bonds.initial_value(dp::DatePicker) = 
+		dp.default === nothing ? nothing : Dates.Date(dp.default)
+	
+	Bonds.possible_values(dp::DatePicker) = Bonds.InfinitePossibilities()
+	
+	Bonds.transform_value(dp::DatePicker, val::Nothing) = nothing
+	Bonds.transform_value(dp::DatePicker, val::Dates.TimeType) = Dates.Date(val)
+	Bonds.transform_value(dp::DatePicker, val::String) = 
+		isempty(val) ? nothing : Dates.Date(val)
+
+	Bonds.validate_value(dp::DatePicker, 
+		val::Union{Nothing,Dates.TimeType,String}) = true # see reasoning in `Bond.validate_value` in TimePicker
+	
 	result
 end
 
@@ -1647,9 +1694,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═65bdad5e-a51b-4009-8b8e-ce93286ee5e4
 # ╠═4f1a909d-d21a-4e60-a615-8146ba249794
 # ╠═d52cc4d9-cdb0-46b6-a59f-5eeaa1990f20
-# ╟─702133cc-246d-42f7-84a1-a6a01716c5e2
-# ╠═245822f5-3ac1-4135-9a4e-c29965b52687
-# ╠═6aae445d-c79b-4a55-aab1-fb91c4a3546a
+# ╟─5156eed1-04a0-4fc4-95fd-11a086a57c4a
 # ╠═494a163b-aed0-4e75-8ad1-c22ac46596c1
 # ╠═ab2bff58-f97e-4a21-b214-3266971d9fb0
 # ╠═fffb87ad-85a4-4d18-a5f9-cb0bcdbdaa6f
