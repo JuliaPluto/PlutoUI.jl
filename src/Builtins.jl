@@ -858,12 +858,17 @@ end
 
 Use `default` to set the initial value.
 
-See the [Mozilla docs about `<input type="date">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date)
+!!! warning "Outdated"
+	This is `DateField`, but you should use our new function, [`DatePicker`](@ref), which is much better! It returns a `Date` directly, instead of a `DateTime`.
 
 # Examples
 `@bind best_day_of_my_live DateField()`
 
-`@bind best_day_of_my_live DateField(default=today())`"""
+`@bind best_day_of_my_live DateField(default=today())`
+
+# See also
+[`DatePicker`](@ref)
+"""
 DateField
 	end
 
@@ -1049,9 +1054,14 @@ begin
 		Base.@kwdef struct DatePicker
 			default::Union{Dates.TimeType,Nothing}=nothing
 		end
-	@doc """A date input - the user can pick a date, the date is returned as a `Dates.Date`.
+	@doc """
+	```julia
+	DatePicker(; [default::Dates.Date])
+	```
 	
-	Use `default` to set the initial value.
+	A date input - the user can pick a date, the date is returned as a `Dates.Date`.
+	
+	Use the `default` keyword argument to set the initial value. If no initial value is given, the bound value is set to `nothing` until a date is picked.
 	
 	# Examples
 	```julia
@@ -1059,7 +1069,9 @@ begin
 	```
 	
 	```julia
-	@bind date2 DatePicker(default=today())
+	using Dates
+	
+	@bind date2 DatePicker(default=Date(2022, 12, 14))
 	```
 	"""
 	DatePicker
@@ -1584,7 +1596,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═65bdad5e-a51b-4009-8b8e-ce93286ee5e4
 # ╠═4f1a909d-d21a-4e60-a615-8146ba249794
 # ╠═d52cc4d9-cdb0-46b6-a59f-5eeaa1990f20
-# ╠═702133cc-246d-42f7-84a1-a6a01716c5e2
+# ╟─702133cc-246d-42f7-84a1-a6a01716c5e2
 # ╠═245822f5-3ac1-4135-9a4e-c29965b52687
 # ╠═6aae445d-c79b-4a55-aab1-fb91c4a3546a
 # ╠═494a163b-aed0-4e75-8ad1-c22ac46596c1
