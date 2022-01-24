@@ -139,21 +139,29 @@ closest(values::AbstractVector, x) = first(values)
 begin
 	local result = begin
 		"""A slider over the given values.
-
-	## Examples
-	`@bind x Slider(1:10)`
-
-	`@bind x Slider(0.00 : 0.01 : 0.30)`
-
-	`@bind x Slider(1:10; default=8, show_value=true)`
-
-	`@bind x Slider(["hello", "world!"])`
-	"""
-	struct Slider{T <: Any}
-		values::AbstractVector{T}
-		default::T
-		show_value::Bool
-	end
+	
+		## Examples
+		```julia
+		@bind x Slider(1:10)
+		```
+	
+		```julia
+		@bind x Slider(0.00 : 0.01 : 0.30)
+		```
+	
+		```julia
+		@bind x Slider(1:10; default=8, show_value=true)
+		```
+	
+		```julia
+		@bind x Slider(["hello", "world!"])
+		```
+		"""
+		struct Slider{T <: Any}
+			values::AbstractVector{T}
+			default::T
+			show_value::Bool
+		end
 	end
 	
 	
@@ -229,38 +237,46 @@ HTML(repr(MIME"text/html"(), Slider([sin, cos])))
 # ╔═╡ f59eef32-4732-46db-87b0-3564433ce43e
 begin
 	local result = begin
-	"""A box where you can type in a number, within a specific range.
-
-	## Examples
-	`@bind x NumberField(1:10)`
-
-	`@bind x NumberField(0.00 : 0.01 : 0.30)`
-
-	`@bind x NumberField(1:10; default=8)`
-
-	"""
-	struct NumberField
-		range::AbstractRange
-		default::Number
-	end
+		"""A box where you can type in a number, within a specific range.
+	
+		## Examples
+		```julia
+		@bind x NumberField(1:10)
+		```
+	
+		```julia
+		@bind x NumberField(0.00 : 0.01 : 0.30)
+		```
+	
+		```julia
+		@bind x NumberField(1:10; default=8)
+		```
+	
+		"""
+		struct NumberField
+			range::AbstractRange
+			default::Number
+			class::AbstractString
+		end
 	end
 	
-	NumberField(range::AbstractRange{<:T}; default=missing) where T = NumberField(range, (default === missing) ? first(range) : let
+	NumberField(range::AbstractRange{<:T}; default=missing, class::AbstractString="") where T = NumberField(range, (default === missing) ? first(range) : let
 		d = default
 		d ∈ range ? convert(T, d) : closest(range, d)
-	end)
+	end, class)
 	
-	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
+	function Base.show(io::IO, m::MIME"text/html", nf::NumberField)
 		show(io, m, @htl("""<input $((
+				class="PlutoUI $(nf.class)",
 				type="number",
-				min=first(numberfield.range),
-				step=step(numberfield.range),
-				max=last(numberfield.range),
-				value=numberfield.default
+				min=first(nf.range),
+				step=step(nf.range),
+				max=last(nf.range),
+				value=nf.default
 			))>"""))
 	end
 	
-	Base.get(numberfield::NumberField) = numberfield.default
+	Base.get(nf::NumberField) = nf.default
 	Bonds.initial_value(nf::NumberField) = nf.default
 	Bonds.possible_values(nf::NumberField) = nf.range
 	function Bonds.validate_value(nf::NumberField, val)
@@ -352,13 +368,19 @@ begin
 	"""
 	struct CounterButton
 		label::AbstractString
+		class::AbstractString
 	end
 	end
-	CounterButton() = CounterButton("Click")
+	
+	CounterButton(; class::AbstractString="") = 
+		CounterButton("Click"; class=class)
+	CounterButton(label::AbstractString; class::AbstractString="") = 
+		CounterButton(label, class)
+	
 	
 	function Base.show(io::IO, m::MIME"text/html", button::CounterButton)
 		show(io, m, @htl(
-			"""<span><input type="button" value=$(button.label)><script>
+			"""<span><input type="button" value=$(button.label) class=$("PlutoUI " * button.class)><script>
 		let count = 0
 		const span = currentScript.parentElement
 		const button = span.firstElementChild
@@ -400,13 +422,19 @@ begin
 	"""
 	struct CheckBox
 		default::Bool
+		class::AbstractString
 	end
 	end
+
+	CheckBox(default::Bool) = CheckBox(;default=default)
 	
-	CheckBox(;default::Bool=false) = CheckBox(default)
+	CheckBox(;default::Bool=false, class::AbstractString="") = CheckBox(default, class)
 	
-	function Base.show(io::IO, ::MIME"text/html", button::CheckBox)
-		print(io, """<input type="checkbox"$(button.default ? " checked" : "")>""")
+	function Base.show(io::IO, m::MIME"text/html", button::CheckBox)
+		show(io, m, @htl(
+			"""<input type="checkbox" checked=$(button.default) class=$("PlutoUI " * button.class)>"""
+		))
+		print(io, )
 	end
 	
 	Base.get(checkbox::CheckBox) = checkbox.default
@@ -454,16 +482,23 @@ begin
 		dims::Union{Tuple{Integer,Integer},Integer,Nothing}
 		default::AbstractString
 		placeholder::Union{AbstractString,Nothing}
+		class::AbstractString
 	end
 	end
 	
-	TextField(dims::Union{Tuple{Integer,Integer},Integer,Nothing}=nothing; default::AbstractString="", placeholder::Union{AbstractString,Nothing}=nothing) = TextField(dims, default, placeholder)
-	TextField(dims, default) = TextField(dims, default, nothing)
+	TextField(dims::Union{Tuple{Integer,Integer},Integer,Nothing}=nothing; 
+		default::AbstractString="", 
+		placeholder::Union{AbstractString,Nothing}=nothing,
+		class::AbstractString="",
+	) = TextField(dims, default, placeholder, class)
+	
+	@deprecate TextField(dims, default) TextField(dims; default=default)
 	
 	function Base.show(io::IO, m::MIME"text/html", t::TextField)
 		show(io, m, 
 		if t.dims === nothing || t.dims isa Integer
 			@htl("""<input $((
+				class="PlutoUI $(t.class)",
 				type="text",
 				value=t.default,
 				placeholder=t.placeholder,
@@ -471,6 +506,7 @@ begin
 			))>""")
 		else
 			@htl("""<textarea $((
+				class="PlutoUI $(t.class)",
 				cols=t.dims[1],
 				rows=t.dims[2],
 				placeholder=t.placeholder,
@@ -601,12 +637,13 @@ begin
 	struct Select
 		options::AbstractVector{Pair}
 		default::Union{Missing, Any}
+		class::AbstractString
 	end
 	end
 	
-	Select(options::AbstractVector; default=missing) = Select([o => o for o in options], default)
+	Select(options::AbstractVector; default=missing, class::AbstractString="") = Select([o => o for o in options], default, class)
 	
-	Select(options::AbstractVector{<:Pair}; default=missing) = Select(options, default)
+	Select(options::AbstractVector{<:Pair}; default=missing, class::AbstractString="") = Select(options, default, class)
 	
 	function Base.show(io::IO, m::MIME"text/html", select::Select)
 
@@ -623,7 +660,7 @@ begin
 
 		
 		show(io, m, @htl(
-			"""<select>$(
+			"""<select class="PlutoUI $(select.class)">$(
 		map(enumerate(select.options)) do (i,o)
 				@htl(
 				"<option value=$(i) selected=$(!ismissing(select.default) && o.first == select.default)>$(
@@ -1400,10 +1437,10 @@ const br = HTML("<br>")
 export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
-# ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
-# ╟─e1bbe1d7-68ef-4ee1-8174-d1ae1f822acb
-# ╟─d738b448-387b-4942-af82-cc93042705a4
-# ╟─81adbd39-5780-4cc6-a53f-a4472bacf1c0
+# ╠═e8c5ba24-10e9-49e8-8c11-0add092637f8
+# ╠═e1bbe1d7-68ef-4ee1-8174-d1ae1f822acb
+# ╠═d738b448-387b-4942-af82-cc93042705a4
+# ╠═81adbd39-5780-4cc6-a53f-a4472bacf1c0
 # ╠═d8f907cd-2f89-4d54-a311-998dc8ee148e
 # ╠═a0fb4f28-bfe4-4877-bf07-31acb9a56d2c
 # ╠═ac542b84-dbc8-47e2-8835-9e43582b6ad7
@@ -1411,7 +1448,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═a203d9d4-cd7b-4368-9f6d-e040a5757565
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
-# ╟─0baae341-aa0d-42fd-9f21-d40dd5a03af9
+# ╠═0baae341-aa0d-42fd-9f21-d40dd5a03af9
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
 # ╠═5caa34e8-e501-4248-be65-ef9c6303d025
 # ╠═46a90b45-8fef-493e-9bd1-a71d1f9c53f6
@@ -1448,7 +1485,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═bcee47b1-0f45-4649-8517-0e93fa92bfe5
 # ╠═73656df8-ac9f-466d-a8d0-0a2e5dbdbd8c
 # ╠═e89ee9a3-5c78-4ff8-81e9-f44f5150d5f6
-# ╠═f81bb386-203b-4392-b974-a1e2146b1a08
+# ╟─f81bb386-203b-4392-b974-a1e2146b1a08
 # ╠═0b46ba0f-f6ff-4df2-bd2b-aeacda9e8865
 # ╠═1e522148-542a-4a2f-ad92-12421a6530dc
 # ╠═1ac4abe2-5f06-42c6-b614-fb9a00e65386
