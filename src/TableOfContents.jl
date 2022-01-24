@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
@@ -51,6 +51,18 @@ const getHeaders = () => {
 const indent = $(repr(toc.indent))
 const aside = $(repr(toc.aside))
 
+const clickHandler = (event) => {
+	const path = (event.path || event.composedPath())
+	const toc = path.find(elem => elem?.classList?.contains?.("toc-toggle"))
+	if (toc) {
+		event.stopImmediatePropagation()
+		toc.closest(".plutoui-toc").classList.toggle("hide")
+	}
+}
+
+document.addEventListener("click", clickHandler)
+
+
 const render = (el) => html`\${el.map(h => {
 	const parent_cell = getParentCell(h)
 
@@ -80,9 +92,13 @@ const render = (el) => html`\${el.map(h => {
 })}`
 
 const tocNode = html`<nav class="plutoui-toc">
-	<header>$(toc.title)</header>
+	<header>
+     <span class="toc-toggle open-toc">📖</span>
+     <span class="toc-toggle closed-toc">📕</span>
+	$(toc.title)</header>
 	<section></section>
 </nav>`
+
 tocNode.classList.toggle("aside", aside)
 tocNode.classList.toggle("indent", indent)
 
@@ -92,7 +108,6 @@ const updateCallback = () => {
 	)
 }
 updateCallback()
-
 
 const notebook = document.querySelector("pluto-notebook")
 
@@ -123,10 +138,19 @@ notebookObserver.observe(notebook, {childList: true})
 const bodyClassObserver = new MutationObserver(updateCallback)
 bodyClassObserver.observe(document.body, {attributeFilter: ["class"]})
 
+// Hide/show the ToC when the screen gets small
+let m = matchMedia("(max-width: 1000px)")
+let match_listener = () => 
+	tocNode.classList.toggle("hide", m.matches)
+match_listener()
+m.addListener(match_listener)
+
 invalidation.then(() => {
 	notebookObserver.disconnect()
 	bodyClassObserver.disconnect()
 	observers.current.forEach((o) => o.disconnect())
+	document.removeEventListener("click", clickHandler)
+	m.removeListener(match_listener)
 })
 
 return tocNode
@@ -134,29 +158,53 @@ return tocNode
 
 # ╔═╡ 731a4662-c329-42a2-ae71-7954140bb290
 const toc_css = """
-@media screen and (min-width: 1081px) {
-	.plutoui-toc.aside {
-		position:fixed; 
-		right: 1rem;
-		top: 5rem; 
-		width:25%; 
-		padding: 10px;
-		border: 3px solid rgba(0, 0, 0, 0.15);
-		border-radius: 10px;
-		box-shadow: 0 0 11px 0px #00000010;
-		/* That is, viewport minus top minus Live Docs */
-		max-height: calc(100vh - 5rem - 56px);
-		overflow: auto;
-		z-index: 40;
-		background: white;
-	}
+
+.plutoui-toc.aside {
+	position:fixed;
+	right: 1rem;
+	top: 5rem;
+	width: min(80vw, 300px);
+	padding: 10px;
+	border: 3px solid rgba(0, 0, 0, 0.15);
+	border-radius: 10px;
+	box-shadow: 0 0 11px 0px #00000010;
+	/* That is, viewport minus top minus Live Docs */
+	max-height: calc(100vh - 5rem - 56px);
+	overflow: auto;
+	z-index: 40;
+	background: white;
+	transition: transform 300ms cubic-bezier(0.18, 0.89, 0.45, 1.12);
+}
+
+.plutoui-toc.aside.hide {
+	transform: translateX(calc(100% - 28px));
+}
+
+.plutoui-toc.aside.hide .open-toc,
+.plutoui-toc.aside:not(.hide) .closed-toc,
+.plutoui-toc:not(.aside) .closed-toc {
+	display: none;
+}
+
+@media (prefers-reduced-motion) {
+  .plutoui-toc.aside {
+    transition-duration: 0s;
+  }
+}
+
+.toc-toggle {
+	cursor: pointer;
+	padding: 1em;
+	margin: -1em;
+    margin-right: -0.7em;
 }
 
 .plutoui-toc header {
 	display: block;
 	font-size: 1.5em;
-	margin-top: 0.67em;
-	margin-bottom: 0.67em;
+	margin-top: -0.1em;
+	margin-bottom: 0.4em;
+	padding-bottom: 0.4em;
 	margin-left: 0;
 	margin-right: 0;
 	font-weight: bold;
