@@ -895,6 +895,9 @@ Use `default` to set the initial value.
 
 See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time)
 
+!!! warning "Outdated"
+	This is `TimeField`, but you should use our new function, [`TimePicker`](@ref), which is much better! It returns a Julia `Time` directly, instead of a `String`.
+
 # Examples
 `@bind lunch_time TimeField()`
 
