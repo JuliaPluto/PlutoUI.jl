@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.6
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
@@ -932,13 +932,18 @@ end
 # ╔═╡ 5cff9494-55d5-4154-8a57-fb73a82e2036
 begin
 	local result = begin
-		Base.@kwdef struct TimePicker
+		Base.@kwdef struct _TimePicker
 		    default::Union{Dates.TimeType,Nothing}=nothing
 			show_seconds::Bool = false
 		end
-		@doc """A time input - the user can pick a time, the time is returned as a `Dates.Time`.
+		@doc """
+		```julia
+		TimePicker(; [default::Dates.TimeType], [show_seconds::Bool=false])
+		```
 		
-		Use `default` to set the initial value.
+		A time input - the user can pick a time, the time is returned as a `Dates.Time`.
+		
+		Use the `default` keyword argument to set the initial value. If no initial value is given, the bound value is set to `nothing` until a time is picked.
 		
 		# Examples
 		```julia
@@ -946,15 +951,18 @@ begin
 		```
 		
 		```julia
-		@bind time2 TimePicker(default=now())
+		import Dates
+		@bind time2 TimePicker(default=Dates.Time(23,59,44))
 		```
 		"""
 		TimePicker
 	end
 
-	TimePicker(default) = TimePicker(default=default, show_seconds=false)
+	TimePicker(default::Dates.TimeType) = _TimePicker(
+		default=default, show_seconds=false)
+	TimePicker(; kwargs...) = _TimePicker(; kwargs...)
 	
-	function Base.show(io::IO, m::MIME"text/html", tp::TimePicker)
+	function Base.show(io::IO, m::MIME"text/html", tp::_TimePicker)
 		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
 			return show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
 		end
@@ -978,10 +986,10 @@ begin
 		return t, step
 	end
 	
-	Base.get(tp::TimePicker) = tp.default
-	Bonds.initial_value(tp::TimePicker) = tp.default
-	Bonds.possible_values(tp::TimePicker) = Bonds.InfinitePossibilities()
-	Bonds.transform_value(tp::TimePicker, val) = isempty(val) ? nothing : Dates.Time(val)
+	Base.get(tp::_TimePicker) = tp.default
+	Bonds.initial_value(tp::_TimePicker) = tp.default
+	Bonds.possible_values(tp::_TimePicker) = Bonds.InfinitePossibilities()
+	Bonds.transform_value(tp::_TimePicker, val) = isempty(val) ? nothing : Dates.Time(val)
 	
 	result
 end
@@ -1421,6 +1429,9 @@ btp1 = @bind tp1 TimePicker()
 # ╔═╡ 80186eeb-417c-4c95-9a3d-e556bb3284a8
 tp1
 
+# ╔═╡ 83e7759c-2318-4a02-949e-f3b637f4d478
+btp1
+
 # ╔═╡ 2ab08455-80dd-4b62-b0ee-a61481d2ffb9
 btp2 = @bind tp2 TimePicker(show_seconds=true)
 
@@ -1610,9 +1621,10 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═7a377816-30ed-4f9f-b03f-08da4548e55f
 # ╠═a51dc258-1e80-4cd4-9337-b9f685db244c
 # ╠═3171441c-a98b-4a5a-aedd-09ad3b445b9e
-# ╠═5cff9494-55d5-4154-8a57-fb73a82e2036
+# ╟─5cff9494-55d5-4154-8a57-fb73a82e2036
 # ╠═585cff2d-df71-4901-83cd-00b4452bc9a3
 # ╠═80186eeb-417c-4c95-9a3d-e556bb3284a8
+# ╠═83e7759c-2318-4a02-949e-f3b637f4d478
 # ╠═2ab08455-80dd-4b62-b0ee-a61481d2ffb9
 # ╠═04403fcf-83af-44a0-84fa-64b5b3bdfdd2
 # ╠═f5ca10d7-c0de-41b4-95a6-384f92852074
