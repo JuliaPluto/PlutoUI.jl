@@ -929,71 +929,6 @@ end
 # ╔═╡ 4c9c1e24-235f-44f6-83f3-9f985f7fb536
 # bti
 
-# ╔═╡ 5cff9494-55d5-4154-8a57-fb73a82e2036
-begin
-	local result = begin
-		Base.@kwdef struct _TimePicker
-		    default::Union{Dates.TimeType,Nothing}=nothing
-			show_seconds::Bool = false
-		end
-		@doc """
-		```julia
-		TimePicker(; [default::Dates.TimeType], [show_seconds::Bool=false])
-		```
-		
-		A time input - the user can pick a time, the time is returned as a `Dates.Time`.
-		
-		Use the `default` keyword argument to set the initial value. If no initial value is given, the bound value is set to `nothing` until a time is picked.
-		
-		# Examples
-		```julia
-		@bind time1 TimePicker()
-		```
-		
-		```julia
-		import Dates
-		@bind time2 TimePicker(default=Dates.Time(23,59,44))
-		```
-		"""
-		TimePicker
-	end
-
-	TimePicker(default::Dates.TimeType) = _TimePicker(
-		default=default, show_seconds=false)
-	TimePicker(; kwargs...) = _TimePicker(; kwargs...)
-	
-	function Base.show(io::IO, m::MIME"text/html", tp::_TimePicker)
-		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
-			return show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
-		end
-		t, step = _fmt_time(tp)
-		show(io, m, @htl("<input type=time value=$(t) step=$(step)>"))
-	end
-
-	function _fmt_time(t)
-		if t.show_seconds
-			fmt = "HH:MM:SS"
-			step = 1
-		else
-			fmt = "HH:MM"
-			step = 0
-		end
-		if isnothing(t.default)
-			t = nothing
-		else
-			t = Dates.format(t.default, fmt)
-		end
-		return t, step
-	end
-	
-	Base.get(tp::_TimePicker) = tp.default
-	Bonds.initial_value(tp::_TimePicker) = tp.default
-	Bonds.possible_values(tp::_TimePicker) = Bonds.InfinitePossibilities()
-	Bonds.transform_value(tp::_TimePicker, val) = isempty(val) ? nothing : Dates.Time(val)
-	
-	result
-end
-
 # ╔═╡ e9feb20c-3667-4ea9-9278-6b68ece1de6c
 begin
 local result = begin
@@ -1106,6 +1041,76 @@ begin
 		RGB{N0f8}(reinterpret(N0f8, [parse.(UInt8, rgb_str, base=16)])...)
 	end
 
+	result
+end
+
+# ╔═╡ 5cff9494-55d5-4154-8a57-fb73a82e2036
+begin
+	local result = begin
+		Base.@kwdef struct _TimePicker
+		    default::Union{Dates.TimeType,Nothing}=nothing
+			show_seconds::Bool = false
+		end
+		@doc """
+		```julia
+		TimePicker(; [default::Dates.TimeType], [show_seconds::Bool=false])
+		```
+		
+		A time input - the user can pick a time, the time is returned as a `Dates.Time`.
+		
+		Use the `default` keyword argument to set the initial value. If no initial value is given, the bound value is set to `nothing` until a time is picked.
+		
+		# Examples
+		```julia
+		@bind time1 TimePicker()
+		```
+		
+		```julia
+		import Dates
+		@bind time2 TimePicker(default=Dates.Time(23,59,44))
+		```
+		"""
+		TimePicker
+	end
+
+	TimePicker(default::Dates.TimeType) = _TimePicker(
+		default=default, show_seconds=false)
+	TimePicker(; kwargs...) = _TimePicker(; kwargs...)
+	
+	function Base.show(io::IO, m::MIME"text/html", tp::_TimePicker)
+		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
+			return show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
+		end
+		t, step = _fmt_time(tp)
+		show(io, m, @htl("<input type=time value=$(t) step=$(step)>"))
+	end
+
+	function _fmt_time(t)
+		if t.show_seconds
+			fmt = "HH:MM:SS"
+			step = 1
+		else
+			fmt = "HH:MM"
+			step = 0
+		end
+		if isnothing(t.default)
+			t = nothing
+		else
+			t = Dates.format(t.default, fmt)
+		end
+		return t, step
+	end
+	
+	Base.get(tp::_TimePicker) = Bonds.initial_value(tp)
+	Bonds.initial_value(tp::_TimePicker) = 
+		Bonds.transform_value(tp, _fmt_time(tp) |> first)
+
+	
+	Bonds.possible_values(tp::_TimePicker) = Bonds.InfinitePossibilities()
+	Bonds.transform_value(tp::_TimePicker, val) = 
+		(isnothing(val) || isempty(val)) ? nothing : Dates.Time(val)
+	
+	Bonds.validate_value(tp::_TimePicker, s::String) = true # if it is not a valid time string, then `Bonds.transform_value` will fail, which is a safe failure.
 	result
 end
 
