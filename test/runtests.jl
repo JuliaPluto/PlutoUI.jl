@@ -122,6 +122,12 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     @test default(el) == Dates.Date(2022, 4, 1)
     el = TimeField()
     @test default(el) === "" # ugh 
+    el = TimePicker()
+    @test default(el) === nothing
+    el = TimePicker(Dates.Time(23,59,44))
+    @test default(el) == Dates.Time(23,59,00)
+    el = TimePicker(default=Dates.Time(23,59,44), show_seconds=true)
+    @test default(el) === Dates.Time(23,59,44)
 
     el = FilePicker()
     @test default(el) === nothing
