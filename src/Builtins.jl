@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.17.7
 
 using Markdown
 using InteractiveUtils
@@ -895,10 +895,17 @@ Use `default` to set the initial value.
 
 See the [Mozilla docs about `<input type="time">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time)
 
+!!! warning "Outdated"
+	This is `TimeField`, but you should use our new function, [`TimePicker`](@ref), which is much better! It returns a Julia `Time` directly, instead of a `String`.
+
 # Examples
 `@bind lunch_time TimeField()`
 
-`@bind lunch_time TimeField(default=now())`"""
+`@bind lunch_time TimeField(default=now())`
+
+# See also
+[`TimePicker`](@ref)
+"""
 TimeField
 end
 
@@ -1034,6 +1041,76 @@ begin
 		RGB{N0f8}(reinterpret(N0f8, [parse.(UInt8, rgb_str, base=16)])...)
 	end
 
+	result
+end
+
+# ╔═╡ 5cff9494-55d5-4154-8a57-fb73a82e2036
+begin
+	local result = begin
+		Base.@kwdef struct _TimePicker
+		    default::Union{Dates.TimeType,Nothing}=nothing
+			show_seconds::Bool = false
+		end
+		@doc """
+		```julia
+		TimePicker(; [default::Dates.TimeType], [show_seconds::Bool=false])
+		```
+		
+		A time input - the user can pick a time, the time is returned as a `Dates.Time`.
+		
+		Use the `default` keyword argument to set the initial value. If no initial value is given, the bound value is set to `nothing` until a time is picked.
+		
+		# Examples
+		```julia
+		@bind time1 TimePicker()
+		```
+		
+		```julia
+		import Dates
+		@bind time2 TimePicker(default=Dates.Time(23,59,44))
+		```
+		"""
+		TimePicker
+	end
+
+	TimePicker(default::Dates.TimeType) = _TimePicker(
+		default=default, show_seconds=false)
+	TimePicker(; kwargs...) = _TimePicker(; kwargs...)
+	
+	function Base.show(io::IO, m::MIME"text/html", tp::_TimePicker)
+		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
+			return show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
+		end
+		t, step = _fmt_time(tp)
+		show(io, m, @htl("<input type=time value=$(t) step=$(step)>"))
+	end
+
+	function _fmt_time(t)
+		if t.show_seconds
+			fmt = "HH:MM:SS"
+			step = 1
+		else
+			fmt = "HH:MM"
+			step = 0
+		end
+		if isnothing(t.default)
+			t = nothing
+		else
+			t = Dates.format(t.default, fmt)
+		end
+		return t, step
+	end
+	
+	Base.get(tp::_TimePicker) = Bonds.initial_value(tp)
+	Bonds.initial_value(tp::_TimePicker) = 
+		Bonds.transform_value(tp, _fmt_time(tp) |> first)
+
+	
+	Bonds.possible_values(tp::_TimePicker) = Bonds.InfinitePossibilities()
+	Bonds.transform_value(tp::_TimePicker, val) = 
+		(isnothing(val) || isempty(val)) ? nothing : Dates.Time(val)
+	
+	Bonds.validate_value(tp::_TimePicker, s::String) = true # if it is not a valid time string, then `Bonds.transform_value` will fail, which is a safe failure.
 	result
 end
 
@@ -1351,6 +1428,33 @@ ti3
 # ╔═╡ 3171441c-a98b-4a5a-aedd-09ad3b445b9e
 ti2
 
+# ╔═╡ 585cff2d-df71-4901-83cd-00b4452bc9a3
+btp1 = @bind tp1 TimePicker()
+
+# ╔═╡ 80186eeb-417c-4c95-9a3d-e556bb3284a8
+tp1
+
+# ╔═╡ 83e7759c-2318-4a02-949e-f3b637f4d478
+btp1
+
+# ╔═╡ 2ab08455-80dd-4b62-b0ee-a61481d2ffb9
+btp2 = @bind tp2 TimePicker(show_seconds=true)
+
+# ╔═╡ 04403fcf-83af-44a0-84fa-64b5b3bdfdd2
+tp2
+
+# ╔═╡ f5ca10d7-c0de-41b4-95a6-384f92852074
+btp3 = @bind tp3 TimePicker(Dates.Time(23,59,44))
+
+# ╔═╡ a38a6349-5281-4fcd-9de9-45f4b06db927
+tp3
+
+# ╔═╡ ef3ccc10-efc1-4ee3-9c36-94849d29d699
+btp4 = @bind tp4 TimePicker(default=Dates.Time(23,59,44), show_seconds=true)
+
+# ╔═╡ f39d4ed3-1815-4eaa-9923-23ebf778e4e6
+tp4
+
 # ╔═╡ b123275c-48fd-4e4a-8461-4875f7c18293
 bcs = @bind cs1 ColorStringPicker()
 
@@ -1397,7 +1501,7 @@ Hello \$br world!
 const br = HTML("<br>")
 
 # ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, ColorStringPicker, ColorPicker, br
+export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, TimePicker, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
@@ -1522,6 +1626,16 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═7a377816-30ed-4f9f-b03f-08da4548e55f
 # ╠═a51dc258-1e80-4cd4-9337-b9f685db244c
 # ╠═3171441c-a98b-4a5a-aedd-09ad3b445b9e
+# ╟─5cff9494-55d5-4154-8a57-fb73a82e2036
+# ╠═585cff2d-df71-4901-83cd-00b4452bc9a3
+# ╠═80186eeb-417c-4c95-9a3d-e556bb3284a8
+# ╠═83e7759c-2318-4a02-949e-f3b637f4d478
+# ╠═2ab08455-80dd-4b62-b0ee-a61481d2ffb9
+# ╠═04403fcf-83af-44a0-84fa-64b5b3bdfdd2
+# ╠═f5ca10d7-c0de-41b4-95a6-384f92852074
+# ╠═a38a6349-5281-4fcd-9de9-45f4b06db927
+# ╠═ef3ccc10-efc1-4ee3-9c36-94849d29d699
+# ╠═f39d4ed3-1815-4eaa-9923-23ebf778e4e6
 # ╟─e9feb20c-3667-4ea9-9278-6b68ece1de6c
 # ╠═b123275c-48fd-4e4a-8461-4875f7c18293
 # ╠═883673fb-b8d0-49fb-ab8c-32e972894ec2
