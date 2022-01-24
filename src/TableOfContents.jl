@@ -62,16 +62,6 @@ const clickHandler = (event) => {
 
 document.addEventListener("click", clickHandler)
 
-let m = matchMedia("(max-width: 1000px)")
-/* Hide TOC on 1000px -> 999px
-   Show TOC on  999px -> 1000px */
-let match_listener = () => document
-		.querySelector(".plutoui-toc")
-		.classList
-		.toggle("hide", m.matches)
-
-m.addListener(match_listener)
-
 
 const render = (el) => html`\${el.map(h => {
 	const parent_cell = getParentCell(h)
@@ -111,7 +101,6 @@ const tocNode = html`<nav class="plutoui-toc">
 
 tocNode.classList.toggle("aside", aside)
 tocNode.classList.toggle("indent", indent)
-tocNode.classList.toggle("hide", m.matches)
 
 const updateCallback = () => {
 	tocNode.querySelector("section").replaceWith(
@@ -149,11 +138,19 @@ notebookObserver.observe(notebook, {childList: true})
 const bodyClassObserver = new MutationObserver(updateCallback)
 bodyClassObserver.observe(document.body, {attributeFilter: ["class"]})
 
+// Hide/show the ToC when the screen gets small
+let m = matchMedia("(max-width: 1000px)")
+let match_listener = () => 
+	tocNode.classList.toggle("hide", m.matches)
+match_listener()
+m.addListener(match_listener)
+
 invalidation.then(() => {
 	notebookObserver.disconnect()
 	bodyClassObserver.disconnect()
 	observers.current.forEach((o) => o.disconnect())
 	document.removeEventListener("click", clickHandler)
+	m.removeListener(match_listener)
 })
 
 return tocNode
@@ -176,7 +173,7 @@ const toc_css = """
 	overflow: auto;
 	z-index: 40;
 	background: white;
-	transition: transform 200ms ease-in;
+	transition: transform 300ms cubic-bezier(0.18, 0.89, 0.45, 1.12);
 }
 
 .plutoui-toc.aside.hide {
@@ -199,6 +196,7 @@ const toc_css = """
 	cursor: pointer;
 	padding: 1em;
 	margin: -1em;
+    margin-right: -0.7em;
 }
 
 .plutoui-toc header {
