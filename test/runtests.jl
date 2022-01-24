@@ -114,6 +114,14 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
 
     el = DateField()
     @test default(el) === nothing
+    el = DatePicker()
+    @test default(el) === nothing
+    el = DatePicker(Dates.Date(2022, 4, 20))
+    @test default(el) == Dates.Date(2022, 4, 20)
+    el = DatePicker(default=Dates.Date(2022, 4))
+    @test default(el) == Dates.Date(2022, 4, 1)
+    el = DatePicker(default=Dates.DateTime(2022, 12, 31, 23, 59, 59))
+    @test default(el) == Dates.Date(2022, 12, 31)
     el = TimeField()
     @test default(el) === "" # ugh 
     el = TimePicker()

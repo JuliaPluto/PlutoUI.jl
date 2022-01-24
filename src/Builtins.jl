@@ -858,12 +858,17 @@ end
 
 Use `default` to set the initial value.
 
-See the [Mozilla docs about `<input type="date">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/date)
+!!! warning "Outdated"
+	This is `DateField`, but you should use our new function, [`DatePicker`](@ref), which is much better! It returns a `Date` directly, instead of a `DateTime`.
 
 # Examples
-`@bind best_day_of_my_live DateField()`
+`@bind best_day_of_my_life DateField()`
 
-`@bind best_day_of_my_live DateField(default=today())`"""
+`@bind best_day_of_my_life DateField(default=today())`
+
+# See also
+[`DatePicker`](@ref)
+"""
 DateField
 	end
 
@@ -1111,6 +1116,59 @@ begin
 		(isnothing(val) || isempty(val)) ? nothing : Dates.Time(val)
 	
 	Bonds.validate_value(tp::_TimePicker, s::String) = true # if it is not a valid time string, then `Bonds.transform_value` will fail, which is a safe failure.
+	result
+end
+
+# ╔═╡ 5156eed1-04a0-4fc4-95fd-11a086a57c4a
+begin
+	local result = begin
+		Base.@kwdef struct DatePicker
+			default::Union{Dates.TimeType,Nothing}=nothing
+		end
+	@doc """
+	```julia
+	DatePicker(; [default::Dates.Date])
+	```
+	
+	A date input - the user can pick a date, the date is returned as a `Dates.Date`.
+	
+	Use the `default` keyword argument to set the initial value. If no initial value is given, the bound value is set to `nothing` until a date is picked.
+	
+	# Examples
+	```julia
+	@bind date1 DatePicker()
+	```
+	
+	```julia
+	using Dates
+	
+	@bind date2 DatePicker(default=Date(2022, 12, 14))
+	```
+	"""
+	DatePicker
+	end
+	
+	function Base.show(io::IO, m::MIME"text/html", dp::DatePicker)
+		show(io, m, @htl("<input $((
+				type="date",
+				value=(dp.default === nothing ? "" : Dates.format(dp.default, "Y-mm-dd")),
+			))>"))
+	end
+	
+	Base.get(dp::DatePicker) = Bonds.initial_value(dp)
+	Bonds.initial_value(dp::DatePicker) = 
+		dp.default === nothing ? nothing : Dates.Date(dp.default)
+	
+	Bonds.possible_values(dp::DatePicker) = Bonds.InfinitePossibilities()
+	
+	Bonds.transform_value(dp::DatePicker, val::Nothing) = nothing
+	Bonds.transform_value(dp::DatePicker, val::Dates.TimeType) = Dates.Date(val)
+	Bonds.transform_value(dp::DatePicker, val::String) = 
+		isempty(val) ? nothing : Dates.Date(val)
+
+	Bonds.validate_value(dp::DatePicker, 
+		val::Union{Nothing,Dates.TimeType,String}) = true # see reasoning in `Bond.validate_value` in TimePicker
+	
 	result
 end
 
@@ -1410,6 +1468,24 @@ d1
 # ╔═╡ d52cc4d9-cdb0-46b6-a59f-5eeaa1990f20
 d2
 
+# ╔═╡ 494a163b-aed0-4e75-8ad1-c22ac46596c1
+bdp1 = @bind dp1 DatePicker()
+
+# ╔═╡ ab2bff58-f97e-4a21-b214-3266971d9fb0
+dp1
+
+# ╔═╡ fffb87ad-85a4-4d18-a5f9-cb0bcdbdaa6f
+bdp2 = @bind dp2 DatePicker(Dates.Date(2022, 4, 20))
+
+# ╔═╡ d9a04c66-9c11-4768-87c9-a66d4e1ba91c
+dp2
+
+# ╔═╡ 650f77b2-9fa5-4568-94cc-44d13b909ed5
+bdp3 = @bind dp3 DatePicker(default=Dates.Date(2022, 4))
+
+# ╔═╡ 3e4edd1c-5f4f-430a-9a8c-69417595b415
+dp3
+
 # ╔═╡ 3aefce73-f133-43e0-8680-5c17b7f90979
 bti = @bind ti3 TimeField()
 
@@ -1501,7 +1577,7 @@ Hello \$br world!
 const br = HTML("<br>")
 
 # ╔═╡ 98d251ff-67e7-4b16-b2e0-3e2102918ca2
-export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, TimeField, TimePicker, ColorStringPicker, ColorPicker, br
+export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, DatePicker, TimeField, TimePicker, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
@@ -1618,6 +1694,13 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═65bdad5e-a51b-4009-8b8e-ce93286ee5e4
 # ╠═4f1a909d-d21a-4e60-a615-8146ba249794
 # ╠═d52cc4d9-cdb0-46b6-a59f-5eeaa1990f20
+# ╟─5156eed1-04a0-4fc4-95fd-11a086a57c4a
+# ╠═494a163b-aed0-4e75-8ad1-c22ac46596c1
+# ╠═ab2bff58-f97e-4a21-b214-3266971d9fb0
+# ╠═fffb87ad-85a4-4d18-a5f9-cb0bcdbdaa6f
+# ╠═d9a04c66-9c11-4768-87c9-a66d4e1ba91c
+# ╠═650f77b2-9fa5-4568-94cc-44d13b909ed5
+# ╠═3e4edd1c-5f4f-430a-9a8c-69417595b415
 # ╟─ea7c4d05-c516-4f07-9d48-7df9ce997939
 # ╠═3aefce73-f133-43e0-8680-5c17b7f90979
 # ╠═d128f5ac-7304-486c-8258-f05f4bd18632
