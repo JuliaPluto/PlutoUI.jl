@@ -4,6 +4,7 @@ import AbstractPlutoDingetjes
 using HypertextLiteral
 import ColorTypes: RGB, N0f8, Colorant
 import Logging
+using Dates
 
 # has to be outside of the begin block for julia 1.0 compat
 struct Uhm end
@@ -113,8 +114,22 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
 
     el = DateField()
     @test default(el) === nothing
+    el = DatePicker()
+    @test default(el) === nothing
+    el = DatePicker(Dates.Date(2022, 4, 20))
+    @test default(el) == Dates.Date(2022, 4, 20)
+    el = DatePicker(default=Dates.Date(2022, 4))
+    @test default(el) == Dates.Date(2022, 4, 1)
+    el = DatePicker(default=Dates.DateTime(2022, 12, 31, 23, 59, 59))
+    @test default(el) == Dates.Date(2022, 12, 31)
     el = TimeField()
     @test default(el) === "" # ugh 
+    el = TimePicker()
+    @test default(el) === nothing
+    el = TimePicker(Dates.Time(23,59,44))
+    @test default(el) == Dates.Time(23,59,00)
+    el = TimePicker(default=Dates.Time(23,59,44), show_seconds=true)
+    @test default(el) === Dates.Time(23,59,44)
 
     el = FilePicker()
     @test default(el) === nothing
