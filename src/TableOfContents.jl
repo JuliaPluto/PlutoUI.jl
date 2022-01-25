@@ -159,7 +159,24 @@ return tocNode
 # ╔═╡ 731a4662-c329-42a2-ae71-7954140bb290
 const toc_css = """
 
+@media (prefers-color-scheme: dark) {
+	.plutoui-toc {
+		--main-bg-color: hsl(0deg 0% 21%);
+		--pluto-output-color: hsl(0, 0%, 90%)
+		--pluto-output-h-color: hsl(0, 0%, 97%)
+	}
+}
+
+@media (prefers-color-scheme: light){
+	.plutoui-toc {
+		--main-bg-color: unset;
+		--pluto-output-color: hsl(0, 0%, 36%);
+		--pluto-output-h-color: hsl(0, 0%, 21%);
+	}
+}
+
 .plutoui-toc.aside {
+	color: var(--pluto-output-color);
 	position:fixed;
 	right: 1rem;
 	top: 5rem;
@@ -226,10 +243,10 @@ const toc_css = """
 .plutoui-toc section a {
 	text-decoration: none;
 	font-weight: normal;
-	color: gray;
+	color: var(--pluto-output-color);
 }
 .plutoui-toc section a:hover {
-	color: black;
+	color: var(--pluto-output-h-color);
 }
 
 .plutoui-toc.indent section a.H1 {
