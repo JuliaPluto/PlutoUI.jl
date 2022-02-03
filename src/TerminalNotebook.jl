@@ -87,9 +87,8 @@ function Base.show(io::IO, ::MIME"text/html", terminal_output::WithTerminalOutpu
 	show(io, MIME("text/html"), @htl("""
 		<div style="display: inline; white-space: normal;">
 			$(value_to_show)
-			
-			<script src="https://cdn.jsdelivr.net/npm/ansi_up@5.0.1/ansi_up.min.js"></script>
 			<script type="text/javascript">
+				const { default: AnsiUp } = await import("https://cdn.jsdelivr.net/gh/JuliaPluto/ansi_up@1093eb0/ansi_up.js");
 				var txt = $(terminal_output.output)
 
 				var container = html`
