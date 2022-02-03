@@ -100,7 +100,7 @@ function Base.show(io::IO, ::MIME"text/html", terminal_output::WithTerminalOutpu
 			<script type="text/javascript" id="plutouiterminal">
 				let txt = $(terminal_output.output)
 
-				var container = html`
+				let container = this ?? html`
 					<pre
 						class="PlutoUI_terminal"
 						style="
