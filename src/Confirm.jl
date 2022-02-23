@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.18.1
 
 using Markdown
 using InteractiveUtils
@@ -171,7 +171,11 @@ begin
 		}
 		const gen = Generators.input(input)
 
-		let first_value = await gen.next().value
+		// If the child does not have an initial value, the `gen.next().value` promise will never resolve. If it does, then it resolves instantly.
+		let first_value = await Promise.any([
+			gen.next().value,
+			Promise.resolve(undefined)
+		])
 		private_value = public_value = first_value
 		
 		;(async () => {
@@ -297,6 +301,39 @@ md"""
 # ╔═╡ 363a65ec-218c-43a2-b740-8061fac25011
 t
 
+# ╔═╡ a61f27d1-4043-48f1-a974-7d1a0ae65407
+md"""
+### Bad usage *(should not break)*
+[https://github.com/fonsp/Pluto.jl/issues/1929](https://github.com/fonsp/Pluto.jl/issues/1929)
+"""
+
+# ╔═╡ aa399a36-7fea-4912-89ef-4bd5de173c69
+@bind asdf confirm(html"<span>asdf</span>")
+
+# ╔═╡ 00ec98e4-4913-4e85-9d71-eaf6aedd1265
+asdf, rand()
+
+# ╔═╡ 5d9eeddb-5d18-4510-ae04-1b1806eb19ca
+@bind asdf2 confirm(html"<span>")
+
+# ╔═╡ 0d84e69b-c55e-448c-8710-97bede80f924
+asdf2, rand()
+
+# ╔═╡ bac9ea52-ee38-40bf-8d54-9ece7f5b372f
+@bind asdf3 confirm(html"asdf")
+
+# ╔═╡ 58105619-978a-450e-a06d-bbdfbbec8a66
+asdf3, rand()
+
+# ╔═╡ 42791264-2c15-427a-a398-aedbb76b5288
+@bind asdf4 confirm(@bind asdf5 Slider(1:100))
+
+# ╔═╡ 3f871bb5-a907-40d2-8ea2-35e0df041565
+asdf4, rand()
+
+# ╔═╡ 8c9cc28c-2684-4b1c-b990-3f55b6d55aec
+asdf5
+
 # ╔═╡ 801fb021-73a0-4114-a36a-328e84f00b51
 @skip_as_script @bind speeds identity(
 	combine() do Child
@@ -373,6 +410,16 @@ end
 # ╠═8dcb2498-00cf-49a8-8074-301fe88b76ea
 # ╠═fc92b3fc-6143-477c-a413-84dcd1b4cfc0
 # ╠═363a65ec-218c-43a2-b740-8061fac25011
+# ╟─a61f27d1-4043-48f1-a974-7d1a0ae65407
+# ╠═aa399a36-7fea-4912-89ef-4bd5de173c69
+# ╠═00ec98e4-4913-4e85-9d71-eaf6aedd1265
+# ╠═5d9eeddb-5d18-4510-ae04-1b1806eb19ca
+# ╠═0d84e69b-c55e-448c-8710-97bede80f924
+# ╠═bac9ea52-ee38-40bf-8d54-9ece7f5b372f
+# ╠═58105619-978a-450e-a06d-bbdfbbec8a66
+# ╠═42791264-2c15-427a-a398-aedbb76b5288
+# ╠═3f871bb5-a907-40d2-8ea2-35e0df041565
+# ╠═8c9cc28c-2684-4b1c-b990-3f55b6d55aec
 # ╠═801fb021-73a0-4114-a36a-328e84f00b51
 # ╠═d7985844-5944-42b9-ad41-599cd72eea82
 # ╟─5a0196d0-e19f-4202-b36d-18ab9be839b3
