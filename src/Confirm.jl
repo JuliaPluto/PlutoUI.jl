@@ -296,10 +296,10 @@ md"""
 @skip_as_script x(234)
 
 # ╔═╡ fc92b3fc-6143-477c-a413-84dcd1b4cfc0
-@bind t confirm(html"<input>")
+@skip_as_script @bind t confirm(html"<input>")
 
 # ╔═╡ 363a65ec-218c-43a2-b740-8061fac25011
-t
+@skip_as_script t
 
 # ╔═╡ a61f27d1-4043-48f1-a974-7d1a0ae65407
 md"""
@@ -308,31 +308,31 @@ md"""
 """
 
 # ╔═╡ aa399a36-7fea-4912-89ef-4bd5de173c69
-@bind asdf confirm(html"<span>asdf</span>")
+@skip_as_script @bind asdf confirm(html"<span>asdf</span>")
 
 # ╔═╡ 00ec98e4-4913-4e85-9d71-eaf6aedd1265
-asdf, rand()
+@skip_as_script asdf, rand()
 
 # ╔═╡ 5d9eeddb-5d18-4510-ae04-1b1806eb19ca
-@bind asdf2 confirm(html"<span>")
+@skip_as_script @bind asdf2 confirm(html"<span>")
 
 # ╔═╡ 0d84e69b-c55e-448c-8710-97bede80f924
-asdf2, rand()
+@skip_as_script asdf2, rand()
 
 # ╔═╡ bac9ea52-ee38-40bf-8d54-9ece7f5b372f
-@bind asdf3 confirm(html"asdf")
+@skip_as_script @bind asdf3 confirm(html"asdf")
 
 # ╔═╡ 58105619-978a-450e-a06d-bbdfbbec8a66
-asdf3, rand()
+@skip_as_script asdf3, rand()
 
 # ╔═╡ 42791264-2c15-427a-a398-aedbb76b5288
-@bind asdf4 confirm(@bind asdf5 Slider(1:100))
+@skip_as_script @bind asdf4 confirm(@bind asdf5 Slider(1:100))
 
 # ╔═╡ 3f871bb5-a907-40d2-8ea2-35e0df041565
-asdf4, rand()
+@skip_as_script asdf4, rand()
 
 # ╔═╡ 8c9cc28c-2684-4b1c-b990-3f55b6d55aec
-asdf5
+@skip_as_script asdf5
 
 # ╔═╡ 801fb021-73a0-4114-a36a-328e84f00b51
 @skip_as_script @bind speeds identity(
