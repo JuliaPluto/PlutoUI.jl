@@ -108,6 +108,9 @@ const updateCallback = () => {
 	)
 }
 updateCallback()
+setTimeout(updateCallback, 100)
+setTimeout(updateCallback, 1000)
+setTimeout(updateCallback, 5000)
 
 const notebook = document.querySelector("pluto-notebook")
 
