@@ -171,8 +171,8 @@ const toc_css = """
 @media (prefers-color-scheme: dark) {
 	.plutoui-toc {
 		--main-bg-color: hsl(0deg 0% 21%);
-		--pluto-output-color: hsl(0, 0%, 90%)
-		--pluto-output-h-color: hsl(0, 0%, 97%)
+		--pluto-output-color: hsl(0, 0%, 90%);
+		--pluto-output-h-color: hsl(0, 0%, 97%);
 	}
 }
 
