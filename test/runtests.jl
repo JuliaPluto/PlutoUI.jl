@@ -69,6 +69,36 @@ struct Uhm end
     @test repr(m, WithIOContext(u, prop = 1)) == "1"
 end
 
+@testset "Resource" begin
+    f1 = tempname() * ".js"
+    f2 = tempname() * ".jpg"
+    f3 = tempname()
+    u4 = "https://asdf.com/a/b/c.mp4#asdfjk?b=23f&c=asdf.png"
+    
+    write(f1, "asdf")
+    write(f2, "asdf")
+    write(f3, "asdf")
+    
+    
+    r1 = LocalResource(f1)
+    r2 = LocalResource(f3)
+    r3 = LocalResource(f3)
+    r4 = Resource(u4)
+    
+    hr(x) = repr(MIME"text/html"(), x)
+    
+    h1 = hr(r1)
+    h2 = hr(r2)
+    h3 = hr(r3)
+    h4 = hr(r4)
+    
+    @test occursin(r"<script.+src\=.+base64.+<\/script>", h1)
+    @test occursin(r"<img.+src=.+base64.+>", h2)
+    @test occursin(r"<data.+src=.+base64.+>", h3)
+    @test occursin(r"<video.+src=.+>", h4)
+    @test occursin(u4, h4)
+end
+
 default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
 transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
 
