@@ -70,6 +70,7 @@ struct Uhm end
 end
 
 default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
+transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
 
 @testset "Public API" begin
     el = Button()
@@ -224,8 +225,10 @@ default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
     @testset "Rounding default value: $f" for f in [Slider, NumberField]
         el = f(1:10; default = 5.2)
         @test default(el) == 5
+        @test transform(el, 1) === 1
         el = f(1:.5:10; default = 5.4)
         @test default(el) == 5.5
+        @test transform(el, 1) === 1.0
         if f !== NumberField
             el = f([60,10,-80]; default = 5.4)
             @test default(el) == 10

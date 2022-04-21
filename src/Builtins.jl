@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.7
+# v0.18.4
 
 using Markdown
 using InteractiveUtils
@@ -263,6 +263,7 @@ begin
 	Base.get(numberfield::NumberField) = numberfield.default
 	Bonds.initial_value(nf::NumberField) = nf.default
 	Bonds.possible_values(nf::NumberField) = nf.range
+	Bonds.transform_value(nf::NumberField, val) = Base.convert(eltype(nf.range), val)
 	function Bonds.validate_value(nf::NumberField, val)
 		val isa Real && (minimum(nf.range) - 0.0001 <= val <= maximum(nf.range) + 0.0001)
 	end
@@ -1327,6 +1328,15 @@ nf1b
 # ╔═╡ 7089edb6-720d-4df5-b3ca-da17d48b107e
 nf1
 
+# ╔═╡ c32f42ee-0e7f-4648-99f7-21eff7b45cec
+nf2b = @bind nf2 NumberField(0:.1:1; default = 0)
+
+# ╔═╡ efc0d77c-93d5-4634-9c0b-aa16d00ec007
+nf2b
+
+# ╔═╡ 89e05f4b-c720-4ca5-a7fe-ceee0bcef9d9
+nf2
+
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
 @bind b1 Button(teststr)
 
@@ -1615,6 +1625,9 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
 # ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
 # ╠═7089edb6-720d-4df5-b3ca-da17d48b107e
+# ╠═c32f42ee-0e7f-4648-99f7-21eff7b45cec
+# ╠═efc0d77c-93d5-4634-9c0b-aa16d00ec007
+# ╠═89e05f4b-c720-4ca5-a7fe-ceee0bcef9d9
 # ╟─b7c21c22-17f5-44b8-98de-a261d5c7192b
 # ╠═7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
 # ╠═c6d68308-53e7-4c60-8649-8f0161f28d70
@@ -1628,7 +1641,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═bcee47b1-0f45-4649-8517-0e93fa92bfe5
 # ╠═73656df8-ac9f-466d-a8d0-0a2e5dbdbd8c
 # ╠═e89ee9a3-5c78-4ff8-81e9-f44f5150d5f6
-# ╠═f81bb386-203b-4392-b974-a1e2146b1a08
+# ╟─f81bb386-203b-4392-b974-a1e2146b1a08
 # ╠═0b46ba0f-f6ff-4df2-bd2b-aeacda9e8865
 # ╠═1e522148-542a-4a2f-ad92-12421a6530dc
 # ╠═1ac4abe2-5f06-42c6-b614-fb9a00e65386
