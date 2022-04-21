@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.7
+# v0.19.0
 
 using Markdown
 using InteractiveUtils
@@ -161,6 +161,7 @@ return tocNode
 
 # ╔═╡ 731a4662-c329-42a2-ae71-7954140bb290
 const toc_css = """
+@media not print {
 
 .plutoui-toc {
 	--main-bg-color: unset;
@@ -197,7 +198,7 @@ const toc_css = """
 .plutoui-toc.aside.hide {
 	transform: translateX(calc(100% - 28px));
 }
-
+}  /* End of Media print query */
 .plutoui-toc.aside.hide .open-toc,
 .plutoui-toc.aside:not(.hide) .closed-toc,
 .plutoui-toc:not(.aside) .closed-toc {
