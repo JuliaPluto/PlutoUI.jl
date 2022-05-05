@@ -197,6 +197,7 @@ const toc_css = """
 
 .plutoui-toc.aside.hide {
 	transform: translateX(calc(100% - 28px));
+	height: 57px;
 }
 }  /* End of Media print query */
 .plutoui-toc.aside.hide .open-toc,
