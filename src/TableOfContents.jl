@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.0
+# v0.19.3
 
 using Markdown
 using InteractiveUtils
@@ -199,10 +199,10 @@ const toc_css = """
 	transform: translateX(calc(100% - 28px));
 }
 .plutoui-toc.aside.hide section {
-    	display: none;
+	display: none;
 }
 .plutoui-toc.aside.hide header {
-    	margin-bottom: 0em;
+	margin-bottom: 0em;
 	padding-bottom: 0em;
 	border-bottom: none;
 }
