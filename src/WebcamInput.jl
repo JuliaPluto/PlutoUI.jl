@@ -23,23 +23,11 @@ using UUIDs: UUID, uuid4
 # ╔═╡ b3b59805-7062-463f-b6c5-1679133a589f
 using ColorTypes
 
-# ╔═╡ 440da770-f7ec-45a4-ab60-b09380520ecb
-
-
 # ╔═╡ 31dff3d3-b3ee-426d-aec8-ee811820d842
 import AbstractPlutoDingetjes
 
-# ╔═╡ 62ce4916-559e-4644-9d91-b0eedf45638a
-
-
 # ╔═╡ d7210b82-83b7-48e5-ba3e-12d4556c306d
 aa = [RGBA(0.5, 0.2, x/100, x * y / 10000) for x in 1:100, y in 1:100]
-
-# ╔═╡ e9244106-6876-4238-9dec-2c32af5e0bb8
-typeof(aa)
-
-# ╔═╡ 250aad21-fd58-4c69-a002-7780834e2505
-reshape(reshape(Vector(1:16), 2, 2, 4), :)
 
 # ╔═╡ 35f04ea4-d1fc-4a57-82eb-b93d56e72498
 c = RGBA(0.5, 0.5, 0.2, 1)
@@ -116,22 +104,24 @@ begin
 	end
 end
 
-# ╔═╡ d1f8392f-e94d-4c4b-af0e-b18b95dc0819
-
-
 # ╔═╡ d9b806a2-de81-4b50-88cd-acf7db35da9a
 begin 
+	"""
+	WebcamInput type. Values entered here will be _requested_ from the user agent but there is no guarantee that they will be available. Always check the sizes of the return images
+	"""
 	Base.@kwdef struct WebcamInput
 		uuid::UUID
-		height::Integer = 640
-		width::Integer = 320
+		width::Integer = 1920
+		height::Integer = 1080
+		aspectRatio::Float64 = 16/9
+		help::Bool = true
 	end
 	WebcamInput() = WebcamInput(; uuid = uuid4())
 	WebcamInput
 end
 
 # ╔═╡ dfb2480d-401a-408b-bbe8-61f9551b1d65
-AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput) = begin
+function AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput)
 	[RGBA(0, 0, 0, 1) for i in 1:w.height, j in 1:w.width]
 end
 
@@ -186,6 +176,7 @@ css = @htl("""<style>
 		align-items: center;
 		justify-content: center;
 		margin:0.2em;
+		z-index: 2;
 	}
 	.controls > button {
 		margin-left: 0.2em;
@@ -207,7 +198,10 @@ begin
 	a = 4
 	function Base.show(io::IO, ::MIME"text/html", webcam::WebcamInput)
 	id = string("id-", webcam.uuid)
-	@info "Note that the Webcam only works in localhost or https:// contexts!"
+	wwidth = webcam.width
+	wheight = webcam.height
+	aspectRatio = webcam.aspectRatio
+	webcam.help && @info "Note that the Webcam only works in localhost or https:// contexts!\n Width, height and aspect ratio are requested to the User Agent (browser) but may not be available, so the UA will try to do its best!"
 	show(io, MIME("text/html"), @htl("""
 	<div class="webcam">
 		$(css)
@@ -223,7 +217,7 @@ begin
 	const hasMedia = checkIfHasMedia()
 	
 	const video = html`<video autoplay></video>`
-	const canvas = html`<canvas style="display: none" height></canvas>`
+	const canvas = html`<canvas style="display: none"></canvas>`
 	const start_video_ctl = html`<button>
 		start <span class="ionic ionic-cam" />
 		</button>`;
@@ -241,38 +235,56 @@ begin
 		streaming: false,
 		error: false,
 		stream: null,
+		height: 0,
+		width: 0,
 	};
 
 	const tryInitVideo = () => {
 		const constraints = {
-  			video: true,
+  			video: {
+				width: {ideal: $wwidth},
+	  			height: {ideal: $wheight},
+			  	aspectRatio: {ideal: $aspectRatio}
+			}
 		};
+		console.log(constraints)
 		navigator.mediaDevices
 			.getUserMedia(constraints)
 			.then((stream) => {
 				state.stream = stream;
+				let {width, height} = stream.getTracks()[0].getSettings();
+				state.width = width
+				state.height = height;
 				video.srcObject = stream;
 			}).catch(err => {
 				state.stream = null;
+				state.width = 0;
+				state.height = 0;
 				state.error = err;
 			});
 	}
 	const closeCamera = () => {
 		video.srcObject = null;
+		
 		if(state.stream)
 			state.stream.getTracks().forEach(track => {
 				track.readyState == "live" && track.stop()
 			})
+
+		state.stream = null;
+		state.width = 0;
+		state.height = 0;
 	}
 
 	const capture = () => {
 		const context = canvas.getContext('2d');
-		context.drawImage(video, 0, 0, canvas.width, canvas.height)
+		canvas.width = state.width;
+		canvas.height = state.height;
+		context.drawImage(video, 0, 0, state.width, state.height)
 		const img = context.getImageData(0, 0, canvas.width, canvas.height)
 
 		const parent = currentScript.parentElement
 		parent.value = [img.width, img.height, ...img.data]
-		console.log(parent, parent.value)
 		parent.dispatchEvent(new CustomEvent('input'))
 	}
 			
@@ -304,8 +316,11 @@ end
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 begin
 a
-@bind img WebcamInput()
+@bind img WebcamInput(;uuid=uuid4(), width=480, height=480, aspectRatio=1)
 end
+
+# ╔═╡ d0b8b2ac-60be-481d-8085-3e57525e4a74
+size(img)
 
 # ╔═╡ cad85f17-ff15-4a1d-8897-6a0a7ca59023
 img
@@ -495,23 +510,19 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═25fc026c-c593-11ec-05c8-93e16f9dc527
 # ╠═cfb76adb-96da-493c-859c-ad24aa18437e
 # ╠═b3b59805-7062-463f-b6c5-1679133a589f
-# ╠═440da770-f7ec-45a4-ab60-b09380520ecb
 # ╠═31dff3d3-b3ee-426d-aec8-ee811820d842
-# ╠═62ce4916-559e-4644-9d91-b0eedf45638a
 # ╠═0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
 # ╠═d7210b82-83b7-48e5-ba3e-12d4556c306d
-# ╠═e9244106-6876-4238-9dec-2c32af5e0bb8
-# ╠═250aad21-fd58-4c69-a002-7780834e2505
 # ╠═35f04ea4-d1fc-4a57-82eb-b93d56e72498
 # ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
 # ╠═43332d10-a10b-4acc-a3ac-8c4b4eb58c46
-# ╠═d1f8392f-e94d-4c4b-af0e-b18b95dc0819
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╠═dfb2480d-401a-408b-bbe8-61f9551b1d65
 # ╠═c830df17-dd4f-4636-aaf5-a13ca1cc6b15
-# ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
+# ╠═97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╠═063bba88-ef00-4b5b-b91c-14b497da85c1
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
+# ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
 # ╠═cad85f17-ff15-4a1d-8897-6a0a7ca59023
 # ╠═55ca59b0-c292-4711-9aa6-81499184423c
 # ╟─00000000-0000-0000-0000-000000000001
