@@ -70,10 +70,10 @@ end
 
 # ╔═╡ 0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
 begin 
-	function imageshow(io, image)
+	function Base.show(io::IO, ::MIME"text/html",
+						image::Array{C, 2} where C<:Colorant)
 		width = size(image, 1)
 		height = size(image, 2)
-		pixel = image[1,1]
 		clammedArray = RGBAToImageData(image)
 		
 		show(io, MIME("text/html"), @htl("""
@@ -87,14 +87,6 @@ begin
 				return canvas
 			</script>
 		"""))
-	end
-
-	function Base.show(io::IO, ::MIME"text/html", image::Array{C, 2} where C <:Colorant )
-		imageshow(io, image)
-	end
-
-	function Base.show(io::IO, ::MIME"text/html", image::Array{C, 2} where C<:Colorant)
-		imageshow(io, image)
 	end
 	
 	function Base.show(io::IO, ::MIME"text/html", pixel::C where C <:Colorant)
@@ -323,7 +315,8 @@ end
 size(img)
 
 # ╔═╡ cad85f17-ff15-4a1d-8897-6a0a7ca59023
-img
+[img img[end:-1:1, :]
+img[:, end:-1:1] img[end:-1:1, end:-1:1]]
 
 # ╔═╡ 55ca59b0-c292-4711-9aa6-81499184423c
 typeof(img)
@@ -519,7 +512,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╠═dfb2480d-401a-408b-bbe8-61f9551b1d65
 # ╠═c830df17-dd4f-4636-aaf5-a13ca1cc6b15
-# ╠═97e2467e-ca58-4b5f-949d-ad95253b1ac0
+# ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╠═063bba88-ef00-4b5b-b91c-14b497da85c1
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
