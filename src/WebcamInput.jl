@@ -23,57 +23,101 @@ using UUIDs: UUID, uuid4
 # ╔═╡ b3b59805-7062-463f-b6c5-1679133a589f
 using ColorTypes
 
+# ╔═╡ 440da770-f7ec-45a4-ab60-b09380520ecb
+
+
+# ╔═╡ 31dff3d3-b3ee-426d-aec8-ee811820d842
+import AbstractPlutoDingetjes
+
 # ╔═╡ 62ce4916-559e-4644-9d91-b0eedf45638a
-# ╠═╡ disabled = true
-#=╠═╡
-function Base.show(io::IO, ::MIME"text/html", pixel::RGBA)
-	show(io, MIME("text/html"), @htl("""
-		<div style="margin: .5em 0;width: 60px; border: 1px solid lightgrey; height: 60px; background-color: rgba($(255*pixel.r), $(255*pixel.g), $(255*pixel.b), $(pixel.alpha));"></div>
-	"""))
-end
-  ╠═╡ =#
+
 
 # ╔═╡ d7210b82-83b7-48e5-ba3e-12d4556c306d
-[ RGBA(0.5, 0.2, x/100, x * y / 10000) for x in 1:100, y in 1:100]
+aa = [RGBA(0.5, 0.2, x/100, x * y / 10000) for x in 1:100, y in 1:100]
+
+# ╔═╡ e9244106-6876-4238-9dec-2c32af5e0bb8
+typeof(aa)
 
 # ╔═╡ 250aad21-fd58-4c69-a002-7780834e2505
 reshape(reshape(Vector(1:16), 2, 2, 4), :)
 
 # ╔═╡ 35f04ea4-d1fc-4a57-82eb-b93d56e72498
+c = RGBA(0.5, 0.5, 0.2, 1)
 
+# ╔═╡ 5104aabe-43f7-451e-b4c1-68c0b345669e
+"""
+Converts ImageData vector to an RGBA Matrix.
+
+Assumes the first two positions of the input vector contain width & height of the image (just to make communication easier)
+
+"""
+function ImageDataToRGBA(j::Vector{Int})
+	width = j[1]
+	height = j[2]
+	r = reshape(j[3:end], 4, width, height) ./ 255
+	return [
+		RGBA(
+			r[1, w, h],
+			r[2, w, h],
+			r[3, w, h],
+			r[4, w, h]
+		) for
+			w in 1:width,
+			h in 1:height
+		]
+end
 
 # ╔═╡ 43332d10-a10b-4acc-a3ac-8c4b4eb58c46
-function flattenimg(img::Matrix{RGBA{T}} where T)
+function RGBAToImageData(img)
 	f = reshape(img, :)
 	arr = zeros(4 * length(f))
-	for (i, e) in enumerate(f)
-		arr[4*(i - 1) + 1] = 255 * e.r
-		arr[4*(i - 1) + 2] = 255 * e.g
-		arr[4*(i - 1) + 3] = 255 * e.b
-		arr[4*(i - 1) + 4] = 255 * e.alpha
+	for (i, color) in enumerate(f)
+		arr[4*(i - 1) + 1] = 255 * red(color)
+		arr[4*(i - 1) + 2] = 255 * green(color)
+		arr[4*(i - 1) + 3] = 255 * blue(color)
+		arr[4*(i - 1) + 4] = 255 * alpha(color)
 	end
 	arr
 end
 
 # ╔═╡ 0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
-function Base.show(io::IO, ::MIME"text/html", image::Matrix{RGBA{Float64}})
-	width = size(image, 1)
-	height = size(image, 2)
-	pixel = image[1,1]
-	clammedArray = flattenimg(image)
+begin 
+	function imageshow(io, image)
+		width = size(image, 1)
+		height = size(image, 2)
+		pixel = image[1,1]
+		clammedArray = RGBAToImageData(image)
+		
+		show(io, MIME("text/html"), @htl("""
+			<canvas width="$width" height="$height"></canvas>
+			<script>
+				const canvas = currentScript.parentElement.firstElementChild
+				const ctx = canvas.getContext("2d")
+				const imgdata = new ImageData(new Uint8ClampedArray($(clammedArray)), $width, $height)
+				ctx.putImageData(imgdata, 0, 0)
+				console.log(imgdata, canvas)
+				return canvas
+			</script>
+		"""))
+	end
+
+	function Base.show(io::IO, ::MIME"text/html", image::Array{C, 2} where C <:Colorant )
+		imageshow(io, image)
+	end
+
+	function Base.show(io::IO, ::MIME"text/html", image::Array{C, 2} where C<:Colorant)
+		imageshow(io, image)
+	end
 	
-	show(io, MIME("text/html"), @htl("""
-		<canvas width="$width" height="$height"></canvas>
-		<script>
-			const canvas = currentScript.parentElement.firstElementChild
-			const ctx = canvas.getContext("2d")
-			const imgdata = new ImageData(new Uint8ClampedArray($(clammedArray)), $width, $height)
-			ctx.putImageData(imgdata, 0, 0)
-			console.log(imgdata, canvas)
-			return canvas
-		</script>
-	"""))
+	function Base.show(io::IO, ::MIME"text/html", pixel::C where C <:Colorant)
+		show(io, MIME("text/html"), @htl("""
+			<div style="margin: .5em 0;width: 60px; border: 1px solid lightgrey; height: 60px; background-color: rgba($(255*red(pixel)), $(255*green(pixel)), $(255*blue(pixel)), $(alpha(pixel));"></div>
+		"""))
+	end
 end
+
+# ╔═╡ d1f8392f-e94d-4c4b-af0e-b18b95dc0819
+
 
 # ╔═╡ d9b806a2-de81-4b50-88cd-acf7db35da9a
 begin 
@@ -86,26 +130,14 @@ begin
 	WebcamInput
 end
 
-# ╔═╡ 676836d0-67d0-439b-a764-c88da4b71e93
-[RGBA(0, 0, 0, 0) for i in 1:10, j in 1:20]
-
 # ╔═╡ dfb2480d-401a-408b-bbe8-61f9551b1d65
 AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput) = begin
-	[RGBA(0, 0, 0, 1) for i in 1:w.height, j in 1:w.width ]
+	[RGBA(0, 0, 0, 1) for i in 1:w.height, j in 1:w.width]
 end
 
-# ╔═╡ 05423c00-ea72-4cfd-b6fc-15a090a1647b
-reshape(1:16, 2, 2, 4) |> n -> axes(n, (3))
-
-# ╔═╡ 2b9fbd8f-25b9-447b-b030-7e6da108aa93
-
-
 # ╔═╡ c830df17-dd4f-4636-aaf5-a13ca1cc6b15
-function AbstractPlutoDingetjes.Bonds.transform_value(w::WebcamInput, j::Vector{Int})
-	width = j[1]
-	height = j[2]
-	r = reshape(j[3:end], width, height, 4) ./ 255
-	[RGBA(r[w, h, 1], r[w, h, 2], r[w, h, 3], r[w, h, 4]) for w in 1:width, h in 1:height]
+function AbstractPlutoDingetjes.Bonds.transform_value(w::WebcamInput, v::Vector{Int})
+	ImageDataToRGBA(v)
 end
 
 # ╔═╡ 97e2467e-ca58-4b5f-949d-ad95253b1ac0
@@ -169,12 +201,6 @@ css = @htl("""<style>
 		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/camera-outline.svg");
 	}
 </style>""")
-
-# ╔═╡ 31dff3d3-b3ee-426d-aec8-ee811820d842
-
-
-# ╔═╡ a77742d8-aa75-43d8-bac9-a409743276da
-import AbstractPlutoDingetjes
 
 # ╔═╡ 063bba88-ef00-4b5b-b91c-14b497da85c1
 begin 
@@ -254,6 +280,11 @@ begin
 	stop_video_ctl.onclick = closeCamera
 	capture_ctl.onclick = capture
 
+	const cleanup = () => {
+		closeCamera()
+	}
+	invalidation.then(cleanup)
+
 	return html`
 <div class="grid">
 	<div class="controls">
@@ -270,25 +301,16 @@ begin
 end
 end
 
-# ╔═╡ 445d1482-6182-4561-b41c-8dca4de6d391
-y[1]
-
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 begin
 a
 @bind img WebcamInput()
 end
 
-# ╔═╡ 7fc330f1-b29a-43e0-b831-65f538283352
-img
-
 # ╔═╡ cad85f17-ff15-4a1d-8897-6a0a7ca59023
 img
 
-# ╔═╡ 5104aabe-43f7-451e-b4c1-68c0b345669e
-
-
-# ╔═╡ f37f5f0b-5843-48a3-9821-a0e9648d9144
+# ╔═╡ 55ca59b0-c292-4711-9aa6-81499184423c
 typeof(img)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -473,28 +495,24 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═25fc026c-c593-11ec-05c8-93e16f9dc527
 # ╠═cfb76adb-96da-493c-859c-ad24aa18437e
 # ╠═b3b59805-7062-463f-b6c5-1679133a589f
+# ╠═440da770-f7ec-45a4-ab60-b09380520ecb
+# ╠═31dff3d3-b3ee-426d-aec8-ee811820d842
 # ╠═62ce4916-559e-4644-9d91-b0eedf45638a
 # ╠═0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
 # ╠═d7210b82-83b7-48e5-ba3e-12d4556c306d
-# ╠═7fc330f1-b29a-43e0-b831-65f538283352
+# ╠═e9244106-6876-4238-9dec-2c32af5e0bb8
 # ╠═250aad21-fd58-4c69-a002-7780834e2505
 # ╠═35f04ea4-d1fc-4a57-82eb-b93d56e72498
+# ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
 # ╠═43332d10-a10b-4acc-a3ac-8c4b4eb58c46
+# ╠═d1f8392f-e94d-4c4b-af0e-b18b95dc0819
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
-# ╠═676836d0-67d0-439b-a764-c88da4b71e93
 # ╠═dfb2480d-401a-408b-bbe8-61f9551b1d65
-# ╠═05423c00-ea72-4cfd-b6fc-15a090a1647b
-# ╠═2b9fbd8f-25b9-447b-b030-7e6da108aa93
 # ╠═c830df17-dd4f-4636-aaf5-a13ca1cc6b15
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
-# ╟─22876029-fa91-4567-b298-ce8624e0b8fa
-# ╠═31dff3d3-b3ee-426d-aec8-ee811820d842
-# ╠═a77742d8-aa75-43d8-bac9-a409743276da
 # ╠═063bba88-ef00-4b5b-b91c-14b497da85c1
-# ╠═445d1482-6182-4561-b41c-8dca4de6d391
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═cad85f17-ff15-4a1d-8897-6a0a7ca59023
-# ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
-# ╠═f37f5f0b-5843-48a3-9821-a0e9648d9144
+# ╠═55ca59b0-c292-4711-9aa6-81499184423c
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
