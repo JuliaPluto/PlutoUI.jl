@@ -250,15 +250,15 @@ begin
 	
 	const video = html`<video autoplay></video>`
 	const canvas = html`<canvas style="display: none"></canvas>`
-	const start_video_ctl = html`<button>
+	const start_video_ctl = html`<button title="Open camera">
 		<span class="ionic ionic-start" />
 		</button>`;
 
-	const capture_ctl = html`<button>
+	const capture_ctl = html`<button title="Capture image" disabled>
 		capture <span class="ionic ionic-cam" />
 		</button>`;
 
-	const stop_video_ctl = html`<button>
+	const stop_video_ctl = html`<button title="Stop camera" disabled>
 		<span class="ionic ionic-stop" />
 		</button>`;
 
@@ -288,16 +288,26 @@ begin
 				state.width = width
 				state.height = height;
 				video.srcObject = stream;
+	
+				start_video_ctl.disabled = true;
+				stop_video_ctl.disabled = false;
+				capture_ctl.disabled = false;
 			}).catch(err => {
 				state.stream = null;
 				state.width = 0;
 				state.height = 0;
 				state.error = err;
+	
+				start_video_ctl.disabled = false;
+				stop_video_ctl.disabled = true;
+				capture_ctl.disabled = true;
 			});
 	}
 	const closeCamera = () => {
 		video.srcObject = null;
-		
+		start_video_ctl.disabled = false;
+		stop_video_ctl.disabled = true;
+		capture_ctl.disabled = true;
 		if(state.stream)
 			state.stream.getTracks().forEach(track => {
 				track.readyState == "live" && track.stop()
