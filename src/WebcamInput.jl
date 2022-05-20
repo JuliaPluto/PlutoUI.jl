@@ -131,18 +131,19 @@ end
 
 # ╔═╡ dfb2480d-401a-408b-bbe8-61f9551b1d65
 function AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput)
-	return [RGBA(0, 0, 0, 1) for i in 1:w.height, j in 1:w.width]
+	return [RGBA(rand(), rand(), rand(), .97) for i in 1:w.height, j in 1:w.width]
 end
 
 # ╔═╡ 27729b9d-682e-4c98-804c-d61b3b38344f
 Base.get(w::WebcamInput) = AbstractPlutoDingetjes.Bonds.initial_value(w)
 
 # ╔═╡ c830df17-dd4f-4636-aaf5-a13ca1cc6b15
-function AbstractPlutoDingetjes.Bonds.transform_value(
-	w::WebcamInput,
-	d::Dict{Any, Any}
-)
-	return ImageDataToRGBA(d)
+function AbstractPlutoDingetjes.Bonds.transform_value(w::WebcamInput, d)
+	if d isa Dict{Any, Any}
+		return ImageDataToRGBA(d)
+	else
+		return AbstractPlutoDingetjes.Bonds.initial_value(w)
+	end
 end
 
 # ╔═╡ 97e2467e-ca58-4b5f-949d-ad95253b1ac0
@@ -918,7 +919,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╠═da787bc2-ef53-4bab-926c-7ab8bfbd50a9
 # ╠═f4073e32-ebec-471b-96ff-66cfe35f8f7f
-# ╠═3d2ed3d4-60a7-416c-aaae-4dc662127f5b
+# ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
 # ╟─063bba88-ef00-4b5b-b91c-14b497da85c1
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
