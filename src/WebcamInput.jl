@@ -32,12 +32,6 @@ using MarkdownLiteral: @mdx
 # ╔═╡ 31dff3d3-b3ee-426d-aec8-ee811820d842
 import AbstractPlutoDingetjes
 
-# ╔═╡ d7210b82-83b7-48e5-ba3e-12d4556c306d
-aa = [RGBA(0.5, 0.2, x/100, x * y / 10000) for x in 1:100, y in 1:100]
-
-# ╔═╡ 35f04ea4-d1fc-4a57-82eb-b93d56e72498
-c = RGBA(0.5, 0.5, 0.2, 1)
-
 # ╔═╡ 5104aabe-43f7-451e-b4c1-68c0b345669e
 """
 Converts [ImageData](https://developer.mozilla.org/en-US/docs/Web/API/ImageData) vector to an RGBA Matrix.
@@ -59,8 +53,8 @@ function ImageDataToRGBA(d::Dict)
 			r[3, w, h],
 			r[4, w, h]
 		) for
-			w in 1:width,
-			h in 1:height
+			h in 1:height,
+			w in 1:width
 		]
 end
 
@@ -85,6 +79,8 @@ end
 # ╠═╡ disabled = true
 #=╠═╡
 begin 
+	# Note: This is a reference implementation of show for images, mainly for educational purposes.
+	# ImageShow is better
 	function Base.show(io::IO, ::MIME"text/html",
 						image::Array{C, 2} where C<:Colorant)
 		width = size(image, 1)
@@ -155,38 +151,31 @@ css = @htl("""<style>
 
 	.webcam {
 		width: 300px;
-		height: 300px;
+		height: 200px;
 		display: flex;
 		flex-flow: row nowrap;
 		align-items: center;
 		justify-content: center;
-		background-color: lightgrey;
-		border-radius: 8px;
+        border: 3px dashed lightgrey; 
+		border-radius: 2px;
 		position: relative;
 	}
-	.webcam::after{
-		content: '•';
-		position: absolute; 
-		color: black;
-		top: 24px;
-		right: 24px;
-		font-size: 120px;
-		line-height: 0;
-	}
+
 	.webcam.enabled::after{
 		color: red;
 	}
+
 	.webcam video {
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 100%
+		width: 100%;
 		height: 100%;
 	}
 	.grid {
 		display: grid;
-		height: 300px;
 		width: 300px;
+		height: 200px;
 		grid-template-columns: 1fr 200px 1fr;
 		grid-template-rows: 1fr 1fr 50px;
 	}
@@ -212,10 +201,13 @@ css = @htl("""<style>
 	.ionic-cam {
 		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/camera-outline.svg");
 	}
+    .ionic-start{
+		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/play-outline.svg");
+	}
+    .ionic-stop{
+		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/stop-outline.svg");
+	}
 </style>""")
-
-# ╔═╡ f4073e32-ebec-471b-96ff-66cfe35f8f7f
-@mdx "123"
 
 # ╔═╡ 3d2ed3d4-60a7-416c-aaae-4dc662127f5b
 help = @mdx("""
@@ -259,7 +251,7 @@ begin
 	const video = html`<video autoplay></video>`
 	const canvas = html`<canvas style="display: none"></canvas>`
 	const start_video_ctl = html`<button>
-		start <span class="ionic ionic-cam" />
+		<span class="ionic ionic-start" />
 		</button>`;
 
 	const capture_ctl = html`<button>
@@ -267,7 +259,7 @@ begin
 		</button>`;
 
 	const stop_video_ctl = html`<button>
-		stop <span class="ionic ionic-cam" />
+		<span class="ionic ionic-stop" />
 		</button>`;
 
 	const state = {
@@ -320,8 +312,8 @@ begin
 		const context = canvas.getContext('2d');
 		canvas.width = state.width;
 		canvas.height = state.height;
-		context.drawImage(video, 0, 0, state.width, state.height)
-		const img = context.getImageData(0, 0, canvas.width, canvas.height)
+		context.drawImage(video, 0, 0, state.height, state.width)
+		const img = context.getImageData(0, 0, canvas.height, canvas.width)
 
 		const parent = currentScript.parentElement
 		parent.value = {width: img.width, height: img.height, data: img.data}
@@ -341,8 +333,9 @@ begin
 <div class="grid">
 	<div class="controls">
 		\${start_video_ctl}
-		\${capture_ctl}
 		\${stop_video_ctl}
+	    <span style="width: 1em"></span>
+		\${capture_ctl}
 	</div>
 </div>
 \${video}
@@ -351,6 +344,7 @@ begin
 		</script>
 	</div>"""))
 end
+	@mdx("## Camera implementation\n (unhide cell)")
 end
 
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
@@ -368,6 +362,9 @@ img[:, end:-1:1] img[end:-1:1, end:-1:1]]
 
 # ╔═╡ 55ca59b0-c292-4711-9aa6-81499184423c
 typeof(img)
+
+# ╔═╡ 1395a134-7857-4692-92f0-605b72af2d17
+img
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -908,22 +905,20 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═31dff3d3-b3ee-426d-aec8-ee811820d842
 # ╠═ba13c770-5937-4a34-9c49-04cbc672f89e
 # ╠═0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
-# ╠═d7210b82-83b7-48e5-ba3e-12d4556c306d
-# ╠═35f04ea4-d1fc-4a57-82eb-b93d56e72498
 # ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
 # ╠═43332d10-a10b-4acc-a3ac-8c4b4eb58c46
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╠═dfb2480d-401a-408b-bbe8-61f9551b1d65
 # ╠═27729b9d-682e-4c98-804c-d61b3b38344f
 # ╠═c830df17-dd4f-4636-aaf5-a13ca1cc6b15
-# ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
+# ╠═97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╠═da787bc2-ef53-4bab-926c-7ab8bfbd50a9
-# ╠═f4073e32-ebec-471b-96ff-66cfe35f8f7f
 # ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
-# ╟─063bba88-ef00-4b5b-b91c-14b497da85c1
+# ╠═063bba88-ef00-4b5b-b91c-14b497da85c1
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
 # ╠═cad85f17-ff15-4a1d-8897-6a0a7ca59023
 # ╠═55ca59b0-c292-4711-9aa6-81499184423c
+# ╠═1395a134-7857-4692-92f0-605b72af2d17
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
