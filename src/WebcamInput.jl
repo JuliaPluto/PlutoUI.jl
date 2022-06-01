@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.4
+# v0.19.6
 
 using Markdown
 using InteractiveUtils
@@ -116,8 +116,8 @@ end
 begin
 	Base.@kwdef struct WebcamInput
 		uuid::UUID
-		width::Integer = 1920
-		height::Integer = 1080
+		width::Integer = 640   # 1920
+		height::Integer = 480  # 1080
 		aspectRatio::Float64 = 16/9
 		help::Bool = true
 	end
@@ -179,6 +179,15 @@ css = @htl("""<style>
 		grid-template-columns: 1fr 200px 1fr;
 		grid-template-rows: 1fr 1fr 50px;
 	}
+	.select-device {
+		grid-column-start: 2;
+		grid-row-start: 1;
+		display: flex;
+		align-items: start;
+		justify-content: center;
+		margin:0.2em;
+		z-index: 2;
+	}
 	.controls {
 		grid-column-start: 2;
 		grid-row-start: 3;
@@ -224,9 +233,7 @@ help = @mdx("""
 👉🏾 Remember to always check for the size of the output image (use `size(img)`).</div>""")
 
 # ╔═╡ 063bba88-ef00-4b5b-b91c-14b497da85c1
-begin 
-	a = 4
-	function Base.show(io::IO, ::MIME"text/html", webcam::WebcamInput)
+begin a = 4; function Base.show(io::IO, ::MIME"text/html", webcam::WebcamInput)
 	id = string("id-", webcam.uuid)
 	wwidth = webcam.width
 	wheight = webcam.height
@@ -261,6 +268,9 @@ begin
 	const stop_video_ctl = html`<button title="Stop camera" disabled>
 		<span class="ionic ionic-stop" />
 		</button>`;
+	const select_device = html`<select title="Select Input Device" disabled>
+		<option value="">Loading...</option>
+		</select>`;
 
 	const state = {
 		initialized: false,
@@ -269,32 +279,55 @@ begin
 		stream: null,
 		height: 0,
 		width: 0,
+		devices: [],
+		preferredId: null
 	};
 
+	const getDevices = () =>{
+		const constraints = {
+			video: true
+		}
+		navigator
+			.mediaDevices
+			.enumerateDevices()
+			.then(devices => {
+				state.devices = devices.filter(({kind}) => kind === "videoinput")
+				state.preferredId = state.devices?.[0]?.deviceId
+				select_device.innerHTML = state
+					.devices
+					.map(({deviceId, label}) => `<option value="\${deviceId}">\${label}</option>`)
+				select_device.disabled = state.devices.length <= 1
+			})
+	}
+	
 	const tryInitVideo = () => {
 		const constraints = {
   			video: {
-				width: {ideal: $wwidth},
-	  			height: {ideal: $wheight},
-			  	aspectRatio: {ideal: $aspectRatio}
+				deviceId: state.preferredId
 			}
 		};
-		console.log(constraints)
 		navigator.mediaDevices
 			.getUserMedia(constraints)
 			.then((stream) => {
 				state.stream = stream;
 				let {width, height} = stream.getTracks()[0].getSettings();
+
+				canvas.width = width;
+				canvas.height = height;
+	
 				state.width = width
 				state.height = height;
+	
 				video.srcObject = stream;
 	
 				start_video_ctl.disabled = true;
 				stop_video_ctl.disabled = false;
 				capture_ctl.disabled = false;
+	
 			}).catch(err => {
 				state.stream = null;
 				state.width = 0;
+	
 				state.height = 0;
 				state.error = err;
 	
@@ -303,6 +336,7 @@ begin
 				capture_ctl.disabled = true;
 			});
 	}
+
 	const closeCamera = () => {
 		video.srcObject = null;
 		start_video_ctl.disabled = false;
@@ -320,11 +354,9 @@ begin
 
 	const capture = () => {
 		const context = canvas.getContext('2d');
-		canvas.width = state.width;
-		canvas.height = state.height;
-		context.drawImage(video, 0, 0, state.height, state.width)
-		const img = context.getImageData(0, 0, canvas.height, canvas.width)
-
+		context.drawImage(video, 0, 0, state.width, state.height)
+		const img = context.getImageData(0, 0, state.width, state.height)
+		console.log(state)
 		const parent = currentScript.parentElement
 		parent.value = {width: img.width, height: img.height, data: img.data}
 		parent.dispatchEvent(new CustomEvent('input'))
@@ -333,14 +365,22 @@ begin
 	start_video_ctl.onclick = tryInitVideo
 	stop_video_ctl.onclick = closeCamera
 	capture_ctl.onclick = capture
+	select_device.addEventListener('change', (event) => {
+  		state.preferredId = event.target.value
+		closeCamera()
+		tryInitVideo()
+	});
 
 	const cleanup = () => {
-		closeCamera()
+		closeCamera();
 	}
 	invalidation.then(cleanup)
-
+	getDevices()
 	return html`
 <div class="grid">
+	<div class="select-device">
+		\${select_device}
+	</div>
 	<div class="controls">
 		\${start_video_ctl}
 		\${stop_video_ctl}
@@ -350,17 +390,17 @@ begin
 </div>
 \${video}
 \${canvas}
-`	
+`
 		</script>
 	</div>"""))
 end
-	@mdx("## Camera implementation\n (unhide cell)")
-end
+@mdx("## Camera implementation\n (unhide cell to view)") end
+
 
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 begin
 a
-@bind img WebcamInput(;uuid=uuid4(), width=480, height=480, aspectRatio=1)
+@bind img WebcamInput()
 end
 
 # ╔═╡ d0b8b2ac-60be-481d-8085-3e57525e4a74
@@ -369,6 +409,12 @@ size(img)
 # ╔═╡ cad85f17-ff15-4a1d-8897-6a0a7ca59023
 [img img[end:-1:1, :]
 img[:, end:-1:1] img[end:-1:1, end:-1:1]]
+
+# ╔═╡ 62334cca-b9db-4eb0-91e2-25af04c58d0e
+img
+
+# ╔═╡ 2f2a9fec-ea4c-4973-8810-b7b8fe17ad70
+size(img)
 
 # ╔═╡ 55ca59b0-c292-4711-9aa6-81499184423c
 typeof(img)
@@ -914,20 +960,22 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═b3b59805-7062-463f-b6c5-1679133a589f
 # ╠═31dff3d3-b3ee-426d-aec8-ee811820d842
 # ╠═ba13c770-5937-4a34-9c49-04cbc672f89e
-# ╠═0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
+# ╟─0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
 # ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
 # ╠═43332d10-a10b-4acc-a3ac-8c4b4eb58c46
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╠═dfb2480d-401a-408b-bbe8-61f9551b1d65
 # ╠═27729b9d-682e-4c98-804c-d61b3b38344f
 # ╠═c830df17-dd4f-4636-aaf5-a13ca1cc6b15
-# ╠═97e2467e-ca58-4b5f-949d-ad95253b1ac0
+# ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╠═da787bc2-ef53-4bab-926c-7ab8bfbd50a9
 # ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
-# ╠═063bba88-ef00-4b5b-b91c-14b497da85c1
-# ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
+# ╟─063bba88-ef00-4b5b-b91c-14b497da85c1
+# ╟─ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
 # ╠═cad85f17-ff15-4a1d-8897-6a0a7ca59023
+# ╠═62334cca-b9db-4eb0-91e2-25af04c58d0e
+# ╠═2f2a9fec-ea4c-4973-8810-b7b8fe17ad70
 # ╠═55ca59b0-c292-4711-9aa6-81499184423c
 # ╠═1395a134-7857-4692-92f0-605b72af2d17
 # ╟─00000000-0000-0000-0000-000000000001
