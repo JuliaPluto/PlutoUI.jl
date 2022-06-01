@@ -116,9 +116,6 @@ end
 begin
 	Base.@kwdef struct WebcamInput
 		uuid::UUID
-		width::Integer = 640   # 1920
-		height::Integer = 480  # 1080
-		aspectRatio::Float64 = 16/9
 		help::Bool = true
 	end
 	WebcamInput() = WebcamInput(; uuid = uuid4())
@@ -127,7 +124,7 @@ end
 
 # ╔═╡ dfb2480d-401a-408b-bbe8-61f9551b1d65
 function AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput)
-	return [RGBA(rand(), rand(), rand(), .97) for i in 1:w.height, j in 1:w.width]
+	return [RGBA(rand(), rand(), rand(), .97) for i in 1:100, j in 1:100]
 end
 
 # ╔═╡ 27729b9d-682e-4c98-804c-d61b3b38344f
@@ -228,16 +225,14 @@ help = @mdx("""
 
 👉🏾 The Webcam only works in [secure contexts](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) (`localhost` or `https://`)!
 
-👉🏾 Width, height and aspect ratio are [requested to the User Agent](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) (browser) but may not be available, so it will try to do its best to satisfy them but won't guarantee it will meet them. If the constraints are too strict (e.g. HD Video 1920X1020) the browser may fall back to a secondary camera (like OBS streaming virtual camera or similar). To get the webcam back, lower the constraints (width, height).
+👉🏾 The webcam component allows you to pick a device from your system's available ones. Pick the camera you want from the dropdown.
 
-👉🏾 Remember to always check for the size of the output image (use `size(img)`).</div>""")
+👉🏾 Note that you will have to allow the browser to access the camera.
+</div>""")
 
 # ╔═╡ 063bba88-ef00-4b5b-b91c-14b497da85c1
-begin a = 4; function Base.show(io::IO, ::MIME"text/html", webcam::WebcamInput)
+function Base.show(io::IO, ::MIME"text/html", webcam::WebcamInput)
 	id = string("id-", webcam.uuid)
-	wwidth = webcam.width
-	wheight = webcam.height
-	aspectRatio = webcam.aspectRatio
 		
 	webcam.help && @info help
 
@@ -393,15 +388,16 @@ begin a = 4; function Base.show(io::IO, ::MIME"text/html", webcam::WebcamInput)
 `
 		</script>
 	</div>"""))
-end
-@mdx("## Camera implementation\n (unhide cell to view)") end
+end; @mdx("""
+## Camera implementation
+
+(unhide cell to view)
+
+""")
 
 
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
-begin
-a
 @bind img WebcamInput()
-end
 
 # ╔═╡ d0b8b2ac-60be-481d-8085-3e57525e4a74
 size(img)
@@ -970,8 +966,8 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╠═da787bc2-ef53-4bab-926c-7ab8bfbd50a9
 # ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
-# ╟─063bba88-ef00-4b5b-b91c-14b497da85c1
-# ╟─ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
+# ╠═063bba88-ef00-4b5b-b91c-14b497da85c1
+# ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
 # ╠═cad85f17-ff15-4a1d-8897-6a0a7ca59023
 # ╠═62334cca-b9db-4eb0-91e2-25af04c58d0e
