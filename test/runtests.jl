@@ -69,7 +69,7 @@ struct Uhm end
     @test repr(m, WithIOContext(u, prop = 1)) == "1"
 end
 
-default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
+default(x) = Core.applicable(Base.get, x) ? Base.get(x) : AbstractPlutoDingetjes.Bonds.initial_value(x)
 transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
 
 @testset "Public API" begin
