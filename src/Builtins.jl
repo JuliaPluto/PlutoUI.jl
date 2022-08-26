@@ -147,7 +147,7 @@ begin
 
 	`@bind x Slider(1:10; default=8, show_value=true, width="50%")`
 
-    `@bind x Slider(1:10, default=4, style=(width="369px",))`
+    `@bind x Slider(1:10, default=4, style=(width="100px", transform="rotate(-25deg)",height="50px"))`
 
 	`@bind x Slider(["hello", "world!"])`
 	"""
@@ -159,14 +159,18 @@ begin
 	end
 	end
 	
-    function Slider(values::AbstractVector{T}; default=missing, show_value=false, style=missing, width=0.25) where T
-		Slider(values, 
+    function Slider(values::AbstractVector{T}; default=missing, show_value=false, style=missing, width=missing) where T
+		Slider( values, 
 				(default === missing) ? first(values) : let
 					d = default
 					d ∈ values ? convert(T, d) : closest(values, d)
 				end, 
 				show_value, 
-				(style === missing) ? (width=width,) : style)
+				(style === missing) ? 
+					((width isa Real) ? 
+						(width="$(100*Float64(width))%",) : #Float64 to allow for rationals
+						nothing) :
+					style)
 	end
 	
 	function Base.show(io::IO, m::MIME"text/html", slider::Slider)
