@@ -69,7 +69,14 @@ struct Uhm end
     @test repr(m, WithIOContext(u, prop = 1)) == "1"
 end
 
-default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
+function default(x)
+    new = AbstractPlutoDingetjes.Bonds.initial_value(x)
+    if Core.applicable(Base.get, x)
+        # if the default value is defined with both the new and old API, make sure that both APIs return the same value.
+        @assert Base.get(x) == new
+    end
+    new
+end
 transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
 
 @testset "Public API" begin

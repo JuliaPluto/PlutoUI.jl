@@ -376,7 +376,7 @@ begin
 		</script></span>"""))
 	end
 	
-	Base.get(button::CounterButton) = button.label
+	Base.get(button::CounterButton) = 0
 	Bonds.initial_value(b::CounterButton) = 0
 	Bonds.possible_values(b::CounterButton) = Bonds.InfinitePossibilities()
 	function Bonds.validate_value(b::CounterButton, val)
