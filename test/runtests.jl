@@ -207,6 +207,29 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == tan
 
 
+
+    # Downsampling Slider ranges
+    x1 = [1,2,3]
+    x2 = rand(500)
+
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 3) == [1,2,3]
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 30) == [1,2,3]
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 2) == [1,3]
+
+    @test PlutoUI.BuiltinsNotebook.downsample(x2, 500) == x2
+    y2 = PlutoUI.BuiltinsNotebook.downsample(x2, 400)
+    @test 250 <= length(y2) <= 400
+    @test y2[begin] == x2[begin]
+    @test y2[end] == x2[end] 
+
+    x3 = rand(50_000_000)
+    max_downsample_time = 0.001 # seconds
+    # this should take less than 0.1ms
+    @test max_downsample_time >= @elapsed PlutoUI.BuiltinsNotebook.downsample(x3, 100)
+
+
+    
+
     el = Scrubbable(60)
     @test default(el) === 60
     el = Scrubbable(60.0)
