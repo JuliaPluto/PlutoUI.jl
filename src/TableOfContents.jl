@@ -50,19 +50,28 @@ md"""
 # ╔═╡ d6940210-4f9b-47b5-af74-e53700a42417
 const toc_js = toc -> @htl """
 <script>
+	
+const indent = $(toc.indent)
+const aside = $(toc.aside)
+const title_text = $(toc.title)
+const include_definitions = $(toc.include_definitions)
+
 const getParentCell = el => el.closest("pluto-cell")
 
 const getHeaders = () => {
 	const depth = Math.max(1, Math.min(6, $(toc.depth))) // should be in range 1:6
 	const range = Array.from({length: depth}, (x, i) => i+1) // [1, ..., depth]
 	
-	const selector = range.map(i => `pluto-notebook pluto-cell h\${i}`).join(",")
+	const selector = [
+		...(include_definitions ? [
+			`pluto-notebook pluto-cell .pluto-docs-binding`, 
+			`pluto-notebook pluto-cell assignee:not(:empty)`, 
+		] : []),
+		...range.map(i => `pluto-notebook pluto-cell h\${i}`)
+	].join(",")
 	return Array.from(document.querySelectorAll(selector))
 }
 
-const indent = $(toc.indent)
-const aside = $(toc.aside)
-const title_text = $(toc.title)
 
 const clickHandler = (event) => {
 	const path = (event.path || event.composedPath())
@@ -113,11 +122,13 @@ const render = (elements) => {
 	return html`\${elements.map(h => {
 	const parent_cell = getParentCell(h)
 
+		let [className, title_el] = h.matches(`.pluto-docs-binding`) ? ["pluto-docs-binding-el", h.firstElementChild] : [h.nodeName, h]
+
 	const a = html`<a 
-		class="\${h.nodeName}" 
-		title="\${h.innerText}"
+		class="\${className}" 
+		title="\${title_el.innerText}"
 		href="#\${parent_cell.id}"
-	>\${h.innerHTML}</a>`
+	>\${title_el.innerHTML}</a>`
 	/* a.onmouseover=()=>{
 		parent_cell.firstElementChild.classList.add(
 			'highlight-pluto-cell-shoulder'
@@ -138,10 +149,10 @@ const render = (elements) => {
 		})
 	}
 
-	const row =  html`<div class="toc-row \${h.nodeName}">\${a}</div>`
-		intersection_observer_1.observe(h)
-		intersection_observer_2.observe(h)
-		header_to_index_entry_map.set(h, row)
+	const row =  html`<div class="toc-row \${className}">\${a}</div>`
+		intersection_observer_1.observe(title_el)
+		intersection_observer_2.observe(title_el)
+		header_to_index_entry_map.set(title_el, row)
 		
 	return row
 })}`
@@ -372,12 +383,36 @@ const toc_css = @htl """
 .plutoui-toc.indent section a.H6 {
 	padding-left: 50px;
 }
+.plutoui-toc.indent section a.pluto-docs-binding-el,
+.plutoui-toc.indent section a.ASSIGNEE
+	{
+	font-family: JuliaMono, monospace;
+	font-size: .8em;
+	/* background: black; */
+	font-weight: 700;
+    font-style: italic;
+}
+.plutoui-toc.indent section a.pluto-docs-binding-el::before,
+.plutoui-toc.indent section a.ASSIGNEE::before
+	{
+	content: "> ";
+	opacity: .3;
+}
 </style>
 """;
 
 # ╔═╡ 434cc67b-a1e8-4804-b7ba-f47d0f879046
 begin
-	"""Generate Table of Contents using Markdown cells. Headers h1-h6 are used. 
+	local result = begin
+	Base.@kwdef struct TableOfContents
+		title::AbstractString="Table of Contents"
+		indent::Bool=true
+		depth::Integer=3
+		aside::Bool=true
+		include_definitions::Bool=false
+	end
+	@doc """
+	Generate Table of Contents using Markdown cells. Headers h1-h6 are used. 
 
 	# Keyword arguments:
 	`title` header to this element, defaults to "Table of Contents"
@@ -398,27 +433,25 @@ begin
 	TableOfContents(title="📚 Table of Contents", indent=true, depth=4, aside=true)
 	```
 	"""
-	Base.@kwdef struct TableOfContents
-		title::AbstractString="Table of Contents"
-		indent::Bool=true
-		depth::Integer=3
-		aside::Bool=true
+	TableOfContents
+	
 	end
 	function Base.show(io::IO, m::MIME"text/html", toc::TableOfContents)
 		Base.show(io, m, @htl("$(toc_js(toc))$(toc_css)"))
 	end
+	result
 end
 
 # ╔═╡ 98cd39ae-a93c-40fe-a5d1-0883e1542e22
 export TableOfContents
 
 # ╔═╡ fdf8750b-653e-4f23-8f8f-9e2ef4e24e75
-TableOfContents()
+TableOfContents(; include_definitions=true)
 
 # ╔═╡ 7c32fd56-6cc5-420b-945b-53446833a125
 TableOfContents(; aside = false)
 
-# ╔═╡ f11f9ead-bbe9-4fa5-b99c-408cc4a69a7e
+# ╔═╡ 3ab2da5f-943e-42e8-8e46-4a7031ba4227
 md"""
 
 # The <em>fun</em> stuff: playing with transforms
@@ -477,7 +510,16 @@ $p
 ## Composing functions in computer science
 $p
 
+"""
 
+# ╔═╡ 7b27a858-9d3a-4324-a56c-98e6f31d5929
+"""
+lkjasfdlk jasdflkj asdf
+"""
+fff(x) = x
+
+# ╔═╡ b3e73e1a-f8b3-4973-a052-69c8f12ebbf1
+md"""
 ## Composition of software at a higher level
 
 $p
@@ -530,7 +572,6 @@ $p
 # Appendix
 """
 
-
 # ╔═╡ Cell order:
 # ╠═3bf83b12-9932-49cd-83ab-f091e3b5fdb3
 # ╠═e3f5cbc5-a443-43d3-b15c-e33e2d655450
@@ -548,4 +589,6 @@ $p
 # ╠═d6940210-4f9b-47b5-af74-e53700a42417
 # ╟─354d8ac1-5c55-4765-8681-656c0da2f1a9
 # ╠═731a4662-c329-42a2-ae71-7954140bb290
-# ╠═f11f9ead-bbe9-4fa5-b99c-408cc4a69a7e
+# ╠═3ab2da5f-943e-42e8-8e46-4a7031ba4227
+# ╠═7b27a858-9d3a-4324-a56c-98e6f31d5929
+# ╠═b3e73e1a-f8b3-4973-a052-69c8f12ebbf1
