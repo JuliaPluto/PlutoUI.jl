@@ -155,7 +155,8 @@ const render = (elements) => {
 		intersection_observer_2.observe(title_el)
 		header_to_index_entry_map.set(title_el, row)
 
-	last_level = className
+	if(className.startsWith("H"))
+		last_level = className
 		
 	return row
 })}`
@@ -528,6 +529,9 @@ lkjasfdlk jasdflkj asdf
 """
 fff(x) = x
 
+# ╔═╡ 27adc83b-c052-40fb-8a8d-7d6fcb7c8e30
+fff2 = 123
+
 # ╔═╡ b3e73e1a-f8b3-4973-a052-69c8f12ebbf1
 md"""
 ## Composition of software at a higher level
@@ -601,4 +605,5 @@ $p
 # ╠═731a4662-c329-42a2-ae71-7954140bb290
 # ╠═3ab2da5f-943e-42e8-8e46-4a7031ba4227
 # ╠═7b27a858-9d3a-4324-a56c-98e6f31d5929
+# ╠═27adc83b-c052-40fb-8a8d-7d6fcb7c8e30
 # ╠═b3e73e1a-f8b3-4973-a052-69c8f12ebbf1
