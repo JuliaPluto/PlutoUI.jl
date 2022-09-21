@@ -152,8 +152,8 @@ const render = (elements) => {
 
 const tocNode = html`<nav class="plutoui-toc">
 	<header>
-     <span class="toc-toggle open-toc">📖</span>
-     <span class="toc-toggle closed-toc">📕</span>
+	 <span class="toc-toggle open-toc">📖</span>
+	 <span class="toc-toggle closed-toc">📕</span>
 	 \${title_text}
 	</header>
 	<section></section>
@@ -239,7 +239,7 @@ const toc_css = @htl """
 
 .plutoui-toc {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Cantarell, Helvetica, Arial, "Apple Color Emoji",
-        "Segoe UI Emoji", "Segoe UI Symbol", system-ui, sans-serif;
+		"Segoe UI Emoji", "Segoe UI Symbol", system-ui, sans-serif;
 	--main-bg-color: #fafafa;
 	--pluto-output-color: hsl(0, 0%, 36%);
 	--pluto-output-h-color: hsl(0, 0%, 21%);
@@ -257,15 +257,15 @@ const toc_css = @htl """
 
 .plutoui-toc.aside {
 	color: var(--pluto-output-color);
-	position:fixed;
+	position: fixed;
 	right: 1rem;
 	top: 5rem;
 	width: min(80vw, 300px);
-	padding: 10px;
+	padding: 0.5em;
+	padding-top: 0em;
 	/* border: 3px solid rgba(0, 0, 0, 0.15); */
 	border-radius: 10px;
 	/* box-shadow: 0 0 11px 0px #00000010; */
-	/* That is, viewport minus top minus Live Docs */
 	max-height: calc(100vh - 5rem - 90px);
 	overflow: auto;
 	z-index: 40;
@@ -293,7 +293,7 @@ const toc_css = @htl """
 
 @media (prefers-reduced-motion) {
   .plutoui-toc.aside {
-    transition-duration: 0s;
+	transition-duration: 0s;
   }
 }
 
@@ -301,19 +301,22 @@ const toc_css = @htl """
 	cursor: pointer;
 	padding: 1em;
 	margin: -1em;
-    margin-right: -0.7em;
+	margin-right: -0.7em;
 }
 
 .plutoui-toc header {
 	display: block;
 	font-size: 1.5em;
-	margin-top: -0.1em;
+	/* margin-top: -0.1em; */
 	margin-bottom: 0.4em;
-	padding-bottom: 0.4em;
+	padding: 0.4em 0;
 	margin-left: 0;
 	margin-right: 0;
 	font-weight: bold;
-	border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+	/* border-bottom: 2px solid rgba(0, 0, 0, 0.15); */
+	position: sticky;
+	top: 0px;
+	background: var(--main-bg-color);
 }
 
 .plutoui-toc section .toc-row {
