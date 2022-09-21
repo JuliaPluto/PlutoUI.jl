@@ -118,7 +118,8 @@ const render = (elements) => {
 	currently_highlighted_set.clear()
 	intersection_observer_1.disconnect()
 	intersection_observer_2.disconnect()
-	
+
+		let last_level = `H1`
 	return html`\${elements.map(h => {
 	const parent_cell = getParentCell(h)
 
@@ -149,10 +150,12 @@ const render = (elements) => {
 		})
 	}
 
-	const row =  html`<div class="toc-row \${className}">\${a}</div>`
+	const row =  html`<div class="toc-row \${className} after-\${last_level}">\${a}</div>`
 		intersection_observer_1.observe(title_el)
 		intersection_observer_2.observe(title_el)
 		header_to_index_entry_map.set(title_el, row)
+
+	last_level = className
 		
 	return row
 })}`
@@ -365,24 +368,30 @@ const toc_css = @htl """
 	line-height: 1em;
 }
 
+.plutoui-toc.indent section a.H6,
+.plutoui-toc.indent section .after-H6 a  {
+	padding-left: 50px;
+}
+.plutoui-toc.indent section a.H5,
+.plutoui-toc.indent section .after-H5 a  {
+	padding-left: 40px;
+}
+.plutoui-toc.indent section a.H4,
+.plutoui-toc.indent section .after-H4 a  {
+	padding-left: 30px;
+}
+.plutoui-toc.indent section a.H3,
+.plutoui-toc.indent section .after-H3 a  {
+	padding-left: 20px;
+}
+.plutoui-toc.indent section a.H2,
+.plutoui-toc.indent section .after-H2 a {
+	padding-left: 10px;
+}
 .plutoui-toc.indent section a.H1 {
 	padding-left: 0px;
 }
-.plutoui-toc.indent section a.H2 {
-	padding-left: 10px;
-}
-.plutoui-toc.indent section a.H3 {
-	padding-left: 20px;
-}
-.plutoui-toc.indent section a.H4 {
-	padding-left: 30px;
-}
-.plutoui-toc.indent section a.H5 {
-	padding-left: 40px;
-}
-.plutoui-toc.indent section a.H6 {
-	padding-left: 50px;
-}
+
 .plutoui-toc.indent section a.pluto-docs-binding-el,
 .plutoui-toc.indent section a.ASSIGNEE
 	{
@@ -391,6 +400,7 @@ const toc_css = @htl """
 	/* background: black; */
 	font-weight: 700;
     font-style: italic;
+	color: var(--cm-var-color); /* this is stealing a variable from Pluto, but it's fine if that doesnt work */
 }
 .plutoui-toc.indent section a.pluto-docs-binding-el::before,
 .plutoui-toc.indent section a.ASSIGNEE::before
