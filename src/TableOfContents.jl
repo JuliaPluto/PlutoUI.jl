@@ -29,9 +29,6 @@ end
 # ╔═╡ 3061a5a6-feda-4538-8076-30c70c9b8766
 import AbstractPlutoDingetjes: AbstractPlutoDingetjes, Bonds
 
-# ╔═╡ 7c32fd56-6cc5-420b-945b-53446833a125
-# TableOfContents(; aside = false)
-
 # ╔═╡ 6043d6c5-54e4-40c1-a8a5-aec3ad7e1aa0
 md"# asdfsf"
 
@@ -332,7 +329,7 @@ const toc_css = @htl """
 }
 
 
-.plutoui-toc section .toc-row.in-view {
+.plutoui-toc.aside section .toc-row.in-view {
 	background: var(--sidebar-li-active-bg);
 }
 
@@ -417,6 +414,9 @@ export TableOfContents
 
 # ╔═╡ fdf8750b-653e-4f23-8f8f-9e2ef4e24e75
 TableOfContents()
+
+# ╔═╡ 7c32fd56-6cc5-420b-945b-53446833a125
+TableOfContents(; aside = false)
 
 # ╔═╡ f11f9ead-bbe9-4fa5-b99c-408cc4a69a7e
 md"""
