@@ -212,11 +212,13 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     x1 = [1,2,3]
     x2 = rand(500)
 
-    @test PlutoUI.BuiltinsNotebook.downsample(x1, 3) == [1,2,3]
-    @test PlutoUI.BuiltinsNotebook.downsample(x1, 30) == [1,2,3]
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 3) == x1
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 3) === x1
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 30) === x1
     @test PlutoUI.BuiltinsNotebook.downsample(x1, 2) == [1,3]
 
     @test PlutoUI.BuiltinsNotebook.downsample(x2, 500) == x2
+    @test PlutoUI.BuiltinsNotebook.downsample(x2, 500) === x2
     y2 = PlutoUI.BuiltinsNotebook.downsample(x2, 400)
     @test 250 <= length(y2) <= 400
     @test y2[begin] == x2[begin]
