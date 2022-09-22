@@ -153,24 +153,26 @@ begin
 		values::AbstractVector{T}
 		default::T
 		show_value::Bool
-		max_steps::Integer
 	end
 	end
 	
-	function downsample(x::AbstractVector, max_steps::Integer)
+	function downsample(x::AbstractVector{T}, max_steps::Integer) where T
 		if max_steps >= length(x)
 			x
 		else
-			[ x[round(Int, i)] for i in range(firstindex(x), stop=lastindex(x), length=max_steps) ]
+			T[
+				x[round(Int, i)] 
+				for i in range(firstindex(x), stop=lastindex(x), length=max_steps)
+			]
 		end
 	end
 	
 	function Slider(values::AbstractVector{T}; default=missing, show_value=false, max_steps=1_000) where T
-		values = downsample(values, max_steps)
-		Slider(values, (default === missing) ? first(values) : let
+		new_values = downsample(values, max_steps)
+		Slider(values, (default === missing) ? first(new_values) : let
 			d = default
-			d ∈ values ? convert(T, d) : closest(values, d)
-		end, show_value, max_steps)
+			d ∈ new_values ? convert(T, d) : closest(new_values, d)
+		end, show_value)
 	end
 	
 	function Base.show(io::IO, m::MIME"text/html", slider::Slider)
