@@ -141,13 +141,13 @@ let intersection_observer_1 = new IntersectionObserver(intersection_callback, {
 	root: null, // i.e. the viewport
   	threshold: 1,
 	rootMargin: "-15px", // slightly smaller than the viewport
-	delay: 100,
+	// delay: 100,
 })
 let intersection_observer_2 = new IntersectionObserver(intersection_callback, {
 	root: null, // i.e. the viewport
   	threshold: 1,
 	rootMargin: "15px", // slightly larger than the viewport
-	delay: 100,
+	// delay: 100,
 })
 
 const render = (elements) => {
