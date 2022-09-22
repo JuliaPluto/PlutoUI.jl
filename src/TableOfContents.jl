@@ -56,6 +56,20 @@ const aside = $(toc.aside)
 const title_text = $(toc.title)
 const include_definitions = $(toc.include_definitions)
 
+
+const tocNode = html`<nav class="plutoui-toc">
+	<header>
+	 <span class="toc-toggle open-toc">📖</span>
+	 <span class="toc-toggle closed-toc">📕</span>
+	 \${title_text}
+	</header>
+	<section></section>
+</nav>`
+
+tocNode.classList.toggle("aside", aside)
+tocNode.classList.toggle("indent", indent)
+
+
 const getParentCell = el => el.closest("pluto-cell")
 
 const getHeaders = () => {
@@ -69,11 +83,14 @@ const getHeaders = () => {
 		] : []),
 		...range.map(i => `pluto-notebook pluto-cell h\${i}`)
 	].join(",")
-	return Array.from(document.querySelectorAll(selector))
+	return Array.from(document.querySelectorAll(selector)).filter(el => 
+		// exclude headers inside of a pluto-docs-binding block
+		!(el.nodeName.startsWith("H") && el.closest(".pluto-docs-binding"))
+	)
 }
 
 
-const clickHandler = (event) => {
+const document_click_handler = (event) => {
 	const path = (event.path || event.composedPath())
 	const toc = path.find(elem => elem?.classList?.contains?.("toc-toggle"))
 	if (toc) {
@@ -82,16 +99,16 @@ const clickHandler = (event) => {
 	}
 }
 
-document.addEventListener("click", clickHandler)
+document.addEventListener("click", document_click_handler)
 
 
 const header_to_index_entry_map = new Map()
 const currently_highlighted_set = new Set()
 
+const last_toc_element_click_time = { current: 0 }
+
 const intersection_callback = (ixs) => {
 	let on_top = ixs.filter(ix => ix.intersectionRatio > 0 && ix.intersectionRect.y < ix.rootBounds.height / 2)
-	// console.log(ixs)
-	// console.log(on_top.map(i => header_to_index_entry_map.get(i.target)))
 	if(on_top.length > 0){
 		currently_highlighted_set.forEach(a => a.classList.remove("in-view"))
 		currently_highlighted_set.clear()
@@ -99,6 +116,24 @@ const intersection_callback = (ixs) => {
 			let div = header_to_index_entry_map.get(i.target)
 			div.classList.add("in-view")
 			currently_highlighted_set.add(div)
+			
+			/// scroll into view
+			const toc_height = tocNode.offsetHeight
+			const div_pos = div.offsetTop
+			const div_height = div.offsetHeight
+			const current_scroll = tocNode.scrollTop
+			const header_height = tocNode.querySelector("header").offsetHeight
+			
+			const scroll_to_top = div_pos - header_height
+			const scroll_to_bottom = div_pos + div_height - toc_height
+			
+			// if we set a scrollTop, then the browser will stop any currently ongoing smoothscroll animation. So let's only do this if you are not currently in a smoothscroll.
+			if(Date.now() - last_toc_element_click_time.current >= 2000)
+				if(current_scroll < scroll_to_bottom){
+					tocNode.scrollTop = scroll_to_bottom
+				} else if(current_scroll > scroll_to_top){
+					tocNode.scrollTop = scroll_to_top
+				}
 		})
 	}
 }
@@ -144,6 +179,7 @@ const render = (elements) => {
 		
 	a.onclick=(e) => {
 		e.preventDefault();
+		last_toc_element_click_time.current = Date.now()
 		h.scrollIntoView({
 			behavior: 'smooth', 
 			block: 'start'
@@ -161,18 +197,6 @@ const render = (elements) => {
 	return row
 })}`
 }
-
-const tocNode = html`<nav class="plutoui-toc">
-	<header>
-	 <span class="toc-toggle open-toc">📖</span>
-	 <span class="toc-toggle closed-toc">📕</span>
-	 \${title_text}
-	</header>
-	<section></section>
-</nav>`
-
-tocNode.classList.toggle("aside", aside)
-tocNode.classList.toggle("indent", indent)
 
 const invalidated = { current: false }
 
@@ -231,7 +255,7 @@ invalidation.then(() => {
 	notebookObserver.disconnect()
 	bodyClassObserver.disconnect()
 	mut_observers.current.forEach((o) => o.disconnect())
-	document.removeEventListener("click", clickHandler)
+	document.removeEventListener("click", document_click_handler)
 	m.removeListener(match_listener)
 })
 
