@@ -59,8 +59,8 @@ const include_definitions = $(toc.include_definitions)
 
 const tocNode = html`<nav class="plutoui-toc">
 	<header>
-	 <span class="toc-toggle open-toc">📖</span>
-	 <span class="toc-toggle closed-toc">📕</span>
+	 <span class="toc-toggle open-toc"></span>
+	 <span class="toc-toggle closed-toc"></span>
 	 \${title_text}
 	</header>
 	<section></section>
@@ -282,6 +282,7 @@ const toc_css = @htl """
 	--pluto-output-color: hsl(0, 0%, 36%);
 	--pluto-output-h-color: hsl(0, 0%, 21%);
 	--sidebar-li-active-bg: rgb(235, 235, 235);
+	--icon-filter: unset;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -290,6 +291,7 @@ const toc_css = @htl """
 		--pluto-output-color: hsl(0, 0%, 90%);
 		--pluto-output-h-color: hsl(0, 0%, 97%);
 		--sidebar-li-active-bg: rgb(82, 82, 82);
+		--icon-filter: invert(1);
 	}
 }
 
@@ -299,7 +301,7 @@ const toc_css = @htl """
 	right: 1rem;
 	top: 5rem;
 	width: min(80vw, 300px);
-	padding: 0.5em;
+	padding: 0.5rem;
 	padding-top: 0em;
 	/* border: 3px solid rgba(0, 0, 0, 0.15); */
 	border-radius: 10px;
@@ -337,17 +339,46 @@ const toc_css = @htl """
 
 .toc-toggle {
 	cursor: pointer;
-	padding: 1em;
-	margin: -1em;
-	margin-right: -0.7em;
+    padding: 1em;
+    margin: -1em;
+    margin-right: -0.7em;
+    line-height: 1em;
+    display: flex;
 }
 
+.toc-toggle::before {
+    content: "";
+    display: inline-block;
+    height: 1em;
+    width: 1em;
+    background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.1/src/svg/list-outline.svg");
+	/* generated using https://dopiaza.org/tools/datauri/index.php */
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPmlvbmljb25zLXY1LW88L3RpdGxlPjxsaW5lIHgxPSIxNjAiIHkxPSIxNDQiIHgyPSI0NDgiIHkyPSIxNDQiIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiMwMDA7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDozMnB4Ii8+PGxpbmUgeDE9IjE2MCIgeTE9IjI1NiIgeDI9IjQ0OCIgeTI9IjI1NiIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2U6IzAwMDtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjMycHgiLz48bGluZSB4MT0iMTYwIiB5MT0iMzY4IiB4Mj0iNDQ4IiB5Mj0iMzY4IiBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6MzJweCIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iMTQ0IiByPSIxNiIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2U6IzAwMDtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjMycHgiLz48Y2lyY2xlIGN4PSI4MCIgY3k9IjI1NiIgcj0iMTYiIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiMwMDA7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDozMnB4Ii8+PGNpcmNsZSBjeD0iODAiIGN5PSIzNjgiIHI9IjE2IiBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6MzJweCIvPjwvc3ZnPg==");
+    background-size: 1em;
+	filter: var(--icon-filter);
+}
+
+.aside .toc-toggle.open-toc:hover::before {
+    background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.1/src/svg/arrow-forward-outline.svg");
+	/* generated using https://dopiaza.org/tools/datauri/index.php */
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPmlvbmljb25zLXY1LWE8L3RpdGxlPjxwb2x5bGluZSBwb2ludHM9IjI2OCAxMTIgNDEyIDI1NiAyNjggNDAwIiBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6NDhweCIvPjxsaW5lIHgxPSIzOTIiIHkxPSIyNTYiIHgyPSIxMDAiIHkyPSIyNTYiIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiMwMDA7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDo0OHB4Ii8+PC9zdmc+");
+}
+.aside .toc-toggle.closed-toc:hover::before {
+    background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.1/src/svg/arrow-back-outline.svg");
+	/* generated using https://dopiaza.org/tools/datauri/index.php */
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPmlvbmljb25zLXY1LWE8L3RpdGxlPjxwb2x5bGluZSBwb2ludHM9IjI0NCA0MDAgMTAwIDI1NiAyNDQgMTEyIiBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6NDhweCIvPjxsaW5lIHgxPSIxMjAiIHkxPSIyNTYiIHgyPSI0MTIiIHkyPSIyNTYiIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiMwMDA7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS13aWR0aDo0OHB4Ii8+PC9zdmc+");
+}
+
+
+
 .plutoui-toc header {
-	display: block;
+	display: flex;
+	align-items: center;
+	gap: .3em;
 	font-size: 1.5em;
 	/* margin-top: -0.1em; */
 	margin-bottom: 0.4em;
-	padding: 0.4em 0;
+	padding: 0.5rem;
 	margin-left: 0;
 	margin-right: 0;
 	font-weight: bold;
@@ -355,6 +386,11 @@ const toc_css = @htl """
 	position: sticky;
 	top: 0px;
 	background: var(--main-bg-color);
+	z-index: 41;
+}
+.plutoui-toc.aside header {
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .plutoui-toc section .toc-row {
