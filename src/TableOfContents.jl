@@ -118,6 +118,7 @@ const intersection_callback = (ixs) => {
 			currently_highlighted_set.add(div)
 			
 			/// scroll into view
+			/*
 			const toc_height = tocNode.offsetHeight
 			const div_pos = div.offsetTop
 			const div_height = div.offsetHeight
@@ -134,6 +135,7 @@ const intersection_callback = (ixs) => {
 				} else if(current_scroll > scroll_to_top){
 					tocNode.scrollTop = scroll_to_top
 				}
+			*/
 		})
 	}
 }
