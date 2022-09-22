@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.19.9
 
 using Markdown
 using InteractiveUtils
@@ -156,11 +156,22 @@ begin
 	end
 	end
 	
+	function downsample(x::AbstractVector{T}, max_steps::Integer) where T
+		if max_steps >= length(x)
+			x
+		else
+			T[
+				x[round(Int, i)] 
+				for i in range(firstindex(x), stop=lastindex(x), length=max_steps)
+			]
+		end
+	end
 	
-	function Slider(values::AbstractVector{T}; default=missing, show_value=false) where T
-		Slider(values, (default === missing) ? first(values) : let
+	function Slider(values::AbstractVector{T}; default=missing, show_value=false, max_steps=1_000) where T
+		new_values = downsample(values, max_steps)
+		Slider(values, (default === missing) ? first(new_values) : let
 			d = default
-			d ∈ values ? convert(T, d) : closest(values, d)
+			d ∈ new_values ? convert(T, d) : closest(new_values, d)
 		end, show_value)
 	end
 	
@@ -1307,6 +1318,9 @@ bs
 # ╔═╡ 7c5765ae-c10a-4677-97a3-848a423cb8b9
 s1, s2, s3
 
+# ╔═╡ f70c1f7b-f3c5-4aff-b39c-add64afbd635
+@bind s4_downsampled Slider(1:10_000, show_value=true, max_steps=100)
+
 # ╔═╡ ec870eea-36a4-48b6-95d7-f7c083e29856
 bos = @bind os1 OldSlider(1:10)
 
@@ -1593,7 +1607,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
 # ╟─e1bbe1d7-68ef-4ee1-8174-d1ae1f822acb
 # ╟─d738b448-387b-4942-af82-cc93042705a4
-# ╟─81adbd39-5780-4cc6-a53f-a4472bacf1c0
+# ╠═81adbd39-5780-4cc6-a53f-a4472bacf1c0
 # ╠═d8f907cd-2f89-4d54-a311-998dc8ee148e
 # ╠═a0fb4f28-bfe4-4877-bf07-31acb9a56d2c
 # ╠═ac542b84-dbc8-47e2-8835-9e43582b6ad7
@@ -1601,7 +1615,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═a203d9d4-cd7b-4368-9f6d-e040a5757565
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
-# ╟─0baae341-aa0d-42fd-9f21-d40dd5a03af9
+# ╠═0baae341-aa0d-42fd-9f21-d40dd5a03af9
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
 # ╠═5caa34e8-e501-4248-be65-ef9c6303d025
 # ╠═46a90b45-8fef-493e-9bd1-a71d1f9c53f6
@@ -1610,6 +1624,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═75b008b2-afc0-4bd5-9183-e0e0d392a4c5
 # ╠═9df251eb-b4f5-46cc-a4fe-ff2fa670b773
 # ╠═7c5765ae-c10a-4677-97a3-848a423cb8b9
+# ╠═f70c1f7b-f3c5-4aff-b39c-add64afbd635
 # ╟─d088bcdb-d851-4ad7-b5a0-751c1f348995
 # ╠═ec870eea-36a4-48b6-95d7-f7c083e29856
 # ╠═b44f1128-32a5-4d1d-a00b-446143074056
@@ -1621,7 +1636,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╟─97fc914b-005f-4b4d-80cb-23016d589609
 # ╟─db3aefaa-9539-4c46-ad9b-83763f9ef624
 # ╟─0373d633-18bd-4936-a0ae-7a4f6f05372a
-# ╟─f59eef32-4732-46db-87b0-3564433ce43e
+# ╠═f59eef32-4732-46db-87b0-3564433ce43e
 # ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
 # ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
 # ╠═7089edb6-720d-4df5-b3ca-da17d48b107e
