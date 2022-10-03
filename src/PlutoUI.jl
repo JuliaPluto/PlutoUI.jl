@@ -25,6 +25,9 @@ end
 @reexport module TableOfContentsNotebook
     include("./TableOfContents.jl")
 end
+@reexport module SidebarNotebook
+    include("./Sidebar.jl")
+end
 @reexport module ClockNotebook
     include("./Clock.jl")
 end
