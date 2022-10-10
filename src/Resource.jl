@@ -49,7 +49,7 @@ function Base.show(io::IO, ::MIME"text/html", r::Resource)
 end
 
 
-RemoteResource = Resource
+const RemoteResource = Resource
 
 """
 Create a `Resource` for a local file (a base64 encoded data URL is generated).
@@ -155,13 +155,10 @@ function mime_fromfilename(filename; default=nothing, filename_maxlength=2000)
 	end
 end
 
-const mimepairs = let
-	# This bad boy is from: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-	originals = Dict(".aac" => "audio/aac", ".bin" => "application/octet-stream", ".bmp" => "image/bmp", ".css" => "text/css", ".csv" => "text/csv", ".eot" => "application/vnd.ms-fontobject", ".gz" => "application/gzip", ".gif" => "image/gif", ".htm" => "text/html", ".html" => "text/html", ".ico" => "image/vnd.microsoft.icon", ".jpeg" => "image/jpeg", ".jpg" => "image/jpeg", ".js" => "text/javascript", ".json" => "application/json", ".jsonld" => "application/ld+json", ".mjs" => "text/javascript", ".mp3" => "audio/mpeg", ".mpeg" => "video/mpeg", ".mp4" => "video/mp4", ".oga" => "audio/ogg", ".ogg" => "audio/ogg", ".ogv" => "video/ogg", ".ogx" => "application/ogg", ".opus" => "audio/opus", ".otf" => "font/otf", ".png" => "image/png", ".pdf" => "application/pdf", ".rtf" => "application/rtf", ".sh" => "application/x-sh", ".svg" => "image/svg+xml", ".tar" => "application/x-tar", ".tif" => "image/tiff", ".tiff" => "image/tiff", ".ttf" => "font/ttf", ".txt" => "text/plain", ".wav" => "audio/wav", ".weba" => "audio/webm", ".webm" => "video/webm", ".webp" => "image/webp", ".woff" => "font/woff", ".woff2" => "font/woff2", ".xhtml" => "application/xhtml+xml", ".xml" => "application/xml", ".xul" => "application/vnd.mozilla.xul+xml", ".zip" => "application/zip")
-	Dict((k => MIME(v)) for (k, v) in originals)
-end
+# This bad boy is from: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+const mimepairs = Dict{String,MIME}(".aac" => MIME"audio/aac"(), ".bin" => MIME"application/octet-stream"(), ".bmp" => MIME"image/bmp"(), ".css" => MIME"text/css"(), ".csv" => MIME"text/csv"(), ".eot" => MIME"application/vnd.ms-fontobject"(), ".gz" => MIME"application/gzip"(), ".gif" => MIME"image/gif"(), ".htm" => MIME"text/html"(), ".html" => MIME"text/html"(), ".ico" => MIME"image/vnd.microsoft.icon"(), ".jpeg" => MIME"image/jpeg"(), ".jpg" => MIME"image/jpeg"(), ".js" => MIME"text/javascript"(), ".json" => MIME"application/json"(), ".jsonld" => MIME"application/ld+json"(), ".mjs" => MIME"text/javascript"(), ".mp3" => MIME"audio/mpeg"(), ".mpeg" => MIME"video/mpeg"(), ".mp4" => MIME"video/mp4"(), ".oga" => MIME"audio/ogg"(), ".ogg" => MIME"audio/ogg"(), ".ogv" => MIME"video/ogg"(), ".ogx" => MIME"application/ogg"(), ".opus" => MIME"audio/opus"(), ".otf" => MIME"font/otf"(), ".png" => MIME"image/png"(), ".pdf" => MIME"application/pdf"(), ".rtf" => MIME"application/rtf"(), ".sh" => MIME"application/x-sh"(), ".svg" => MIME"image/svg+xml"(), ".tar" => MIME"application/x-tar"(), ".tif" => MIME"image/tiff"(), ".tiff" => MIME"image/tiff"(), ".ttf" => MIME"font/ttf"(), ".txt" => MIME"text/plain"(), ".wav" => MIME"audio/wav"(), ".weba" => MIME"audio/webm"(), ".webm" => MIME"video/webm"(), ".webp" => MIME"image/webp"(), ".woff" => MIME"font/woff"(), ".woff2" => MIME"font/woff2"(), ".xhtml" => MIME"application/xhtml+xml"(), ".xml" => MIME"application/xml"(), ".xul" => MIME"application/vnd.mozilla.xul+xml"(), ".zip" => MIME"application/zip"())
 
-const imagemimes = [MIME"image/svg+xml"(), MIME"image/png"(), MIME"image/webp"(), MIME"image/tiff"(), MIME"image/jpg"(), MIME"image/jpeg"(), MIME"image/bmp"(), MIME"image/gif"()]
-const audiomimes = [MIME"audio/mpeg"(), MIME"audio/wav"(), MIME"audio/aac"(), MIME"audio/ogg"(), MIME"audio/opus"(), MIME"audio/webm"()]
-const videomimes = [MIME"video/mpeg"(), MIME"video/ogg"(), MIME"video/webm"(), MIME"video/mp4"()]
+const imagemimes = (MIME"image/svg+xml"(), MIME"image/png"(), MIME"image/webp"(), MIME"image/tiff"(), MIME"image/jpg"(), MIME"image/jpeg"(), MIME"image/bmp"(), MIME"image/gif"())
+const audiomimes = (MIME"audio/mpeg"(), MIME"audio/wav"(), MIME"audio/aac"(), MIME"audio/ogg"(), MIME"audio/opus"(), MIME"audio/webm"())
+const videomimes = (MIME"video/mpeg"(), MIME"video/ogg"(), MIME"video/webm"(), MIME"video/mp4"())
 

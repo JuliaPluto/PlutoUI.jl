@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.19.12
 
 using Markdown
 using InteractiveUtils
@@ -14,40 +14,24 @@ macro bind(def, element)
     end
 end
 
+# ╔═╡ dadf2f40-1764-47a4-b560-683b6479d77f
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Pkg.instantiate()
+end
+  ╠═╡ =#
+
 # ╔═╡ 1b737805-a411-4585-b215-d0f99eafac0c
 using HypertextLiteral
 
-# ╔═╡ 881b75d3-cebe-4a53-8cf5-beaeeddafd35
-function skip_as_script(m::Module)
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
-	end
-end
-
-# ╔═╡ dadf2f40-1764-47a4-b560-683b6479d77f
-if skip_as_script(@__MODULE__)
-	import Pkg
-	Pkg.activate(Base.current_project(@__DIR__))
-	Text("Project env active")
-end
-
 # ╔═╡ 38b7eeb9-80bb-4a3a-a2d2-809fc423625c
-if skip_as_script(@__MODULE__)
-	using PlutoUI
-end
-
-# ╔═╡ ba94c9b3-55bf-486a-8bf3-eb0b3e65e536
-"""
-	@skip_as_script expression
-
-Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
-"""
-macro skip_as_script(ex) skip_as_script(__module__) ? esc(ex) : nothing end
-
-# ╔═╡ 9e56dbb9-2e93-4136-b10b-7b1ecb07e6f1
-macro only_as_script(ex) skip_as_script(__module__) ? nothing : esc(ex) end
+# ╠═╡ skip_as_script = true
+#=╠═╡
+using PlutoUI
+  ╠═╡ =#
 
 # ╔═╡ 5028fc01-4e14-4550-8ae6-48703b86dc21
 import AbstractPlutoDingetjes.Bonds
@@ -533,7 +517,9 @@ md"""
 """
 
 # ╔═╡ f08680b2-ed28-4fac-838c-2eca7e75c6dc
-@skip_as_script @bind values combine() do Child
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind values combine() do Child
 	md"""
 	# Hi there!
 
@@ -542,12 +528,17 @@ md"""
 	Would you like to see them? $(Child(CheckBox(true)))
 	"""
 end
+  ╠═╡ =#
 
 # ╔═╡ 8dcb2498-00cf-49a8-8074-301fe88b76ea
-@skip_as_script values
+#=╠═╡
+values
+  ╠═╡ =#
 
 # ╔═╡ 801fb021-73a0-4114-a36a-328e84f00b51
-@skip_as_script @bind speeds combine() do Child
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind speeds combine() do Child
 	@htl("""
 	<h3>Wind speeds</h3>
 	<ul>
@@ -558,12 +549,17 @@ end
 	</ul>
 	""")
 end
+  ╠═╡ =#
 
 # ╔═╡ d7985844-5944-42b9-ad41-599cd72eea82
-@skip_as_script speeds
+#=╠═╡
+speeds
+  ╠═╡ =#
 
 # ╔═╡ 39be652f-bcd7-4a4f-8b03-5167285dc7a2
-@skip_as_script @bind speeds_named combine() do Child
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind speeds_named combine() do Child
 	@htl("""
 	<h3>Wind speeds</h3>
 	<ul>
@@ -574,12 +570,17 @@ end
 	</ul>
 	""")
 end
+  ╠═╡ =#
 
 # ╔═╡ c8e09bf5-eae4-492f-946e-4bb55ff7e161
-@skip_as_script speeds_named
+#=╠═╡
+speeds_named
+  ╠═╡ =#
 
 # ╔═╡ c3176549-7c46-4d89-9c76-817c6bfcbb71
-@skip_as_script rb = @bind together combine() do Child
+# ╠═╡ skip_as_script = true
+#=╠═╡
+rb = @bind together combine() do Child
 	@htl("""
 	<p>Hello world!</p>
 	$(Child(TextField()))
@@ -591,15 +592,20 @@ end
 	
 	""")
 end
+  ╠═╡ =#
 
 # ╔═╡ 5300b80d-4097-4b85-ad2a-3a54b01559bf
-@skip_as_script let
+#=╠═╡
+let
 	sleep(.5)
 	together
 end
+  ╠═╡ =#
 
 # ╔═╡ 6d4f62a6-e3d9-416f-a1e3-694c31cfbb31
-@skip_as_script rb
+#=╠═╡
+rb
+  ╠═╡ =#
 
 # ╔═╡ 5a0196d0-e19f-4202-b36d-18ab9be839b3
 md"""
@@ -612,7 +618,9 @@ md"""
 """
 
 # ╔═╡ 3cd1f92a-a088-4695-8eea-ada08e01a7c2
-@skip_as_script begin
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
 	it2vs = []
 	it2b = @bind it2v combine() do Child
 
@@ -627,12 +635,17 @@ md"""
 		""")
 	end
 end
+  ╠═╡ =#
 
 # ╔═╡ 62368acd-d035-4795-804b-0f024d7333a7
-@skip_as_script push!(it2vs, it2v)
+#=╠═╡
+push!(it2vs, it2v)
+  ╠═╡ =#
 
 # ╔═╡ 0b643ed9-914a-475b-a1ce-d840df1fc223
-@skip_as_script begin
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
 	itvs = []
 	itb = @bind itv combine() do Child
 		@htl("""
@@ -643,9 +656,10 @@ end
 		""")
 	end
 end
+  ╠═╡ =#
 
 # ╔═╡ 59a199f4-4ccc-4319-9d32-03da3adbb5db
-# @skip_as_script itb
+# itb
 
 # ╔═╡ cc3e475e-d2c2-4b40-a1ba-033576aefdae
 md"""
@@ -653,10 +667,15 @@ Should be `[[missing, sin], [50, sin]]`
 """
 
 # ╔═╡ 127dd58b-9ba0-41d8-91e6-357d9ec63e6b
-@skip_as_script push!(itvs, itv)
+# ╠═╡ skip_as_script = true
+#=╠═╡
+push!(itvs, itv)
+  ╠═╡ =#
 
 # ╔═╡ 55133b9c-ea1e-4f19-bb52-d541bc461fcd
-@skip_as_script begin
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
 	☎️s = []
 	☎️c = combine() do Child
 		@htl("""
@@ -667,12 +686,17 @@ Should be `[[missing, sin], [50, sin]]`
 	end
 	☎️b = @bind ☎️ ☎️c
 end
+  ╠═╡ =#
 
 # ╔═╡ 1fa7b945-3102-4a05-b7a1-5610c65aac0f
-@skip_as_script ☎️c.captured_bonds
+#=╠═╡
+☎️c.captured_bonds
+  ╠═╡ =#
 
 # ╔═╡ 0a87a4d3-299e-4ec6-82be-5b43a1e29077
-@skip_as_script push!(☎️s, ☎️)
+#=╠═╡
+push!(☎️s, ☎️)
+  ╠═╡ =#
 
 # ╔═╡ 7de50435-e962-4405-b06d-83fbe9436cff
 md"""
@@ -680,14 +704,18 @@ md"""
 """
 
 # ╔═╡ 3396a5ba-533e-4e0d-ab4f-c633459bd81a
-@skip_as_script cb1 = combine() do Child
+# ╠═╡ skip_as_script = true
+#=╠═╡
+cb1 = combine() do Child
 	md"""
 	Left: $(Child(:left, Slider(1:10))), right: $(Child(:right, Scrubbable(5)))
 	"""
 end
+  ╠═╡ =#
 
 # ╔═╡ 829f90ac-c4d9-4af9-984a-b4e52a075460
-@skip_as_script cb2b = @bind wowz combine() do Child
+#=╠═╡
+cb2b = @bind wowz combine() do Child
 	md"""
 	Do a thing: $(Child(CheckBox()))
 	
@@ -699,17 +727,19 @@ end
 	
 	"""
 end
+  ╠═╡ =#
 
 # ╔═╡ a1a9b22f-9df7-4c5f-a73d-38e184da7c35
-@skip_as_script wowz
+#=╠═╡
+wowz
+  ╠═╡ =#
 
 # ╔═╡ c7a32ab2-2a5b-485b-9795-4a743604de82
-@skip_as_script cb2b
+#=╠═╡
+cb2b
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
-# ╟─881b75d3-cebe-4a53-8cf5-beaeeddafd35
-# ╟─ba94c9b3-55bf-486a-8bf3-eb0b3e65e536
-# ╟─9e56dbb9-2e93-4136-b10b-7b1ecb07e6f1
 # ╟─dadf2f40-1764-47a4-b560-683b6479d77f
 # ╠═1b737805-a411-4585-b215-d0f99eafac0c
 # ╠═5028fc01-4e14-4550-8ae6-48703b86dc21
