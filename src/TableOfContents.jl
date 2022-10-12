@@ -11,7 +11,6 @@ begin
 	import Pkg
 	Pkg.activate(Base.current_project(@__DIR__))
 	Pkg.instantiate()
-	Text("Project env active")
 end
   ╠═╡ =#
 
@@ -431,29 +430,19 @@ const toc_css = @htl """
 	line-height: 1em;
 }
 
-.plutoui-toc.indent section a.H6,
-.plutoui-toc.indent section .after-H6 a  {
-	padding-left: 50px;
-}
-.plutoui-toc.indent section a.H5,
-.plutoui-toc.indent section .after-H5 a  {
-	padding-left: 40px;
-}
-.plutoui-toc.indent section a.H4,
-.plutoui-toc.indent section .after-H4 a  {
-	padding-left: 30px;
-}
-.plutoui-toc.indent section a.H3,
-.plutoui-toc.indent section .after-H3 a  {
-	padding-left: 20px;
-}
-.plutoui-toc.indent section a.H2,
-.plutoui-toc.indent section .after-H2 a {
-	padding-left: 10px;
-}
-.plutoui-toc.indent section a.H1 {
-	padding-left: 0px;
-}
+.plutoui-toc.indent section .after-H2 a { padding-left: 10px; }
+.plutoui-toc.indent section .after-H3 a { padding-left: 20px; }
+.plutoui-toc.indent section .after-H4 a { padding-left: 30px; }
+.plutoui-toc.indent section .after-H5 a { padding-left: 40px; }
+.plutoui-toc.indent section .after-H6 a { padding-left: 50px; }
+
+.plutoui-toc.indent section a.H1 { padding-left: 0px; }
+.plutoui-toc.indent section a.H2 { padding-left: 10px; }
+.plutoui-toc.indent section a.H3 { padding-left: 20px; }
+.plutoui-toc.indent section a.H4 { padding-left: 30px; }
+.plutoui-toc.indent section a.H5 { padding-left: 40px; }
+.plutoui-toc.indent section a.H6 { padding-left: 50px; }
+
 
 .plutoui-toc.indent section a.pluto-docs-binding-el,
 .plutoui-toc.indent section a.ASSIGNEE
@@ -534,60 +523,60 @@ TableOfContents(; aside = false)
 #=╠═╡
 md"""
 
-# The <em>fun</em> stuff: playing with transforms
+# L1 The <em>fun</em> stuff: playing with transforms
 
-## Pedagogical note: Why the Module 1 application = image processing
+## L2 Pedagogical note: Why the Module 1 application = image processing
 
-# Last Lecture Leftovers
+# L1 Last Lecture Leftovers
 
 asdfasdf
 
 
-## Interesting question about linear transformations
+## L2 Interesting question about linear transformations
 
 $p
 
 
-## Julia style (a little advanced): Reminder about defining vector valued functions
-
-
-$p
-
-
-## Functions with parameters
-
-$p
-
-
-# Linear transformations: a collection
-
-
-$p
-
-$p
-
-# Nonlinear transformations: a collection
+## L2 Julia style (a little advanced): Reminder about defining vector valued functions
 
 
 $p
 
 
-$p
-
-
-
-# Composition
-
+## L2 Functions with parameters
 
 $p
 
 
-## Composing functions in mathematics
+# L1 Linear transformations: a collection
+
+
+$p
+
+$p
+
+# L1 Nonlinear transformations: a collection
+
 
 $p
 
 
-## Composing functions in computer science
+$p
+
+
+
+# L1 Composition
+
+
+$p
+
+
+## L2 Composing functions in mathematics
+
+$p
+
+
+## L2 Composing functions in computer science
 $p
 
 """
@@ -611,56 +600,60 @@ fff2 = 123
 # ╔═╡ b3e73e1a-f8b3-4973-a052-69c8f12ebbf1
 #=╠═╡
 md"""
-## Composition of software at a higher level
+### L3 something inbetween
+
+hello
+
+## L2 Composition of software at a higher level
 
 $p
 $p
 
 
-### Find your own examples
+### L3 Find your own examples
 $p
-# Linear transformations: See a matrix, think beyond number arrays
-### The matrix
-$p
-
-### Matrix multiply: You know how to do it, but why?
+# L1 Linear transformations: See a matrix, think beyond number arrays
+### L3 The matrix
 $p
 
-# Coordinate transformations vs object transformations
+### L3 Matrix multiply: You know how to do it, but why?
 $p
 
-### Coordinate transform of an array ( 𝑖 , 𝑗 ) vs points ( 𝑥 , 𝑦 )
-$p
-$p
+# L1 Coordinate transformations vs object transformations
 $p
 
-# Inverses
+### L3 Coordinate transform of an array ( 𝑖 , 𝑗 ) vs points ( 𝑥 , 𝑦 )
 $p
 $p
 $p
 
-## Using `inv` vs using `max`
-$p
-## Using ``\int`` vs using ``\sqrt{x}``
-$p
-## Example: Scaling up and down
-$p
-## Inverses: Solving equations
-$p
-### Inverting Linear Transformations
-$p
-### Inverting nonlinear transformations
-$p
-# The Big Diagram of Transforming Images
+# L1 Inverses
 $p
 $p
 $p
-## Collisions
+
+## L2 Using `inv` vs using `max`
+$p
+## L2 Using ``\int`` vs using ``\sqrt{x}``
+$p
+## L2 Example: Scaling up and down
+$p
+## L2 Inverses: Solving equations
+$p
+### L3 Inverting Linear Transformations
+$p
+### L3 Inverting nonlinear transformations
+$p
+# L1 The Big Diagram of Transforming Images
 $p
 $p
-## Why are we doing this backwards?
 $p
-# Appendix
+## L2 Collisions
+$p
+$p
+## L2 Why are we doing this backwards?
+$p
+# L1 Appendix
 """
   ╠═╡ =#
 
