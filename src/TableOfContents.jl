@@ -4,27 +4,22 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ e3f5cbc5-a443-43d3-b15c-e33e2d655450
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Pkg.instantiate()
+	Text("Project env active")
+end
+  ╠═╡ =#
+
 # ╔═╡ 366a853d-3662-445a-940f-09e6e501a92a
 using HypertextLiteral
 
 # ╔═╡ ed0f13cc-4f7d-476b-a434-d14313d88eea
 using Markdown: withtag
-
-# ╔═╡ 3bf83b12-9932-49cd-83ab-f091e3b5fdb3
-function skip_as_script(m::Module)
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
-	end
-end
-
-# ╔═╡ e3f5cbc5-a443-43d3-b15c-e33e2d655450
-if skip_as_script(@__MODULE__)
-	import Pkg
-	Pkg.activate(Base.current_project(@__DIR__))
-	Text("Project env active")
-end
 
 # ╔═╡ 3061a5a6-feda-4538-8076-30c70c9b8766
 import AbstractPlutoDingetjes: AbstractPlutoDingetjes, Bonds
@@ -33,9 +28,12 @@ import AbstractPlutoDingetjes: AbstractPlutoDingetjes, Bonds
 md"# asdfsf"
 
 # ╔═╡ 2e749ba7-3469-434d-9011-bb9396ffd149
+# ╠═╡ skip_as_script = true
+#=╠═╡
 const p = md"""
 Pluto uses syntax analysis to understand which packages are being used in a notebook, and it automatically manages a package environment for your notebook. You no longer need to install packages, you can directly import any registered package like Plots or DataFrames and use it.
 """
+  ╠═╡ =#
 
 # ╔═╡ fb46ccb4-0195-4b5c-9992-dc0d930ea868
 md"""
@@ -521,12 +519,19 @@ end
 export TableOfContents
 
 # ╔═╡ fdf8750b-653e-4f23-8f8f-9e2ef4e24e75
+# ╠═╡ skip_as_script = true
+#=╠═╡
 TableOfContents(; include_definitions=true)
+  ╠═╡ =#
 
 # ╔═╡ 7c32fd56-6cc5-420b-945b-53446833a125
+# ╠═╡ skip_as_script = true
+#=╠═╡
 TableOfContents(; aside = false)
+  ╠═╡ =#
 
 # ╔═╡ 3ab2da5f-943e-42e8-8e46-4a7031ba4227
+#=╠═╡
 md"""
 
 # The <em>fun</em> stuff: playing with transforms
@@ -586,17 +591,25 @@ $p
 $p
 
 """
+  ╠═╡ =#
 
 # ╔═╡ 7b27a858-9d3a-4324-a56c-98e6f31d5929
+# ╠═╡ skip_as_script = true
+#=╠═╡
 """
 lkjasfdlk jasdflkj asdf
 """
 fff(x) = x
+  ╠═╡ =#
 
 # ╔═╡ 27adc83b-c052-40fb-8a8d-7d6fcb7c8e30
+# ╠═╡ skip_as_script = true
+#=╠═╡
 fff2 = 123
+  ╠═╡ =#
 
 # ╔═╡ b3e73e1a-f8b3-4973-a052-69c8f12ebbf1
+#=╠═╡
 md"""
 ## Composition of software at a higher level
 
@@ -649,9 +662,9 @@ $p
 $p
 # Appendix
 """
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
-# ╠═3bf83b12-9932-49cd-83ab-f091e3b5fdb3
 # ╠═e3f5cbc5-a443-43d3-b15c-e33e2d655450
 # ╠═3061a5a6-feda-4538-8076-30c70c9b8766
 # ╠═366a853d-3662-445a-940f-09e6e501a92a

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.9
+# v0.19.12
 
 using Markdown
 using InteractiveUtils
@@ -14,41 +14,28 @@ macro bind(def, element)
     end
 end
 
+# ╔═╡ 81adbd39-5780-4cc6-a53f-a4472bacf1c0
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Pkg.instantiate()
+	Text("Project env active")
+end
+  ╠═╡ =#
+
 # ╔═╡ a0fb4f28-bfe4-4877-bf07-31acb9a56d2c
 using HypertextLiteral
 
 # ╔═╡ 57232d88-b74f-4823-be61-8db450c93f5c
 using Markdown: withtag, htmlesc
 
-# ╔═╡ e8c5ba24-10e9-49e8-8c11-0add092637f8
-"""
-	@skip_as_script expression
-
-Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
-"""
-macro skip_as_script(ex) skip_as_script(__module__) ? esc(ex) : nothing end
-
-# ╔═╡ d738b448-387b-4942-af82-cc93042705a4
-function skip_as_script(m::Module)
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
-	end
-end
-
-# ╔═╡ e1bbe1d7-68ef-4ee1-8174-d1ae1f822acb
-macro only_as_script(ex) skip_as_script(__module__) ? nothing : esc(ex) end
-
-# ╔═╡ 81adbd39-5780-4cc6-a53f-a4472bacf1c0
-if skip_as_script(@__MODULE__)
-	import Pkg
-	Pkg.activate(Base.current_project(@__DIR__))
-	Text("Project env active")
-end
-
 # ╔═╡ d8f907cd-2f89-4d54-a311-998dc8ee148e
+# ╠═╡ skip_as_script = true
+#=╠═╡
 teststr = "<x>\"\"woa"
+  ╠═╡ =#
 
 # ╔═╡ ac542b84-dbc8-47e2-8835-9e43582b6ad7
 import Random: randstring
@@ -232,10 +219,16 @@ begin
 end
 
 # ╔═╡ e440a357-1656-4cc4-8191-146fe82fbc8c
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind os3 HTML(repr(MIME"text/html"(), Slider(0:.1:1, default=.5, show_value=true)))
+  ╠═╡ =#
 
 # ╔═╡ 629e5d68-580f-4d6b-be14-5a109091e6b7
+# ╠═╡ skip_as_script = true
+#=╠═╡
 HTML(repr(MIME"text/html"(), Slider([sin, cos])))
+  ╠═╡ =#
 
 # ╔═╡ f59eef32-4732-46db-87b0-3564433ce43e
 begin
@@ -334,7 +327,10 @@ end
 const Button = LabelButton
 
 # ╔═╡ 3ae2351b-ac4a-4669-bb11-39a1c029b301
+# ╠═╡ skip_as_script = true
+#=╠═╡
 Button()
+  ╠═╡ =#
 
 # ╔═╡ 548bda96-2461-48a3-a3ad-6d113337826e
 begin
@@ -502,19 +498,33 @@ begin
 end
 
 # ╔═╡ 0b46ba0f-f6ff-4df2-bd2b-aeacda9e8865
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @htl("<input type=text maxlength=4>")
+  ╠═╡ =#
 
 # ╔═╡ f4c5199a-e195-42ed-b398-4197b2e85aec
+# ╠═╡ skip_as_script = true
+#=╠═╡
 TextField(4)
+  ╠═╡ =#
 
 # ╔═╡ 4363f31e-1d71-4ad8-bfe8-04403d2d3621
+#=╠═╡
 TextField((30,2), default=teststr);
+  ╠═╡ =#
 
 # ╔═╡ 121dc1e7-080e-48dd-9105-afa5f7886fb7
+# ╠═╡ skip_as_script = true
+#=╠═╡
 TextField(placeholder="Type something here!")
+  ╠═╡ =#
 
 # ╔═╡ 13ed4bfd-7bfa-49dd-a212-d7f6564af8e2
+# ╠═╡ skip_as_script = true
+#=╠═╡
 TextField((5,5),placeholder="Type something here!")
+  ╠═╡ =#
 
 # ╔═╡ c9614498-54a8-4925-9353-7a13d3303916
 begin
@@ -666,22 +676,40 @@ begin
 end
 
 # ╔═╡ d64bb805-b700-4fd6-8894-2980152ce250
+# ╠═╡ skip_as_script = true
+#=╠═╡
 Select(["a" => "✅", "b" => "🆘", "c" => "🆘"])
+  ╠═╡ =#
 
 # ╔═╡ 4f3ba840-28ce-4790-b929-ce6af8920189
+# ╠═╡ skip_as_script = true
+#=╠═╡
 Select(["a" => "🆘", "b" => "✅", "c" => "🆘"]; default="b")
+  ╠═╡ =#
 
 # ╔═╡ b34d3a01-f8d6-4586-b655-5da84d586cd5
+# ╠═╡ skip_as_script = true
+#=╠═╡
 OldSelect(["a" => "✅", "b" => "🆘", "c" => "🆘"])
+  ╠═╡ =#
 
 # ╔═╡ 609ab7f4-4fc4-4122-986d-9bfe54fa715d
+# ╠═╡ skip_as_script = true
+#=╠═╡
 OldSelect(["a" => "🆘", "b" => "✅", "c" => "🆘"]; default="b")
+  ╠═╡ =#
 
 # ╔═╡ 6459df3f-143f-4d1a-a238-4447b11cc56c
+# ╠═╡ skip_as_script = true
+#=╠═╡
 HTML(repr(MIME"text/html"(), Select(["a" => "✅", "b" => "🆘", "c" => "🆘"])))
+  ╠═╡ =#
 
 # ╔═╡ f3bef89c-61ac-4dcf-bf47-3824f11db26f
-@skip_as_script HTML(repr(MIME"text/html"(), Select([sin, cos])))
+# ╠═╡ skip_as_script = true
+#=╠═╡
+HTML(repr(MIME"text/html"(), Select([sin, cos])))
+  ╠═╡ =#
 
 # ╔═╡ 42e9e5ab-7d34-4300-a6c0-47f5cde658d8
 begin
@@ -767,7 +795,10 @@ Base.get(radio::Radio) = radio.default
 end
 
 # ╔═╡ 04ed1e71-d806-423e-b99c-476ea702feb3
+# ╠═╡ skip_as_script = true
+#=╠═╡
 Radio(["a", "b"]; default="b")
+  ╠═╡ =#
 
 # ╔═╡ 7c4303a1-19be-41a2-a6c7-90146e01401d
 md"""
@@ -775,7 +806,10 @@ nothing checked by defualt, the initial value should be `nothing`
 """
 
 # ╔═╡ d9522557-07e6-4a51-ae92-3abe7a7d2732
+# ╠═╡ skip_as_script = true
+#=╠═╡
 r1s = [];
+  ╠═╡ =#
 
 # ╔═╡ cc80b7eb-ca09-41ca-8015-933591378437
 begin
@@ -807,7 +841,10 @@ subarrays(x) = (
 )
 
 # ╔═╡ 4d8ea460-ff2b-4e92-966e-89e76d4806af
+# ╠═╡ skip_as_script = true
+#=╠═╡
 subarrays([2,3,3]) |> collect
+  ╠═╡ =#
 
 # ╔═╡ e058076f-46fc-4435-ab45-530e27c95478
 begin
@@ -858,7 +895,10 @@ Base.get(select::FilePicker) = nothing
 end
 
 # ╔═╡ db65293b-891a-43a3-8a42-b23bf542755f
+# ╠═╡ skip_as_script = true
+#=╠═╡
 FilePicker([MIME"image/png"()])
+  ╠═╡ =#
 
 # ╔═╡ d611e6f7-c574-4f0f-a46f-48ec8cf4b5aa
 begin
@@ -984,10 +1024,16 @@ Base.get(colorStringPicker::ColorStringPicker) = colorStringPicker.default
 end
 
 # ╔═╡ 1d95c38d-d336-436d-a62e-0a3786c321ca
+# ╠═╡ skip_as_script = true
+#=╠═╡
 ColorStringPicker("#ffffff")
+  ╠═╡ =#
 
 # ╔═╡ 724125f3-7699-4103-a5d8-bc6a00fab0ff
+# ╠═╡ skip_as_script = true
+#=╠═╡
 ColorStringPicker(default="#abbaff")
+  ╠═╡ =#
 
 # ╔═╡ 632f6d08-0091-41d7-afb6-bdc7c5e4e837
 import ColorTypes: RGB, N0f8, Colorant
@@ -1000,7 +1046,10 @@ function _hex_to_color(val::String)
 end
 
 # ╔═╡ b329dcff-e69b-47d3-8b05-56562416cd89
+# ╠═╡ skip_as_script = true
+#=╠═╡
 _hex_to_color("#f0f000")
+  ╠═╡ =#
 
 # ╔═╡ 6eece14b-7034-4f12-a98a-d127459f3cdf
 function _color_to_hex(val::RGB{N0f8})
@@ -1295,286 +1344,508 @@ begin
 	end
 
 # ╔═╡ c2b473f4-b56b-4a91-8377-6c86da895cbe
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind f Slider([sin, cos, sqrt, "asdf"]; default=sqrt)
+  ╠═╡ =#
 
 # ╔═╡ 5caa34e8-e501-4248-be65-ef9c6303d025
+#=╠═╡
 f
+  ╠═╡ =#
 
 # ╔═╡ 46a90b45-8fef-493e-9bd1-a71d1f9c53f6
+#=╠═╡
 f(123)
+  ╠═╡ =#
 
 # ╔═╡ 328e9651-0ad1-46ce-904c-afd7deaacf94
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bs = @bind s1 Slider(1:10)
+  ╠═╡ =#
 
 # ╔═╡ 38d32393-49be-469c-840b-b58c7339a276
+#=╠═╡
 bs
+  ╠═╡ =#
 
 # ╔═╡ 75b008b2-afc0-4bd5-9183-e0e0d392a4c5
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind s2 Slider(30:.5:40; default=38, show_value=true)
+  ╠═╡ =#
 
 # ╔═╡ 9df251eb-b4f5-46cc-a4fe-ff2fa670b773
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind s3 Slider([sin, cos, tan], default=cos, show_value=true)
+  ╠═╡ =#
 
 # ╔═╡ 7c5765ae-c10a-4677-97a3-848a423cb8b9
+#=╠═╡
 s1, s2, s3
+  ╠═╡ =#
 
 # ╔═╡ f70c1f7b-f3c5-4aff-b39c-add64afbd635
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind s4_downsampled Slider(1:10_000, show_value=true, max_steps=100)
+  ╠═╡ =#
 
 # ╔═╡ ec870eea-36a4-48b6-95d7-f7c083e29856
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bos = @bind os1 OldSlider(1:10)
+  ╠═╡ =#
 
 # ╔═╡ b44f1128-32a5-4d1d-a00b-446143074056
+#=╠═╡
 bos
+  ╠═╡ =#
 
 # ╔═╡ f6cd1201-da84-4dee-9e88-b65fa1ff749e
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind os2 OldSlider(0:.1:1, default=.5, show_value=true)
+  ╠═╡ =#
 
 # ╔═╡ 05f6a603-b738-47b1-b335-acaaf480a240
+#=╠═╡
 os1, os2, os3
+  ╠═╡ =#
 
 # ╔═╡ f7870d7f-992d-4d64-85aa-7621ab16244f
+# ╠═╡ skip_as_script = true
+#=╠═╡
 nf1b = @bind nf1 NumberField(1:10; default=3.2)
+  ╠═╡ =#
 
 # ╔═╡ 893e22e1-a1e1-43cb-84fe-4931f3ba35c1
+#=╠═╡
 nf1b
+  ╠═╡ =#
 
 # ╔═╡ 7089edb6-720d-4df5-b3ca-da17d48b107e
+#=╠═╡
 nf1
+  ╠═╡ =#
 
 # ╔═╡ c32f42ee-0e7f-4648-99f7-21eff7b45cec
+# ╠═╡ skip_as_script = true
+#=╠═╡
 nf2b = @bind nf2 NumberField(0:.1:1; default = 0)
+  ╠═╡ =#
 
 # ╔═╡ efc0d77c-93d5-4634-9c0b-aa16d00ec007
+#=╠═╡
 nf2b
+  ╠═╡ =#
 
 # ╔═╡ 89e05f4b-c720-4ca5-a7fe-ceee0bcef9d9
+#=╠═╡
 nf2
+  ╠═╡ =#
 
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
+#=╠═╡
 @bind b1 Button(teststr)
+  ╠═╡ =#
 
 # ╔═╡ c111da12-d0ca-4b9b-8ede-20f4303a1c4b
+#=╠═╡
 b1
+  ╠═╡ =#
 
 # ╔═╡ cd08b524-d778-4acd-9fac-851d90df7179
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind cb1 CounterButton() 
+  ╠═╡ =#
 
 # ╔═╡ 6135dca4-86f9-4675-8a45-fa16b3d2c3eb
+#=╠═╡
 cb1
+  ╠═╡ =#
 
 # ╔═╡ 6cb75589-5496-4edd-9b21-ea49d5c0e733
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bc = @bind c1 CheckBox()
+  ╠═╡ =#
 
 # ╔═╡ bcee47b1-0f45-4649-8517-0e93fa92bfe5
+#=╠═╡
 bc
+  ╠═╡ =#
 
 # ╔═╡ 73656df8-ac9f-466d-a8d0-0a2e5dbdbd8c
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind c2 CheckBox(true)
+  ╠═╡ =#
 
 # ╔═╡ e89ee9a3-5c78-4ff8-81e9-f44f5150d5f6
+#=╠═╡
 c1, c2
+  ╠═╡ =#
 
 # ╔═╡ 1e522148-542a-4a2f-ad92-12421a6530dc
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bt1 = @bind t1 TextField()
+  ╠═╡ =#
 
 # ╔═╡ 1ac4abe2-5f06-42c6-b614-fb9a00e65386
+#=╠═╡
 bt1
+  ╠═╡ =#
 
 # ╔═╡ 1d81db28-103b-4bde-9a9a-f3038ee9b10b
+#=╠═╡
 @bind t2 TextField(default=teststr)
+  ╠═╡ =#
 
 # ╔═╡ e25a2ec1-5dab-461e-bc47-6b3f1fe19d30
+#=╠═╡
 bt2 = @bind t3 TextField((30,2), teststr)
+  ╠═╡ =#
 
 # ╔═╡ be68f41c-0730-461c-8782-7e8d7a745509
+#=╠═╡
 bt2
+  ╠═╡ =#
 
 # ╔═╡ 00145a3e-cb62-4c54-807b-8d2bce6a9fc9
+#=╠═╡
 t1, t2, t3
+  ╠═╡ =#
 
 # ╔═╡ 970681ed-1c3a-4327-b636-8cb0cdd90dbb
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bpe = @bind p1 PasswordField()
+  ╠═╡ =#
 
 # ╔═╡ e6032ca6-03a5-4bda-95d2-dcd9ee6b5924
+#=╠═╡
 bpe
+  ╠═╡ =#
 
 # ╔═╡ d4bf5249-6027-43c5-bd20-48ad95721e27
+#=╠═╡
 @bind p2 PasswordField(teststr)
+  ╠═╡ =#
 
 # ╔═╡ d8c60294-0ca6-4cb0-b51d-9f6d6b370b28
+#=╠═╡
 @bind p3 PasswordField(default=teststr)
+  ╠═╡ =#
 
 # ╔═╡ fbc6e4c1-4bd8-43a2-ac82-e6f76033fd8e
+#=╠═╡
 p1, p2, p3
+  ╠═╡ =#
 
 # ╔═╡ 57a7d0c9-2f4a-44e6-9b7a-0bbd98611c9d
+#=╠═╡
 bse = @bind se1 Select(["a" => "default", teststr => teststr])
+  ╠═╡ =#
 
 # ╔═╡ a58e383a-3837-4b4c-aa84-cf64436cd870
+#=╠═╡
 bse
+  ╠═╡ =#
 
 # ╔═╡ c9a291c5-b5f5-40a6-acb3-eff4882c1516
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind se2 Select(["a" => "✅", "b" => "🆘", "c" => "🆘"])
+  ╠═╡ =#
 
 # ╔═╡ 9729fa52-7cff-4905-9d1c-1d0eefc8ad6e
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind se3 Select([cos => "cosine", sin => "sine"]; default=sin)
+  ╠═╡ =#
 
 # ╔═╡ d08b571c-fe08-4911-b9f3-5a1075be50ea
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind se4 Select([[1,Ref(2)], sqrt, cos])
+  ╠═╡ =#
 
 # ╔═╡ 7f05f0b5-051e-4c75-b484-944daf8a274d
+#=╠═╡
 se1, se2, se3, se3(123), se4
+  ╠═╡ =#
 
 # ╔═╡ 294263fe-0986-4be1-bff5-cd9f7d261c09
+#=╠═╡
 bose = @bind ose1 Select(["a" => "default", teststr => teststr])
+  ╠═╡ =#
 
 # ╔═╡ 59457dc9-edaf-40c2-8503-0c3759d85ba7
+#=╠═╡
 bose
+  ╠═╡ =#
 
 # ╔═╡ a238ec69-d38b-464a-9b36-959531574d19
+#=╠═╡
 ose1
+  ╠═╡ =#
 
 # ╔═╡ a95684ea-4612-45d6-b63f-41c051b53ed8
+#=╠═╡
 br1 = @bind r1 Radio(["a" => "default", teststr => teststr])
+  ╠═╡ =#
 
 # ╔═╡ a5612030-0781-4cf1-b8f0-409bd3886154
+#=╠═╡
 br1
+  ╠═╡ =#
 
 # ╔═╡ c2b3a7a4-8c9e-49cc-b5d0-85ad1c08fd72
+#=╠═╡
 r1
+  ╠═╡ =#
 
 # ╔═╡ 69a94f6a-420a-4587-bbad-1219a390862d
+#=╠═╡
 push!(r1s, r1)
+  ╠═╡ =#
 
 # ╔═╡ 998a3bd7-2d09-4b3f-8a41-50736b666dea
+# ╠═╡ skip_as_script = true
+#=╠═╡
 MultiSelect(["a" => "🆘", "b" => "✅", "c" => "🆘",  "d" => "✅", "c" => "🆘2", "c3" => "🆘"]; default=["b","d"])
+  ╠═╡ =#
 
 # ╔═╡ 78473a2f-0a64-4aa5-a60a-94031a4167b8
+#=╠═╡
 bms = @bind ms1 MultiSelect(["a" => "default", teststr => teststr])
+  ╠═╡ =#
 
 # ╔═╡ 43f86637-9f0b-480c-826a-bbf583e44646
+#=╠═╡
 bms
+  ╠═╡ =#
 
 # ╔═╡ b6697df5-fd21-4553-9e90-1d33c0b51f70
+#=╠═╡
 ms1
+  ╠═╡ =#
 
 # ╔═╡ 7bffc5d6-4056-4060-903e-7a1f73b6a8a0
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind fs MultiSelect([sin, cos, tan])
+  ╠═╡ =#
 
 # ╔═╡ 7f112de0-2678-4793-a25f-42e7495e6590
+#=╠═╡
 fs
+  ╠═╡ =#
 
 # ╔═╡ 8fd52496-d4c9-4106-8a97-f19f1d8d8b0f
+#=╠═╡
 [f(0.5) for f in fs]
+  ╠═╡ =#
 
 # ╔═╡ a03af14a-e030-4ac1-b61a-0275c9956454
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bf = @bind f1 FilePicker()
+  ╠═╡ =#
 
 # ╔═╡ d4a0e98d-666c-4588-8499-f253a309a403
+#=╠═╡
 bf
+  ╠═╡ =#
 
 # ╔═╡ 5ed47c49-9a31-4948-8473-0311b54eb146
+#=╠═╡
 f1
+  ╠═╡ =#
 
 # ╔═╡ a1666896-baf6-466c-b680-5f3e3dffff68
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bd = @bind d1 DateField()
+  ╠═╡ =#
 
 # ╔═╡ b9300522-1b92-459c-87e2-20589d36dbb5
+#=╠═╡
 bd
+  ╠═╡ =#
 
 # ╔═╡ 65bdad5e-a51b-4009-8b8e-ce93286ee5e4
+#=╠═╡
 d1
+  ╠═╡ =#
 
 # ╔═╡ 4f1a909d-d21a-4e60-a615-8146ba249794
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind d2 DateField(Dates.Date(2021, 09, 20))
+  ╠═╡ =#
 
 # ╔═╡ d52cc4d9-cdb0-46b6-a59f-5eeaa1990f20
+#=╠═╡
 d2
+  ╠═╡ =#
 
 # ╔═╡ 494a163b-aed0-4e75-8ad1-c22ac46596c1
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bdp1 = @bind dp1 DatePicker()
+  ╠═╡ =#
 
 # ╔═╡ ab2bff58-f97e-4a21-b214-3266971d9fb0
+#=╠═╡
 dp1
+  ╠═╡ =#
 
 # ╔═╡ fffb87ad-85a4-4d18-a5f9-cb0bcdbdaa6f
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bdp2 = @bind dp2 DatePicker(Dates.Date(2022, 4, 20))
+  ╠═╡ =#
 
 # ╔═╡ d9a04c66-9c11-4768-87c9-a66d4e1ba91c
+#=╠═╡
 dp2
+  ╠═╡ =#
 
 # ╔═╡ 650f77b2-9fa5-4568-94cc-44d13b909ed5
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bdp3 = @bind dp3 DatePicker(default=Dates.Date(2022, 4))
+  ╠═╡ =#
 
 # ╔═╡ 3e4edd1c-5f4f-430a-9a8c-69417595b415
+#=╠═╡
 dp3
+  ╠═╡ =#
 
 # ╔═╡ 3aefce73-f133-43e0-8680-5c17b7f90979
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bti = @bind ti3 TimeField()
+  ╠═╡ =#
 
 # ╔═╡ d128f5ac-7304-486c-8258-f05f4bd18632
+#=╠═╡
 ti3
+  ╠═╡ =#
 
 # ╔═╡ 9258586a-2612-48db-be31-cf74220002d4
+#=╠═╡
 bti
+  ╠═╡ =#
 
 # ╔═╡ 7a377816-30ed-4f9f-b03f-08da4548e55f
+#=╠═╡
 ti3
+  ╠═╡ =#
 
 # ╔═╡ a51dc258-1e80-4cd4-9337-b9f685db244c
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind ti2 TimeField(Dates.Time(15, 45))
+  ╠═╡ =#
 
 # ╔═╡ 3171441c-a98b-4a5a-aedd-09ad3b445b9e
+#=╠═╡
 ti2
+  ╠═╡ =#
 
 # ╔═╡ 585cff2d-df71-4901-83cd-00b4452bc9a3
+# ╠═╡ skip_as_script = true
+#=╠═╡
 btp1 = @bind tp1 TimePicker()
+  ╠═╡ =#
 
 # ╔═╡ 80186eeb-417c-4c95-9a3d-e556bb3284a8
+#=╠═╡
 tp1
+  ╠═╡ =#
 
 # ╔═╡ 83e7759c-2318-4a02-949e-f3b637f4d478
+#=╠═╡
 btp1
+  ╠═╡ =#
 
 # ╔═╡ 2ab08455-80dd-4b62-b0ee-a61481d2ffb9
+# ╠═╡ skip_as_script = true
+#=╠═╡
 btp2 = @bind tp2 TimePicker(show_seconds=true)
+  ╠═╡ =#
 
 # ╔═╡ 04403fcf-83af-44a0-84fa-64b5b3bdfdd2
+#=╠═╡
 tp2
+  ╠═╡ =#
 
 # ╔═╡ f5ca10d7-c0de-41b4-95a6-384f92852074
+# ╠═╡ skip_as_script = true
+#=╠═╡
 btp3 = @bind tp3 TimePicker(Dates.Time(23,59,44))
+  ╠═╡ =#
 
 # ╔═╡ a38a6349-5281-4fcd-9de9-45f4b06db927
+#=╠═╡
 tp3
+  ╠═╡ =#
 
 # ╔═╡ ef3ccc10-efc1-4ee3-9c36-94849d29d699
+# ╠═╡ skip_as_script = true
+#=╠═╡
 btp4 = @bind tp4 TimePicker(default=Dates.Time(23,59,44), show_seconds=true)
+  ╠═╡ =#
 
 # ╔═╡ f39d4ed3-1815-4eaa-9923-23ebf778e4e6
+#=╠═╡
 tp4
+  ╠═╡ =#
 
 # ╔═╡ b123275c-48fd-4e4a-8461-4875f7c18293
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bcs = @bind cs1 ColorStringPicker()
+  ╠═╡ =#
 
 # ╔═╡ 883673fb-b8d0-49fb-ab8c-32e972894ec2
+#=╠═╡
 bcs
+  ╠═╡ =#
 
 # ╔═╡ 78463563-4d1f-49f0-875f-8a30cf445a2d
+#=╠═╡
 cs1
+  ╠═╡ =#
 
 # ╔═╡ 5f70cfea-0f98-428a-a01f-c3f019081869
+# ╠═╡ skip_as_script = true
+#=╠═╡
 _color_to_hex(_hex_to_color("#f0f000"))
+  ╠═╡ =#
 
 # ╔═╡ b63f68ae-70f1-4042-ac2c-a76e09b0d686
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bco = @bind co1 ColorPicker()
+  ╠═╡ =#
 
 # ╔═╡ 2c216333-ad18-49c9-b9ec-c547d750aec6
+#=╠═╡
 co1
+  ╠═╡ =#
 
 # ╔═╡ 24a2719c-c997-42d1-b884-15debc973c83
+#=╠═╡
 bco
+  ╠═╡ =#
 
 # ╔═╡ 98f1d654-5629-4fea-9b7a-270ecbf46d57
 md"""
@@ -1582,10 +1853,16 @@ You would normally use `colorant"#f0f000"` from `Colors.jl` to generate this def
 """
 
 # ╔═╡ c2f4590c-8d86-408b-bc7b-1e1592aed8d3
+# ╠═╡ skip_as_script = true
+#=╠═╡
 ColorPicker(default=_hex_to_color("#f0f000"))
+  ╠═╡ =#
 
 # ╔═╡ 524cf3d8-79f5-4b1b-8ea2-9cb9055944e1
+# ╠═╡ skip_as_script = true
+#=╠═╡
 ColorPicker(_hex_to_color("#f0f000"))
+  ╠═╡ =#
 
 # ╔═╡ 9ade9240-1fea-4cb7-a571-a98b13cc29b2
 """
@@ -1604,9 +1881,6 @@ const br = HTML("<br>")
 export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextField, PasswordField, Select, MultiSelect, Radio, FilePicker, DateField, DatePicker, TimeField, TimePicker, ColorStringPicker, ColorPicker, br
 
 # ╔═╡ Cell order:
-# ╟─e8c5ba24-10e9-49e8-8c11-0add092637f8
-# ╟─e1bbe1d7-68ef-4ee1-8174-d1ae1f822acb
-# ╟─d738b448-387b-4942-af82-cc93042705a4
 # ╠═81adbd39-5780-4cc6-a53f-a4472bacf1c0
 # ╠═d8f907cd-2f89-4d54-a311-998dc8ee148e
 # ╠═a0fb4f28-bfe4-4877-bf07-31acb9a56d2c
@@ -1615,7 +1889,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═a203d9d4-cd7b-4368-9f6d-e040a5757565
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
-# ╠═0baae341-aa0d-42fd-9f21-d40dd5a03af9
+# ╟─0baae341-aa0d-42fd-9f21-d40dd5a03af9
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
 # ╠═5caa34e8-e501-4248-be65-ef9c6303d025
 # ╠═46a90b45-8fef-493e-9bd1-a71d1f9c53f6
@@ -1636,7 +1910,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╟─97fc914b-005f-4b4d-80cb-23016d589609
 # ╟─db3aefaa-9539-4c46-ad9b-83763f9ef624
 # ╟─0373d633-18bd-4936-a0ae-7a4f6f05372a
-# ╠═f59eef32-4732-46db-87b0-3564433ce43e
+# ╟─f59eef32-4732-46db-87b0-3564433ce43e
 # ╠═f7870d7f-992d-4d64-85aa-7621ab16244f
 # ╠═893e22e1-a1e1-43cb-84fe-4931f3ba35c1
 # ╠═7089edb6-720d-4df5-b3ca-da17d48b107e
