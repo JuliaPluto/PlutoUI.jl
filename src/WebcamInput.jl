@@ -375,7 +375,7 @@ begin
 	Base.@kwdef struct WebcamInput
 		uuid::UUID
 		help::Bool = true
-		default::Matrix{RGBA{N0f8}}=[RGBA{Float64}(0.0,0.0,0.0,0.0);;]
+		default::Matrix{RGBA{N0f8}}=[RGBA{Nf08}(0.0,0.0,0.0,0.0);;]
 	end
 	WebcamInput() = WebcamInput(; uuid = uuid4())
 	WebcamInput
