@@ -367,12 +367,13 @@ begin
 	Base.@kwdef struct WebcamInput
 		uuid::UUID
 		help::Bool = true
+		default::Matrix{RGBA{Float64}}=[RGBA{Float64}(0.0,0.0,0.0,0.0);;]
 	end
 	WebcamInput() = WebcamInput(; uuid = uuid4())
 	WebcamInput
 
 	function AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput)
-		return [RGBA(rand(), rand(), rand(), .97) for i in 1:100, j in 1:100]
+		return w.default
 	end
 	Base.get(w::WebcamInput) = AbstractPlutoDingetjes.Bonds.initial_value(w)
 
