@@ -58,10 +58,11 @@ function ImageDataToRGBA(d::Dict)
 	height = d["height"]
 
 	PermutedDimsArray( # lazy transpose
-		reshape( # unflatten
-			reinterpret(RGBA{N0f8}, d["data"]::Vector{UInt8}),
-			width, height
-		), 
+		reshape( # lazy unflatten
+			reinterpret( # lazy UInt8 to RGBA{N0f8}
+				RGBA{N0f8}, d["data"]::Vector{UInt8}),
+				width, height
+			), 
 		(2,1)
 	)
 end
@@ -179,15 +180,14 @@ const css = @htl("""<style>
 const help = @htl("""
 <div class="camera-help">
 
-<h3>Welcome to the Pluto UI Webcam Utility, that lets you capture images from your webcam!</h3>
+<h3>Welcome to the PlutoUI Webcam!</h3>
 
 <p>👉🏾 To <strong>disable this help message</strong>, please invoke the constructor with the argument <code>help = false</code> - e.g. <code>WebcamInput(;help=false)</code>.</p>
 
-<p>👉🏾 The Webcam only works in <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure contexts</a> (<code>http://localhost</code> or <code>https://</code>)!</p>
-
 <p>👉🏾 The webcam component allows you to pick a device from your system's available ones. Pick the camera you want from the dropdown.</p>
 
-<p>👉🏾 Note that you will have to allow the browser to access the camera.</p>
+<p>👉🏾 The Webcam only works in <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure contexts</a> (<code>http://localhost</code> or <code>https://</code>)!</p>
+
 </div>""")
 
 # ╔═╡ 06062a16-d9e1-46ef-95bd-cdae8b03bafd
@@ -474,7 +474,7 @@ img3
 # ╠═43f46ca7-08e0-4687-87eb-218df976a8a5
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
-# ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
+# ╠═3d2ed3d4-60a7-416c-aaae-4dc662127f5b
 # ╠═06062a16-d9e1-46ef-95bd-cdae8b03bafd
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
