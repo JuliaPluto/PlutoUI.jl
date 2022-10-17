@@ -96,7 +96,7 @@ function ImageDataToRGBA(d::Dict)
 	PermutedDimsArray( # lazy transpose
 		reshape( # unflatten
 			reinterpret(RGBA{N0f8}, d["data"]::Vector{UInt8}),
-			640, 480
+			width, height
 		), 
 		(2,1)
 	)
@@ -118,6 +118,12 @@ function RGBAToImageData(img)
 	end
 	arr
 end
+
+# ╔═╡ 6dd82485-a392-4110-9148-f70f0e7c0985
+const standard_default = ImageDataToRGBA(Dict{Any,Any}(
+	"width" => 1, "height" => 1, 
+	"data" => UInt8[0,0,0,0],
+))
 
 # ╔═╡ 97e2467e-ca58-4b5f-949d-ad95253b1ac0
 const css = @htl("""<style>
@@ -375,7 +381,7 @@ begin
 	Base.@kwdef struct WebcamInput
 		uuid::UUID
 		help::Bool = true
-		default::Matrix{RGBA{N0f8}}=[RGBA{N0f8}(0.0,0.0,0.0,0.0);;]
+		default::AbstractMatrix{RGBA{N0f8}}=standard_default
 	end
 	WebcamInput() = WebcamInput(; uuid = uuid4())
 	WebcamInput
@@ -427,6 +433,7 @@ img[:, end:-1:1] img[end:-1:1, end:-1:1]]
 # ╠═0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
 # ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
 # ╟─43332d10-a10b-4acc-a3ac-8c4b4eb58c46
+# ╠═6dd82485-a392-4110-9148-f70f0e7c0985
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
