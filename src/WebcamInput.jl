@@ -21,7 +21,8 @@ begin
 	import Pkg
 	Pkg.activate(temp=true)
 	Pkg.add(["ImageShow", "ImageIO", "PNGFiles"])
-	using ImageShow, ImageIO, PNGFiles
+	using ImageShow, ImageIO, PNGFiles # these packages are only loaded in this notebook (to see the images), not in the PlutoUI package
+	
 	Pkg.activate(Base.current_project(@__DIR__))
 	Pkg.instantiate()
 end
@@ -41,43 +42,6 @@ using FixedPointNumbers
 
 # ╔═╡ 31dff3d3-b3ee-426d-aec8-ee811820d842
 import AbstractPlutoDingetjes
-
-# ╔═╡ 0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
-# ╠═╡ disabled = true
-#=╠═╡
-begin 
-	# Note: This is a reference implementation of show for images, mainly for educational purposes.
-	# ImageShow is better
-	function Base.show(io::IO, ::MIME"text/html",
-						image::Array{C, 2} where C<:Colorant)
-		width = size(image, 1)
-		height = size(image, 2)
-		clammedArray = RGBAToImageData(image)
-		
-		show(io, MIME("text/html"), @htl("""
-			<script>
-				const canvas = currentScript.parentElement.firstElementChild
-				const ctx = canvas.getContext("2d")
-				const imgdata = new ImageData(
-					new Uint8ClampedArray(
-						$(PlutoRunner.publish_to_js(clammedArray))
-					),
-					$(PlutoRunner.publish_to_js(width)),
-					$(PlutoRunner.publish_to_js(height))
-				)
-				ctx.putImageData(imgdata, 0, 0)
-				return canvas
-			</script>
-		"""))
-	end
-	
-	function Base.show(io::IO, ::MIME"text/html", pixel::C where C <:Colorant)
-		show(io, MIME("text/html"), @htl("""
-			<div style="margin: .5em 0;width: 60px; border: 1px solid lightgrey; height: 60px; background-color: rgba($(255*red(pixel)), $(255*green(pixel)), $(255*blue(pixel)), $(alpha(pixel));"></div>
-		"""))
-	end
-end
-  ╠═╡ =#
 
 # ╔═╡ 5104aabe-43f7-451e-b4c1-68c0b345669e
 """
@@ -120,10 +84,25 @@ function RGBAToImageData(img)
 end
 
 # ╔═╡ 6dd82485-a392-4110-9148-f70f0e7c0985
-const standard_default = ImageDataToRGBA(Dict{Any,Any}(
+const standard_default_avoid_allocs = ImageDataToRGBA(Dict{Any,Any}(
 	"width" => 1, "height" => 1, 
 	"data" => UInt8[0,0,0,0],
 ))
+
+# ╔═╡ c917c90c-6999-4553-9187-a84e1f3b9315
+# ╠═╡ skip_as_script = true
+#=╠═╡
+standard_default_avoid_allocs |> typeof
+  ╠═╡ =#
+
+# ╔═╡ 9a07c7f4-e2c1-4322-bcbc-c7db90af0059
+const standard_default = collect(standard_default_avoid_allocs)
+
+# ╔═╡ 43f46ca7-08e0-4687-87eb-218df976a8a5
+# ╠═╡ skip_as_script = true
+#=╠═╡
+standard_default |> typeof
+  ╠═╡ =#
 
 # ╔═╡ 97e2467e-ca58-4b5f-949d-ad95253b1ac0
 const css = @htl("""<style>
@@ -379,49 +358,106 @@ end
 # ╔═╡ d9b806a2-de81-4b50-88cd-acf7db35da9a
 begin
 	Base.@kwdef struct WebcamInput
-		uuid::UUID
 		help::Bool = true
-		default::AbstractMatrix{RGBA{N0f8}}=standard_default
+		avoid_allocs::Bool = false
+		default::Union{Nothing,AbstractMatrix{RGBA{N0f8}}}=nothing
 	end
-	WebcamInput() = WebcamInput(; uuid = uuid4())
-	WebcamInput
 
 	function AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput)
-		return w.default
+		return w.default !== nothing ? 
+			w.default :
+			w.avoid_allocs ? standard_default_avoid_allocs : standard_default
 	end
 	Base.get(w::WebcamInput) = AbstractPlutoDingetjes.Bonds.initial_value(w)
 
 	function AbstractPlutoDingetjes.Bonds.transform_value(w::WebcamInput, d)
 		if d isa Dict
-			return ImageDataToRGBA(d)
+			img_lazy = ImageDataToRGBA(d)
+			w.avoid_allocs ? img_lazy : collect(img_lazy)
 		else
-			return AbstractPlutoDingetjes.Bonds.initial_value(w)
+			AbstractPlutoDingetjes.Bonds.initial_value(w)
 		end
 	end
 
 	function Base.show(io::IO, m::MIME"text/html", webcam::WebcamInput)
-			
 		webcam.help && @info help
-	
-		show(io, m, html(webcam))
+		Base.show(io, m, html(webcam))
 	end
 end
 
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
-@bind img WebcamInput()
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind img1 WebcamInput()
+  ╠═╡ =#
 
 # ╔═╡ d0b8b2ac-60be-481d-8085-3e57525e4a74
-size(img)
+#=╠═╡
+size(img1)
+  ╠═╡ =#
 
 # ╔═╡ 55ca59b0-c292-4711-9aa6-81499184423c
-typeof(img)
+#=╠═╡
+typeof(img1)
+  ╠═╡ =#
 
 # ╔═╡ 62334cca-b9db-4eb0-91e2-25af04c58d0e
-img
+#=╠═╡
+img1
+  ╠═╡ =#
 
 # ╔═╡ cad85f17-ff15-4a1d-8897-6a0a7ca59023
-[img img[end:-1:1, :]
-img[:, end:-1:1] img[end:-1:1, end:-1:1]]
+#=╠═╡
+[img1 img1[end:-1:1, :]
+img1[:, end:-1:1] img1[end:-1:1, end:-1:1]]
+  ╠═╡ =#
+
+# ╔═╡ 30267bdc-fe1d-4c73-b322-e19f3e934749
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind img2 WebcamInput(; avoid_allocs=true)
+  ╠═╡ =#
+
+# ╔═╡ 28d5de0c-f619-4ffd-9be0-623999b437e0
+#=╠═╡
+size(img2)
+  ╠═╡ =#
+
+# ╔═╡ be1b7fd5-6a06-4dee-a479-c84b56edbaba
+#=╠═╡
+typeof(img2)
+  ╠═╡ =#
+
+# ╔═╡ 033fea3f-f0e2-4362-96ce-041b7e0c27c6
+#=╠═╡
+img2
+  ╠═╡ =#
+
+# ╔═╡ 04bbfc5b-2eb2-4024-a035-ddc8fe60a932
+# ╠═╡ skip_as_script = true
+#=╠═╡
+test_img = rand(RGBA{N0f8}, 8, 8)
+  ╠═╡ =#
+
+# ╔═╡ 3ed223be-2808-4e8f-b3c0-f2caaa11a6d2
+#=╠═╡
+@bind img3 WebcamInput(; default=test_img)
+  ╠═╡ =#
+
+# ╔═╡ e72950c1-2130-4a49-8d9c-0216c365683f
+#=╠═╡
+size(img3)
+  ╠═╡ =#
+
+# ╔═╡ a5308e5b-77d2-4bc3-b368-15320d6a4049
+#=╠═╡
+typeof(img3)
+  ╠═╡ =#
+
+# ╔═╡ af7b1cec-2a47-4d90-8e66-90940ae3a087
+#=╠═╡
+img3
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
 # ╠═1791669b-d1ee-4c62-9485-52d8493888a7
@@ -430,16 +466,27 @@ img[:, end:-1:1] img[end:-1:1, end:-1:1]]
 # ╠═b3b59805-7062-463f-b6c5-1679133a589f
 # ╠═39f594bb-6326-4431-9fad-8974fef608a1
 # ╠═31dff3d3-b3ee-426d-aec8-ee811820d842
-# ╠═0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
 # ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
 # ╟─43332d10-a10b-4acc-a3ac-8c4b4eb58c46
 # ╠═6dd82485-a392-4110-9148-f70f0e7c0985
+# ╠═c917c90c-6999-4553-9187-a84e1f3b9315
+# ╠═9a07c7f4-e2c1-4322-bcbc-c7db90af0059
+# ╠═43f46ca7-08e0-4687-87eb-218df976a8a5
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
 # ╠═06062a16-d9e1-46ef-95bd-cdae8b03bafd
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
-# ╟─55ca59b0-c292-4711-9aa6-81499184423c
+# ╠═55ca59b0-c292-4711-9aa6-81499184423c
 # ╠═62334cca-b9db-4eb0-91e2-25af04c58d0e
 # ╠═cad85f17-ff15-4a1d-8897-6a0a7ca59023
+# ╠═30267bdc-fe1d-4c73-b322-e19f3e934749
+# ╠═28d5de0c-f619-4ffd-9be0-623999b437e0
+# ╠═be1b7fd5-6a06-4dee-a479-c84b56edbaba
+# ╠═033fea3f-f0e2-4362-96ce-041b7e0c27c6
+# ╠═04bbfc5b-2eb2-4024-a035-ddc8fe60a932
+# ╠═3ed223be-2808-4e8f-b3c0-f2caaa11a6d2
+# ╠═e72950c1-2130-4a49-8d9c-0216c365683f
+# ╠═a5308e5b-77d2-4bc3-b368-15320d6a4049
+# ╠═af7b1cec-2a47-4d90-8e66-90940ae3a087
