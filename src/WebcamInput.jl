@@ -36,6 +36,9 @@ using UUIDs: UUID, uuid4
 # ╔═╡ b3b59805-7062-463f-b6c5-1679133a589f
 using ColorTypes
 
+# ╔═╡ 39f594bb-6326-4431-9fad-8974fef608a1
+using FixedPointNumbers
+
 # ╔═╡ 31dff3d3-b3ee-426d-aec8-ee811820d842
 import AbstractPlutoDingetjes
 
@@ -89,17 +92,14 @@ Accepts a `Dict{Any, Any}` similar to the ImageData type, i.e. with keys
 function ImageDataToRGBA(d::Dict)
 	width = d["width"]
 	height = d["height"]
-	r = reshape(d["data"], 4, width, height) ./ 255
-	return [
-		RGBA(
-			r[1, w, h],
-			r[2, w, h],
-			r[3, w, h],
-			r[4, w, h]
-		) for
-			h in 1:height,
-			w in 1:width
-		]
+
+	PermutedDimsArray( # lazy transpose
+		reshape( # unflatten
+			reinterpret(RGBA{N0f8}, d["data"]::Vector{UInt8}),
+			640, 480
+		), 
+		(2,1)
+	)
 end
 
 # ╔═╡ 43332d10-a10b-4acc-a3ac-8c4b4eb58c46
@@ -375,7 +375,7 @@ begin
 	Base.@kwdef struct WebcamInput
 		uuid::UUID
 		help::Bool = true
-		default::Matrix{RGBA{Float64}}=[RGBA{Float64}(0.0,0.0,0.0,0.0);;]
+		default::Matrix{RGBA{N0f8}}=[RGBA{Float64}(0.0,0.0,0.0,0.0);;]
 	end
 	WebcamInput() = WebcamInput(; uuid = uuid4())
 	WebcamInput
@@ -386,7 +386,7 @@ begin
 	Base.get(w::WebcamInput) = AbstractPlutoDingetjes.Bonds.initial_value(w)
 
 	function AbstractPlutoDingetjes.Bonds.transform_value(w::WebcamInput, d)
-		if d isa Dict{Any, Any}
+		if d isa Dict
 			return ImageDataToRGBA(d)
 		else
 			return AbstractPlutoDingetjes.Bonds.initial_value(w)
@@ -407,6 +407,9 @@ end
 # ╔═╡ d0b8b2ac-60be-481d-8085-3e57525e4a74
 size(img)
 
+# ╔═╡ 55ca59b0-c292-4711-9aa6-81499184423c
+typeof(img)
+
 # ╔═╡ 62334cca-b9db-4eb0-91e2-25af04c58d0e
 img
 
@@ -414,17 +417,15 @@ img
 [img img[end:-1:1, :]
 img[:, end:-1:1] img[end:-1:1, end:-1:1]]
 
-# ╔═╡ 55ca59b0-c292-4711-9aa6-81499184423c
-typeof(img)
-
 # ╔═╡ Cell order:
 # ╠═1791669b-d1ee-4c62-9485-52d8493888a7
 # ╠═25fc026c-c593-11ec-05c8-93e16f9dc527
 # ╠═cfb76adb-96da-493c-859c-ad24aa18437e
 # ╠═b3b59805-7062-463f-b6c5-1679133a589f
+# ╠═39f594bb-6326-4431-9fad-8974fef608a1
 # ╠═31dff3d3-b3ee-426d-aec8-ee811820d842
 # ╠═0d0e666c-c0ef-46ca-ad4b-206e9e643e6a
-# ╟─5104aabe-43f7-451e-b4c1-68c0b345669e
+# ╠═5104aabe-43f7-451e-b4c1-68c0b345669e
 # ╟─43332d10-a10b-4acc-a3ac-8c4b4eb58c46
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
@@ -432,6 +433,6 @@ typeof(img)
 # ╠═06062a16-d9e1-46ef-95bd-cdae8b03bafd
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
-# ╠═55ca59b0-c292-4711-9aa6-81499184423c
+# ╟─55ca59b0-c292-4711-9aa6-81499184423c
 # ╠═62334cca-b9db-4eb0-91e2-25af04c58d0e
 # ╠═cad85f17-ff15-4a1d-8897-6a0a7ca59023
