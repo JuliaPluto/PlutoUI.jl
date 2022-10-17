@@ -338,10 +338,18 @@ function html(webcam)
 		tryInitVideo()
 	});
 
-	const cleanup = () => {
-		closeCamera();
+	invalidation.then(closeCamera)
+	const on_vis_change = () => {
+		console.log(document.visibilityState)
+		if (document.visibilityState != "visible") {
+			closeCamera()
+		}
 	}
-	invalidation.then(cleanup)
+	document.addEventListener("visibilitychange", on_vis_change)
+	invalidation.then(() => 
+		document.removeEventListener("visibilitychange", on_vis_change)
+	 )
+	
 	getDevices()
 	return html`
 <div class="grid">
