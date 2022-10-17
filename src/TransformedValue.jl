@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.19.12
 
 using Markdown
 using InteractiveUtils
@@ -14,37 +14,21 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ ea9b4e8b-cfc1-4177-bd3e-45608aca9398
-function skip_as_script(m::Module)
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
-	end
-end
-
 # ╔═╡ f85cb5fc-246d-46a1-9875-9c06b7f102d6
-if skip_as_script(@__MODULE__)
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
 	import Pkg
 	Pkg.activate(Base.current_project(@__DIR__))
-	Text("Project env active")
+	Pkg.instantiate()
 end
+  ╠═╡ =#
 
 # ╔═╡ eab272db-413a-44e4-9c07-b1c1b96e9a5c
-if skip_as_script(@__MODULE__)
-	using PlutoUI
-end
-
-# ╔═╡ 4d94fbcd-f53f-4a90-b01c-f4dbe83313d1
-"""
-	@skip_as_script expression
-
-Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
-"""
-macro skip_as_script(ex) skip_as_script(__module__) ? esc(ex) : nothing end
-
-# ╔═╡ 460e57a6-d40e-4892-a945-55b03141b1d7
-macro only_as_script(ex) skip_as_script(__module__) ? nothing : esc(ex) end
+# ╠═╡ skip_as_script = true
+#=╠═╡
+using PlutoUI
+  ╠═╡ =#
 
 # ╔═╡ b88673ff-30b2-4aca-b0d1-b55a1cd393e7
 import AbstractPlutoDingetjes.Bonds
@@ -186,7 +170,9 @@ function transformed_value(f::Function, x::Any; get_initial_value::Union{Nothing
 end
 
 # ╔═╡ 22109e0c-1815-4b70-9f8c-182b8fe186ea
-@skip_as_script function RepeatedTextSlider(text::String)	
+# ╠═╡ skip_as_script = true
+#=╠═╡
+function RepeatedTextSlider(text::String)	
 	old_widget = PlutoUI.Slider(1:10)
 
 	# our transformation function
@@ -196,9 +182,12 @@ end
 	new_widget = transformed_value(transform, old_widget)
 	return new_widget
 end
+  ╠═╡ =#
 
 # ╔═╡ 99df4d14-4fa3-47f1-a002-047d1be18e27
-@skip_as_script function RepeatedTextSlider()
+# ╠═╡ skip_as_script = true
+#=╠═╡
+function RepeatedTextSlider()
 	old_widget = PlutoUI.combine() do Child
 		md""" $(Child(PlutoUI.TextField())) $(Child(PlutoUI.Slider(1:10)))"""
 	end
@@ -211,24 +200,32 @@ end
 	new_widget = transformed_value(transform, old_widget)
 	return new_widget
 end
+  ╠═╡ =#
 
 # ╔═╡ 7d449272-2e96-418a-80a8-50479cefea7c
-@skip_as_script @bind greeting RepeatedTextSlider("hello")
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind greeting RepeatedTextSlider("hello")
+  ╠═╡ =#
 
 # ╔═╡ 3ab47131-fa65-4e6b-8205-b11620795bfc
-@skip_as_script greeting
+#=╠═╡
+greeting
+  ╠═╡ =#
 
 # ╔═╡ 22004433-904a-42ae-8407-db87a6417389
-@skip_as_script @bind custom_greeting RepeatedTextSlider()
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind custom_greeting RepeatedTextSlider()
+  ╠═╡ =#
 
 # ╔═╡ aecc84f8-3024-4441-ae00-ca1c00db72c0
-@skip_as_script custom_greeting
+#=╠═╡
+custom_greeting
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
-# ╟─ea9b4e8b-cfc1-4177-bd3e-45608aca9398
-# ╟─4d94fbcd-f53f-4a90-b01c-f4dbe83313d1
-# ╟─460e57a6-d40e-4892-a945-55b03141b1d7
-# ╟─f85cb5fc-246d-46a1-9875-9c06b7f102d6
+# ╠═f85cb5fc-246d-46a1-9875-9c06b7f102d6
 # ╠═b88673ff-30b2-4aca-b0d1-b55a1cd393e7
 # ╠═b230e180-8e51-4490-8c3e-66a8829a3b7e
 # ╠═eab272db-413a-44e4-9c07-b1c1b96e9a5c
