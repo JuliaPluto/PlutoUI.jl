@@ -120,13 +120,8 @@ function RGBAToImageData(img)
 end
 
 # ╔═╡ 97e2467e-ca58-4b5f-949d-ad95253b1ac0
-css = @htl("""<style>
-    .camera-help {
-		font-size: 0.8rem;
-        font-family: JuliaMono, monospace;
-	}
-
-	.webcam {
+const css = @htl("""<style>
+	plutoui-webcam {
 		width: 300px;
 		height: 200px;
 		display: flex;
@@ -138,25 +133,25 @@ css = @htl("""<style>
 		position: relative;
 	}
 
-	.webcam.enabled::after{
+	plutoui-webcam.enabled::after{
 		color: red;
 	}
 
-	.webcam video {
+	plutoui-webcam video {
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
 	}
-	.grid {
+	plutoui-webcam .grid {
 		display: grid;
 		width: 300px;
 		height: 200px;
 		grid-template-columns: 1fr 200px 1fr;
 		grid-template-rows: 1fr 1fr 50px;
 	}
-	.select-device {
+	plutoui-webcam .select-device {
 		grid-column-start: 2;
 		grid-row-start: 1;
 		display: flex;
@@ -165,7 +160,7 @@ css = @htl("""<style>
 		margin:0.2em;
 		z-index: 2;
 	}
-	.controls {
+	plutoui-webcam .controls {
 		grid-column-start: 2;
 		grid-row-start: 3;
 		display: flex;
@@ -174,29 +169,29 @@ css = @htl("""<style>
 		margin:0.2em;
 		z-index: 2;
 	}
-	.controls > button {
+	plutoui-webcam .controls > button {
 		margin-left: 0.2em;
 	}
-	.ionic {
+	plutoui-webcam .ionic {
 		display: inline-block;
 		width: 1em;
 		height: 1em;
 		line-height: 1em;
 		margin-bottom: -2px;
 	}
-	.ionic-cam {
+	plutoui-webcam .ionic-cam {
 		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/camera-outline.svg");
 	}
-    .ionic-start{
+    plutoui-webcam .ionic-start{
 		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/play-outline.svg");
 	}
-    .ionic-stop{
+    plutoui-webcam .ionic-stop{
 		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/stop-outline.svg");
 	}
-</style>""")
+</style>""");
 
 # ╔═╡ 3d2ed3d4-60a7-416c-aaae-4dc662127f5b
-help = @htl("""
+const help = @htl("""
 <div class="camera-help">
 
 <h3>Welcome to the Pluto UI Webcam Utility, that lets you capture images from your webcam!</h3>
@@ -213,13 +208,12 @@ help = @htl("""
 # ╔═╡ 06062a16-d9e1-46ef-95bd-cdae8b03bafd
 function html(webcam)
 
-	id = string("id-", webcam.uuid)
 
 	@htl("""
-	<div class="webcam">
+	<plutoui-webcam>
 		$(css)
-		<script id="$(id)">
-	if (this) return this;
+		<script>
+		const parent = currentScript.parentElement
 
 	const checkIfHasMedia = () => {
 		return !!(
@@ -331,7 +325,6 @@ function html(webcam)
 		context.drawImage(video, 0, 0, state.width, state.height)
 		const img = context.getImageData(0, 0, state.width, state.height)
 		console.log(state)
-		const parent = currentScript.parentElement
 		parent.value = {width: img.width, height: img.height, data: img.data}
 		parent.dispatchEvent(new CustomEvent('input'))
 	}
@@ -366,7 +359,7 @@ function html(webcam)
 \${canvas}
 `
 		</script>
-	</div>""")
+	</plutoui-webcam>""")
 end
 
 # ╔═╡ d9b806a2-de81-4b50-88cd-acf7db35da9a
