@@ -69,6 +69,47 @@ struct Uhm end
     @test repr(m, WithIOContext(u, prop = 1)) == "1"
 end
 
+@testset "Resource" begin
+    f1 = tempname() * ".js"
+    f2 = tempname() * ".jpg"
+    f3 = tempname()
+    u4 = "https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png#asdfjk"
+    
+    write(f1, "asdf")
+    write(f2, "asdf")
+    write(f3, "asdf")
+    
+    
+    r1 = LocalResource(f1)
+    r2 = LocalResource(f2)
+    r3 = LocalResource(f3)
+    r4 = Resource(u4)
+    r5 = Resource(u4, :asdf => "123px")
+    
+    hr(x) = repr(MIME"text/html"(), x)
+    
+    h1 = hr(r1)
+    h2 = hr(r2)
+    h3 = hr(r3)
+    h4 = hr(r4)
+    h5 = hr(r5)
+    
+    @test occursin(r"<script.+src\=.+base64.+<\/script>", h1)
+    @test occursin(r"<img.+src=.+base64.+>", h2)
+    @test occursin(r"type=[\'\"]image/jp", h2)
+    @test occursin(r"<data.+src=.+base64.+>", h3)
+    @test !occursin(r"type=", h3)
+    @test occursin(r"<video.+src=.+>", h4)
+    @test (
+        occursin("https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png", h4) ||
+        # This one is fine too, you can verify this by rendering HTML("<img src="https://asdf.com/a/b/c.mp4?b=23f&amp;c=asdf.png">") in a cell, and in the Network panel in the chrome devtools, you will see a request to https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png, which is what we want.
+        occursin("https://asdf.com/a/b/c.mp4?b=23f&amp;c=asdf.png", h4)
+    )
+    @test occursin(r"asdf=[\'\"]123px", h5)
+    
+        
+end
+
 function default(x)
     new = AbstractPlutoDingetjes.Bonds.initial_value(x)
     if Core.applicable(Base.get, x)

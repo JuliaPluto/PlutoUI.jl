@@ -1,5 +1,8 @@
 import Base64
 import Markdown
+import MIMEs
+import URIs
+using HypertextLiteral
 
 export Resource, RemoteResource, LocalResource, DownloadButton
 
@@ -31,21 +34,27 @@ struct Resource
 end
 Resource(src::AbstractString, html_attributes::Pair...) = Resource(src, mime_fromfilename(src), html_attributes)
 
-function Base.show(io::IO, ::MIME"text/html", r::Resource)
-    tag = if r.mime ∈ imagemimes
+function Base.show(io::IO, m::MIME"text/html", r::Resource)
+    mime_str = string(r.mime)
+    
+    tag = if startswith(mime_str, "image/")
         :img
     elseif r.mime isa MIME"text/javascript"
         :script
-    elseif r.mime ∈ audiomimes
+    elseif startswith(mime_str, "audio/")
         :audio
-    elseif r.mime ∈ videomimes
+    elseif startswith(mime_str, "video/")
         :video
     else
         :data
     end
-    type_attr = r.mime isa MIME ? [:type => string(r.mime)] : []
-    
-    Markdown.withtag(() -> (), io, tag, :src => r.src, :controls => "", type_attr..., (k => string(v) for (k, v) in r.html_attributes)...)
+
+    Base.show(io, m, 
+        @htl("""<$(tag) controls='' src=$(r.src) type=$(r.mime) $(Dict{String,Any}(
+                string(k) => v 
+                for (k, v) in r.html_attributes
+            ))></$(tag)>""")
+    )
 end
 
 
@@ -83,12 +92,12 @@ function LocalResource(path::AbstractString, html_attributes::Pair...)
     # 1. Go to [imgur.com](https://imgur.com) and drag&drop the image to the page. Right click on the image, and select "Copy image location". You can now use the image like so: `PlutoUI.Resource("https://i.imgur.com/SAzsMMA.jpg")`.
     # 2. If your notebook is part of a git repository, place the image in the repository and use a relative path: `PlutoUI.LocalResource("../images/cat.jpg")`."""
     mime = mime_fromfilename(path)
-    src = join([
-		"data:", 
-		string(something(mime,"")),
-		";base64,", 
-		Base64.base64encode(read(path))
-	])
+    src = "data:$( 
+		    string(something(mime,""))
+		);base64,$(
+		    Base64.base64encode(read(path))
+	    )"
+    return Resource(src, mime, html_attributes)
 	Resource(src, mime, html_attributes)
 end
 
@@ -151,14 +160,10 @@ function mime_fromfilename(filename; default=nothing, filename_maxlength=2000)
 	if length(filename) > filename_maxlength
 		default
     else
-		get(mimepairs, lowercase('.' * split(split(split(filename, '?')[1], '#')[1], '.')[end]), default)
+        MIMEs.mime_from_path(
+            URIs.URI(filename).path,
+            default
+        )
 	end
 end
-
-# This bad boy is from: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-const mimepairs = Dict{String,MIME}(".aac" => MIME"audio/aac"(), ".bin" => MIME"application/octet-stream"(), ".bmp" => MIME"image/bmp"(), ".css" => MIME"text/css"(), ".csv" => MIME"text/csv"(), ".eot" => MIME"application/vnd.ms-fontobject"(), ".gz" => MIME"application/gzip"(), ".gif" => MIME"image/gif"(), ".htm" => MIME"text/html"(), ".html" => MIME"text/html"(), ".ico" => MIME"image/vnd.microsoft.icon"(), ".jpeg" => MIME"image/jpeg"(), ".jpg" => MIME"image/jpeg"(), ".js" => MIME"text/javascript"(), ".json" => MIME"application/json"(), ".jsonld" => MIME"application/ld+json"(), ".mjs" => MIME"text/javascript"(), ".mp3" => MIME"audio/mpeg"(), ".mpeg" => MIME"video/mpeg"(), ".mp4" => MIME"video/mp4"(), ".oga" => MIME"audio/ogg"(), ".ogg" => MIME"audio/ogg"(), ".ogv" => MIME"video/ogg"(), ".ogx" => MIME"application/ogg"(), ".opus" => MIME"audio/opus"(), ".otf" => MIME"font/otf"(), ".png" => MIME"image/png"(), ".pdf" => MIME"application/pdf"(), ".rtf" => MIME"application/rtf"(), ".sh" => MIME"application/x-sh"(), ".svg" => MIME"image/svg+xml"(), ".tar" => MIME"application/x-tar"(), ".tif" => MIME"image/tiff"(), ".tiff" => MIME"image/tiff"(), ".ttf" => MIME"font/ttf"(), ".txt" => MIME"text/plain"(), ".wav" => MIME"audio/wav"(), ".weba" => MIME"audio/webm"(), ".webm" => MIME"video/webm"(), ".webp" => MIME"image/webp"(), ".woff" => MIME"font/woff"(), ".woff2" => MIME"font/woff2"(), ".xhtml" => MIME"application/xhtml+xml"(), ".xml" => MIME"application/xml"(), ".xul" => MIME"application/vnd.mozilla.xul+xml"(), ".zip" => MIME"application/zip"())
-
-const imagemimes = (MIME"image/svg+xml"(), MIME"image/png"(), MIME"image/webp"(), MIME"image/tiff"(), MIME"image/jpg"(), MIME"image/jpeg"(), MIME"image/bmp"(), MIME"image/gif"())
-const audiomimes = (MIME"audio/mpeg"(), MIME"audio/wav"(), MIME"audio/aac"(), MIME"audio/ogg"(), MIME"audio/opus"(), MIME"audio/webm"())
-const videomimes = (MIME"video/mpeg"(), MIME"video/ogg"(), MIME"video/webm"(), MIME"video/mp4"())
 
