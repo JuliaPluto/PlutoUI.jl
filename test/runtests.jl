@@ -102,7 +102,7 @@ end
     @test occursin(r"<video.+src=.+>", h4)
     @test (
         occursin("https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png", h4) ||
-        # This one is fine too, you can verify this by rendering <img src="https://asdf.com/a/b/c.mp4?b=23f&amp;c=asdf.png"> in a cell, and in the Network panel in the chrome devtools, you will see a request to https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png, which is what we want.
+        # This one is fine too, you can verify this by rendering HTML("<img src="https://asdf.com/a/b/c.mp4?b=23f&amp;c=asdf.png">") in a cell, and in the Network panel in the chrome devtools, you will see a request to https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png, which is what we want.
         occursin("https://asdf.com/a/b/c.mp4?b=23f&amp;c=asdf.png", h4)
     )
     @test occursin(r"asdf=[\'\"]123px", h5)
