@@ -2,6 +2,7 @@ import Base64
 import Markdown
 import MIMEs
 import URIs
+using HypertextLiteral
 
 export Resource, RemoteResource, LocalResource, DownloadButton
 
@@ -33,7 +34,7 @@ struct Resource
 end
 Resource(src::AbstractString, html_attributes::Pair...) = Resource(src, mime_fromfilename(src), html_attributes)
 
-function Base.show(io::IO, ::MIME"text/html", r::Resource)
+function Base.show(io::IO, m::MIME"text/html", r::Resource)
     mime_str = string(r.mime)
     
     tag = if startswith(mime_str, "image/")
@@ -47,9 +48,13 @@ function Base.show(io::IO, ::MIME"text/html", r::Resource)
     else
         :data
     end
-    type_attr = r.mime isa MIME ? [:type => string(r.mime)] : []
-    
-    Markdown.withtag(() -> (), io, tag, :src => r.src, :controls => "", type_attr..., (k => string(v) for (k, v) in r.html_attributes)...)
+
+    Base.show(io, m, 
+        @htl("""<$(tag) controls='' src=$(r.src) type=$(r.mime) $(Dict{String,Any}(
+                string(k) => v 
+                for (k, v) in r.html_attributes
+            ))></$(tag)>""")
+    )
 end
 
 

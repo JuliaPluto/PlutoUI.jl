@@ -73,7 +73,7 @@ end
     f1 = tempname() * ".js"
     f2 = tempname() * ".jpg"
     f3 = tempname()
-    u4 = "https://asdf.com/a/b/c.mp4#asdfjk?b=23f&c=asdf.png"
+    u4 = "https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png#asdfjk"
     
     write(f1, "asdf")
     write(f2, "asdf")
@@ -81,7 +81,7 @@ end
     
     
     r1 = LocalResource(f1)
-    r2 = LocalResource(f3)
+    r2 = LocalResource(f2)
     r3 = LocalResource(f3)
     r4 = Resource(u4)
     
@@ -94,9 +94,15 @@ end
     
     @test occursin(r"<script.+src\=.+base64.+<\/script>", h1)
     @test occursin(r"<img.+src=.+base64.+>", h2)
+    @test occursin(r"type=[\'\"]image/jp", h2)
     @test occursin(r"<data.+src=.+base64.+>", h3)
+    @test !occursin(r"type=", h3)
     @test occursin(r"<video.+src=.+>", h4)
-    @test occursin(u4, h4)
+    @test (
+        occursin("https://asdf.com/a/b/c.mp4?b=23f&amp;c=asdf.png", h4) ||
+        occursin("https://asdf.com/a/b/c.mp4?b=23f&c=asdf.png", h4)
+    )
+        
 end
 
 function default(x)
