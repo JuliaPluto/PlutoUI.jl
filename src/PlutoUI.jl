@@ -32,6 +32,9 @@ end # 0.04 second
 @reexport module ScrubbableNotebook
     include("./Scrubbable.jl")
 end # 0.2 second
+@reexport module WebcamInputNotebook
+    include("./WebcamInput.jl")
+end # ? second
 @reexport module ConfirmNotebook
     include("./Confirm.jl")
 end # 0 second
