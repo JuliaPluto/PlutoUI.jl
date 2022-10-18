@@ -278,8 +278,8 @@ function html(webcam)
 		streaming: false,
 		error: false,
 		stream: null,
-		height: 0,
 		width: 0,
+		height: 0,
 		devices: [],
 		preferredId: null
 	};
@@ -318,6 +318,17 @@ function html(webcam)
 				select_device.disabled = state.devices.length <= 1
 			})
 	}
+
+	const output_size = (width, height) => {
+		const max = $(webcam.max_size)
+		const major = Math.max(width, height)
+		if(max == null || major <= max) {
+			return [width, height]
+		} else {
+			let ratio = max / major
+			return [Math.round(width * ratio), Math.round(height * ratio)]
+		}
+	}
 	
 	const tryInitVideo = () => {
 		const constraints = {
@@ -333,8 +344,10 @@ function html(webcam)
 				state.stream = stream;
 				let {width, height} = stream.getTracks()[0].getSettings();
 
-				canvas.width = width;
-				canvas.height = height;
+				const [output_width, output_height] = output_size(width, height)
+
+				canvas.width = output_width;
+				canvas.height = output_height;
 	
 				state.width = width
 				state.height = height;
@@ -348,6 +361,7 @@ function html(webcam)
 				capture_ctl.disabled = false;
 	
 			}).catch(err => {
+				console.log(err)
 				permissionsHelp.style.visibility = null;
 				
 				state.stream = null;
@@ -381,10 +395,9 @@ function html(webcam)
 
 	const capture = () => {
 		const context = canvas.getContext('2d');
-		context.drawImage(video, 0, 0, state.width, state.height)
-		const img = context.getImageData(0, 0, state.width, state.height)
-		console.log(state)
-		parent.value = {width: img.width, height: img.height, data: img.data}
+		context.drawImage(video, 0, 0, canvas.width, canvas.height)
+		const img = context.getImageData(0, 0, canvas.width, canvas.height)
+		parent.value = {width: canvas.width, height: canvas.height, data: img.data}
 		parent.dispatchEvent(new CustomEvent('input'))
 	}
 			
@@ -421,6 +434,7 @@ begin
 	Base.@kwdef struct WebcamInput
 		help::Bool = true
 		avoid_allocs::Bool = false
+		max_size::Union{Nothing,Int64}=nothing
 		default::Union{Nothing,AbstractMatrix{RGBA{N0f8}}}=nothing
 	end
 
@@ -450,6 +464,7 @@ begin
 
 	- `help::Bool=true` by default, we display a little help message when you use `WebcamInput`. You can disable that here.
 	- `default::Matrix{RGBA{N0f8}}` set a default image, which is used until the user captures an image. Defaults to a **1x1 transparent image**.
+	- `max_size::Int64` when given, this constraints the largest dimension of the image, while maintaining aspect ratio. A lower value has better performance.
 	- `avoid_allocs::Bool=false` when set to `true`, we lazily convert the raw `Vector{UInt8}` camera data to a `AbstractMatrix{RGBA{N0f8}}`, with zero allocations. This will lead to better performance, but the bound value will be an `AbstractMatrix`, not a `Matrix`.
 	
 	# Examples
@@ -508,7 +523,7 @@ end
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═╡ skip_as_script = true
 #=╠═╡
-@bind img1 WebcamInput()
+@bind img1 WebcamInput(; max_size=200)
   ╠═╡ =#
 
 # ╔═╡ d0b8b2ac-60be-481d-8085-3e57525e4a74
@@ -535,17 +550,23 @@ img1[:, end:-1:1] img1[end:-1:1, end:-1:1]]
 # ╔═╡ 30267bdc-fe1d-4c73-b322-e19f3e934749
 # ╠═╡ skip_as_script = true
 #=╠═╡
-# @bind img2 WebcamInput(; avoid_allocs=true)
+@bind img2 WebcamInput(; avoid_allocs=true, max_size=40)
   ╠═╡ =#
 
 # ╔═╡ 28d5de0c-f619-4ffd-9be0-623999b437e0
+#=╠═╡
 size(img2)
+  ╠═╡ =#
 
 # ╔═╡ be1b7fd5-6a06-4dee-a479-c84b56edbaba
+#=╠═╡
 typeof(img2)
+  ╠═╡ =#
 
 # ╔═╡ 033fea3f-f0e2-4362-96ce-041b7e0c27c6
+#=╠═╡
 img2
+  ╠═╡ =#
 
 # ╔═╡ 04bbfc5b-2eb2-4024-a035-ddc8fe60a932
 # ╠═╡ skip_as_script = true
@@ -554,16 +575,24 @@ test_img = rand(RGBA{N0f8}, 8, 8)
   ╠═╡ =#
 
 # ╔═╡ 3ed223be-2808-4e8f-b3c0-f2caaa11a6d2
-# @bind img3 WebcamInput(; default=test_img)
+#=╠═╡
+@bind img3 WebcamInput(; default=test_img)
+  ╠═╡ =#
 
 # ╔═╡ e72950c1-2130-4a49-8d9c-0216c365683f
+#=╠═╡
 size(img3)
+  ╠═╡ =#
 
 # ╔═╡ a5308e5b-77d2-4bc3-b368-15320d6a4049
+#=╠═╡
 typeof(img3)
+  ╠═╡ =#
 
 # ╔═╡ af7b1cec-2a47-4d90-8e66-90940ae3a087
+#=╠═╡
 img3
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
 # ╠═1791669b-d1ee-4c62-9485-52d8493888a7
@@ -578,10 +607,10 @@ img3
 # ╠═c917c90c-6999-4553-9187-a84e1f3b9315
 # ╠═9a07c7f4-e2c1-4322-bcbc-c7db90af0059
 # ╠═43f46ca7-08e0-4687-87eb-218df976a8a5
-# ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
+# ╟─d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
-# ╟─06062a16-d9e1-46ef-95bd-cdae8b03bafd
+# ╠═06062a16-d9e1-46ef-95bd-cdae8b03bafd
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
 # ╠═55ca59b0-c292-4711-9aa6-81499184423c
