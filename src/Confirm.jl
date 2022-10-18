@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.19.12
 
 using Markdown
 using InteractiveUtils
@@ -14,41 +14,27 @@ macro bind(def, element)
     end
 end
 
+# ╔═╡ dadf2f40-1764-47a4-b560-683b6479d77f
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Pkg.instantiate()
+end
+  ╠═╡ =#
+
 # ╔═╡ 1b737805-a411-4585-b215-d0f99eafac0c
 using HypertextLiteral
 
-# ╔═╡ 881b75d3-cebe-4a53-8cf5-beaeeddafd35
-function skip_as_script(m::Module)
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
-	end
-end
-
-# ╔═╡ dadf2f40-1764-47a4-b560-683b6479d77f
-if skip_as_script(@__MODULE__)
-	import Pkg
-	Pkg.activate(Base.current_project(@__DIR__))
-	Text("Project env active")
-end
-
 # ╔═╡ 38b7eeb9-80bb-4a3a-a2d2-809fc423625c
-if skip_as_script(@__MODULE__)
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
 	using PlutoUI
 	using PlutoUI: combine
 end
-
-# ╔═╡ ba94c9b3-55bf-486a-8bf3-eb0b3e65e536
-"""
-	@skip_as_script expression
-
-Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
-"""
-macro skip_as_script(ex) skip_as_script(__module__) ? esc(ex) : nothing end
-
-# ╔═╡ 9e56dbb9-2e93-4136-b10b-7b1ecb07e6f1
-macro only_as_script(ex) skip_as_script(__module__) ? nothing : esc(ex) end
+  ╠═╡ =#
 
 # ╔═╡ 5028fc01-4e14-4550-8ae6-48703b86dc21
 import AbstractPlutoDingetjes.Bonds
@@ -287,19 +273,31 @@ md"""
 """
 
 # ╔═╡ f08680b2-ed28-4fac-838c-2eca7e75c6dc
-@skip_as_script xb = @bind x confirm(Slider([sin, cos, tan, sqrt, floor]))
+# ╠═╡ skip_as_script = true
+#=╠═╡
+xb = @bind x confirm(Slider([sin, cos, tan, sqrt, floor]))
+  ╠═╡ =#
 
 # ╔═╡ 41d64a95-6c03-4a5d-9fd7-496d0e6c0346
-@skip_as_script xb
+#=╠═╡
+xb
+  ╠═╡ =#
 
 # ╔═╡ 8dcb2498-00cf-49a8-8074-301fe88b76ea
-@skip_as_script x(234)
+#=╠═╡
+x(234)
+  ╠═╡ =#
 
 # ╔═╡ fc92b3fc-6143-477c-a413-84dcd1b4cfc0
-@skip_as_script @bind t confirm(html"<input>")
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind t confirm(html"<input>")
+  ╠═╡ =#
 
 # ╔═╡ 363a65ec-218c-43a2-b740-8061fac25011
-@skip_as_script t
+#=╠═╡
+t
+  ╠═╡ =#
 
 # ╔═╡ a61f27d1-4043-48f1-a974-7d1a0ae65407
 md"""
@@ -308,34 +306,58 @@ md"""
 """
 
 # ╔═╡ aa399a36-7fea-4912-89ef-4bd5de173c69
-@skip_as_script @bind asdf confirm(html"<span>asdf</span>")
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind asdf confirm(html"<span>asdf</span>")
+  ╠═╡ =#
 
 # ╔═╡ 00ec98e4-4913-4e85-9d71-eaf6aedd1265
-@skip_as_script asdf, rand()
+#=╠═╡
+asdf, rand()
+  ╠═╡ =#
 
 # ╔═╡ 5d9eeddb-5d18-4510-ae04-1b1806eb19ca
-@skip_as_script @bind asdf2 confirm(html"<span>")
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind asdf2 confirm(html"<span>")
+  ╠═╡ =#
 
 # ╔═╡ 0d84e69b-c55e-448c-8710-97bede80f924
-@skip_as_script asdf2, rand()
+#=╠═╡
+asdf2, rand()
+  ╠═╡ =#
 
 # ╔═╡ bac9ea52-ee38-40bf-8d54-9ece7f5b372f
-@skip_as_script @bind asdf3 confirm(html"asdf")
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind asdf3 confirm(html"asdf")
+  ╠═╡ =#
 
 # ╔═╡ 58105619-978a-450e-a06d-bbdfbbec8a66
-@skip_as_script asdf3, rand()
+#=╠═╡
+asdf3, rand()
+  ╠═╡ =#
 
 # ╔═╡ 42791264-2c15-427a-a398-aedbb76b5288
-@skip_as_script @bind asdf4 confirm(@bind asdf5 Slider(1:100))
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind asdf4 confirm(@bind asdf5 Slider(1:100))
+  ╠═╡ =#
 
 # ╔═╡ 3f871bb5-a907-40d2-8ea2-35e0df041565
-@skip_as_script asdf4, rand()
+#=╠═╡
+asdf4, rand()
+  ╠═╡ =#
 
 # ╔═╡ 8c9cc28c-2684-4b1c-b990-3f55b6d55aec
-@skip_as_script asdf5
+#=╠═╡
+asdf5
+  ╠═╡ =#
 
 # ╔═╡ 801fb021-73a0-4114-a36a-328e84f00b51
-@skip_as_script @bind speeds identity(
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind speeds identity(
 	combine() do Child
 		@htl("""
 		<h3>Wind speeds</h3>
@@ -348,9 +370,12 @@ md"""
 		""")
 	end
 )
+  ╠═╡ =#
 
 # ╔═╡ d7985844-5944-42b9-ad41-599cd72eea82
-@skip_as_script speeds
+#=╠═╡
+speeds
+  ╠═╡ =#
 
 # ╔═╡ 5a0196d0-e19f-4202-b36d-18ab9be839b3
 md"""
@@ -363,14 +388,19 @@ md"""
 """
 
 # ╔═╡ 451c3c11-c3dc-4d6e-b9e5-c3904e405812
-@skip_as_script begin
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
 	itvs = []
 
 	itb = @bind itv confirm(Slider([sin, cos]))
 end
+  ╠═╡ =#
 
 # ╔═╡ bb9eddc3-208c-4113-8988-311eb1dcfcd4
-@skip_as_script push!(itvs, itv)
+#=╠═╡
+push!(itvs, itv)
+  ╠═╡ =#
 
 # ╔═╡ 7de50435-e962-4405-b06d-83fbe9436cff
 md"""
@@ -378,21 +408,25 @@ md"""
 """
 
 # ╔═╡ 829f90ac-c4d9-4af9-984a-b4e52a075460
-@skip_as_script cb2b = @bind wowz confirm(confirm(Slider(1:1//3:10)))
+# ╠═╡ skip_as_script = true
+#=╠═╡
+cb2b = @bind wowz confirm(confirm(Slider(1:1//3:10)))
+  ╠═╡ =#
 
 # ╔═╡ a1a9b22f-9df7-4c5f-a73d-38e184da7c35
-@skip_as_script let
+#=╠═╡
+let
 	sleep(1)
 	wowz
 end
+  ╠═╡ =#
 
 # ╔═╡ c7a32ab2-2a5b-485b-9795-4a743604de82
-@skip_as_script cb2b
+#=╠═╡
+cb2b
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
-# ╟─881b75d3-cebe-4a53-8cf5-beaeeddafd35
-# ╟─ba94c9b3-55bf-486a-8bf3-eb0b3e65e536
-# ╟─9e56dbb9-2e93-4136-b10b-7b1ecb07e6f1
 # ╟─dadf2f40-1764-47a4-b560-683b6479d77f
 # ╠═1b737805-a411-4585-b215-d0f99eafac0c
 # ╠═5028fc01-4e14-4550-8ae6-48703b86dc21

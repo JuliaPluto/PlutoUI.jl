@@ -1,18 +1,18 @@
 ### A Pluto.jl notebook ###
-# v0.17.7
+# v0.19.12
 
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
+# ╔═╡ 924c5ca1-f9f1-4b4b-b3d9-e74d6b2feae9
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Pkg.instantiate()
 end
+  ╠═╡ =#
 
 # ╔═╡ 2da76520-1615-11ec-1ad7-8f93957b2e6e
 import IOCapture
@@ -186,52 +186,43 @@ function with_terminal(f, args...; color=true, show_value=true)
 	end
 end
 
-# ╔═╡ bb087be9-fc7e-46a1-9ff3-2a5f97a27add
-function is_inside_pluto(m::Module)::Bool
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) === Main
-	end
-end
-
-# ╔═╡ 0ffed232-19c8-47f1-af97-23989687ae6e
-"""
-	@skip_as_script expression
-
-Marks a expression as Pluto-only, which means that it won't be executed when running outside Pluto. Do not use this for your own projects.
-"""
-macro skip_as_script(ex) is_inside_pluto(__module__) ? esc(ex) : nothing end
-
-# ╔═╡ 924c5ca1-f9f1-4b4b-b3d9-e74d6b2feae9
-@skip_as_script begin
-	import Pkg
-	Pkg.activate("..")
-	Pkg.instantiate()
-end
+# ╔═╡ fe8c0c2f-8555-44f0-ae30-628ad4860157
+export with_terminal, @with_terminal
 
 # ╔═╡ 376b7763-dd17-4147-a246-a530ace698ec
-return_value = @skip_as_script with_terminal() do
+# ╠═╡ skip_as_script = true
+#=╠═╡
+return_value = with_terminal() do
 	@info "Hey!"
 	@warn "Wow"
 	@error "Hi"
 	[1, 2, 3, 4, 5, 6, 7, 8]
 end
+  ╠═╡ =#
 
 # ╔═╡ 4a93743e-0700-4049-880a-ac5b0cf0b0f5
-inside_array_looks_funky = @skip_as_script [return_value, return_value]
+# ╠═╡ skip_as_script = true
+#=╠═╡
+inside_array_looks_funky = [return_value, return_value]
+  ╠═╡ =#
 
 # ╔═╡ 3072a9cf-ad45-463c-866e-ed2bba434a95
 md"## Examples"
 
 # ╔═╡ 5cd4a175-2290-441a-989d-f26921d090bb
-@skip_as_script with_terminal(color=false) do
+# ╠═╡ skip_as_script = true
+#=╠═╡
+with_terminal(color=false) do
 	@info "Hey!"
 	@error "Hi"
 end
+  ╠═╡ =#
 
 # ╔═╡ c2c01f9a-151d-46b5-9ffd-45087fbf9381
-@skip_as_script with_terminal(dump, [1,2,[3,4]])
+# ╠═╡ skip_as_script = true
+#=╠═╡
+with_terminal(dump, [1,2,[3,4]])
+  ╠═╡ =#
 
 # ╔═╡ 15383b08-1ad9-4f0b-9eb0-e55025ef5c26
 md"""
@@ -254,40 +245,24 @@ Okay... can't show this demo because of Crayons isn't in PlutoUI
 md"### ls --color"
 
 # ╔═╡ 988d2c53-3f4f-40e8-8069-a24a8e10a8ca
+# ╠═╡ skip_as_script = true
+#=╠═╡
 # This command doesn't show colors for me... but maybe for someone else it works idk
-@skip_as_script with_terminal() do
+with_terminal() do
 	run(`ls -lh --color`)
 end
+  ╠═╡ =#
 
 # ╔═╡ 342e1498-4dcd-46c3-ab43-75832e5655ff
 md"### @code_llvm"
 
 # ╔═╡ e0d49688-ef83-4607-8747-7e4e4f0003c2
-@skip_as_script with_terminal() do
+# ╠═╡ skip_as_script = true
+#=╠═╡
+with_terminal() do
 	@code_llvm [1,2,3,4,1//3] .* [2,3,4,.5]
 end
-
-# ╔═╡ 34a131cb-3f79-4fcf-91f2-828ee9115127
-md"""
-### Macro version because idk
-
-Just keeping this here in case someone wants to un-@skip\_as\_script it
-"""
-
-# ╔═╡ e8f72c6d-1b48-4b30-acee-4ec519682070
-macro with_terminal(expr)
-	quote
-		$(with_terminal)() do
-			$(esc(expr))
-		end
-	end
-end
-
-# ╔═╡ fe8c0c2f-8555-44f0-ae30-628ad4860157
-export with_terminal, @with_terminal
-
-# ╔═╡ 329d47a4-7ae1-49fb-9411-55cbc113195b
-@skip_as_script @with_terminal @info "Hey!"
+  ╠═╡ =#
 
 # ╔═╡ Cell order:
 # ╠═924c5ca1-f9f1-4b4b-b3d9-e74d6b2feae9
@@ -303,8 +278,6 @@ export with_terminal, @with_terminal
 # ╠═bf684e0c-e0f2-452c-b9a4-8452233ff920
 # ╠═d416b336-a6ee-4059-93af-08b12d59defd
 # ╠═a0df0558-6b19-471d-b609-df3ee65dadbb
-# ╟─bb087be9-fc7e-46a1-9ff3-2a5f97a27add
-# ╟─0ffed232-19c8-47f1-af97-23989687ae6e
 # ╟─3072a9cf-ad45-463c-866e-ed2bba434a95
 # ╠═5cd4a175-2290-441a-989d-f26921d090bb
 # ╠═c2c01f9a-151d-46b5-9ffd-45087fbf9381
@@ -315,6 +288,3 @@ export with_terminal, @with_terminal
 # ╠═988d2c53-3f4f-40e8-8069-a24a8e10a8ca
 # ╟─342e1498-4dcd-46c3-ab43-75832e5655ff
 # ╠═e0d49688-ef83-4607-8747-7e4e4f0003c2
-# ╟─34a131cb-3f79-4fcf-91f2-828ee9115127
-# ╠═329d47a4-7ae1-49fb-9411-55cbc113195b
-# ╠═e8f72c6d-1b48-4b30-acee-4ec519682070

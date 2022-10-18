@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.5
+# v0.19.12
 
 using Markdown
 using InteractiveUtils
@@ -13,6 +13,17 @@ macro bind(def, element)
         el
     end
 end
+
+# ╔═╡ 8c1d2b3b-8fa1-4356-8a9d-dff10cd0a336
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Pkg.instantiate()
+	Text("Project env active")
+end
+  ╠═╡ =#
 
 # ╔═╡ b09cff15-804f-468f-ac3a-0ed825490a8b
 using HypertextLiteral
@@ -119,7 +130,7 @@ function default_range(x::Integer)
 end
 
 # ╔═╡ e14b3395-831d-43d6-874e-cfb32f8edd05
-up_or_down_one_order_of_magnitude = 10 .^ (-1.0:0.1:1.0)
+const up_or_down_one_order_of_magnitude = 10 .^ (-1.0:0.1:1.0)
 
 # ╔═╡ 018035dd-78d7-46d3-bd3c-5c136fa47929
 function default_range(x::Real) # not an integer
@@ -140,10 +151,16 @@ Integer inputs become integer ranges with constant step:
 """
 
 # ╔═╡ e8a6ce9f-9f48-4e31-ad2a-e21d7e0415af
+# ╠═╡ skip_as_script = true
+#=╠═╡
 default_range(20)
+  ╠═╡ =#
 
 # ╔═╡ 1e139b79-b703-43bf-a351-1a2d811aea6a
+# ╠═╡ skip_as_script = true
+#=╠═╡
 default_range(2000)
+  ╠═╡ =#
 
 # ╔═╡ 1e60fea6-33dc-417b-9928-eb5922b41759
 md"""
@@ -151,10 +168,16 @@ Floating points get a logarithmic scale across one order of magnitude:
 """
 
 # ╔═╡ 6fe1f0f7-e8a1-441a-a676-ddd4b3b26668
+# ╠═╡ skip_as_script = true
+#=╠═╡
 default_range(1.0e6)
+  ╠═╡ =#
 
 # ╔═╡ cfcc5fbb-72f7-4223-a83e-96fe6971b143
+# ╠═╡ skip_as_script = true
+#=╠═╡
 default_range(-2.0)
+  ╠═╡ =#
 
 # ╔═╡ 1fa8edc6-9aa2-4082-bdeb-7517d9e2dd71
 md"""
@@ -162,10 +185,16 @@ Zero becomes a range around zero:
 """
 
 # ╔═╡ 3f1c3fa5-2257-4c3a-aa75-0b3c59a7fcdc
+# ╠═╡ skip_as_script = true
+#=╠═╡
 default_range(0)
+  ╠═╡ =#
 
 # ╔═╡ 2554121f-13e6-4b07-9c45-b2ccf154d07d
+# ╠═╡ skip_as_script = true
+#=╠═╡
 default_range(0.0)
+  ╠═╡ =#
 
 # ╔═╡ 8bce6b13-9600-49ca-a7ea-ba2f53028f1b
 # using HypertextLiteral
@@ -180,22 +209,6 @@ default_range(0.0)
 md"""
 ## Definition
 """
-
-# ╔═╡ 1a649975-9e31-4ae8-8b2c-b615852cfc9d
-function skip_as_script(m::Module)
-	if isdefined(m, :PlutoForceDisplay)
-		return m.PlutoForceDisplay
-	else
-		isdefined(m, :PlutoRunner) && parentmodule(m) == Main
-	end
-end
-
-# ╔═╡ 8c1d2b3b-8fa1-4356-8a9d-dff10cd0a336
-if skip_as_script(@__MODULE__)
-	import Pkg
-	Pkg.activate(Base.current_project(@__DIR__))
-	Text("Project env active")
-end
 
 # ╔═╡ 58a5b0d2-88a6-4a83-bb26-05c05a51716b
 import AbstractPlutoDingetjes: AbstractPlutoDingetjes, Bonds
@@ -362,60 +375,97 @@ begin
 end
 
 # ╔═╡ b62db8c0-4352-4d0f-83a2-ac170ef3337a
+# ╠═╡ skip_as_script = true
+#=╠═╡
 md"""
 _If Alice has $(@bind a Scrubbable(20)) apples, 
 and she gives $(@bind b Scrubbable(3)) apples to Bob..._
 """
+  ╠═╡ =#
 
 # ╔═╡ 861a570a-3a77-4445-9217-3d38682cbb8c
+#=╠═╡
 md"""
 _...then Alice has **$(a - b)** apples left._
 """
+  ╠═╡ =#
 
 # ╔═╡ 5d6299e0-fb4a-448f-b87a-9d17b607fd6a
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind x Scrubbable(5)
+  ╠═╡ =#
 
 # ╔═╡ 188e548a-2d5d-4680-9b0a-7bfb03b24dab
+#=╠═╡
 1000 + x
+  ╠═╡ =#
 
 # ╔═╡ e9169074-6fec-43a6-badc-4b20d05050ab
+# ╠═╡ skip_as_script = true
+#=╠═╡
 md"""
 If Alice has $(@bind num_apples Scrubbable(20)) apples...
 """
+  ╠═╡ =#
 
 # ╔═╡ 65584961-4085-4fd6-8968-6951056f3b1c
+#=╠═╡
 num_apples
+  ╠═╡ =#
 
 # ╔═╡ 9e97e893-066c-4fc6-b380-9637994b7dac
+# ╠═╡ skip_as_script = true
+#=╠═╡
 (Scrubbable(5), Scrubbable(2000), Scrubbable(30.0))
+  ╠═╡ =#
 
 # ╔═╡ b69fb562-7e8e-4366-a53d-85173afc49be
+# ╠═╡ skip_as_script = true
+#=╠═╡
 Scrubbable(200 : 300; default=220)
+  ╠═╡ =#
 
 # ╔═╡ 19549e7c-cf8a-4d79-814b-db89efc91a15
+# ╠═╡ skip_as_script = true
+#=╠═╡
 md"""
 # I spent $(@bind money Scrubbable(30e6, format=".0s", prefix="€ ")) on Pluto.jl stickers
 
 And it was worth it!
 
 """
+  ╠═╡ =#
 
 # ╔═╡ 71bb41eb-908c-4b43-881b-5b6726fc6d0a
+# ╠═╡ skip_as_script = true
+#=╠═╡
 @bind coolness Scrubbable(0.80 : 0.01 : 1.00, format=".0%", prefix="you are 🌝 ", suffix=" cool")
+  ╠═╡ =#
 
 # ╔═╡ 574564ab-ab15-490e-aff6-6300718ae751
+#=╠═╡
 if coolness >= 1
 	md"![](https://media.giphy.com/media/GwGXoeb0gm7sc/giphy.gif)"
 end
+  ╠═╡ =#
 
 # ╔═╡ b081aa76-f080-4dd0-bcff-4bcc82a1c50a
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bc = @bind cool Scrubbable(199.1)
+  ╠═╡ =#
 
 # ╔═╡ 66bfb39b-f708-4148-8359-c651eabd3a2e
+#=╠═╡
 cool
+  ╠═╡ =#
 
 # ╔═╡ 5c78e637-5733-4b0a-8dab-bf1cd9656d11
+# ╠═╡ skip_as_script = true
+#=╠═╡
 HTML(join(repr.([MIME"text/html"()], [Scrubbable(1.0) for _ in 1:100])))
+  ╠═╡ =#
 
 # ╔═╡ 1d34fec8-01cb-4bee-8144-d8cc13a87b8b
 export Scrubbable
@@ -462,7 +512,6 @@ export Scrubbable
 # ╠═d17d259b-8379-46a7-ab54-cd2f697ec713
 # ╠═5c78e637-5733-4b0a-8dab-bf1cd9656d11
 # ╟─aed5fa58-4fe3-4596-b18d-a76cd98a5a1b
-# ╟─1a649975-9e31-4ae8-8b2c-b615852cfc9d
 # ╠═8c1d2b3b-8fa1-4356-8a9d-dff10cd0a336
 # ╠═58a5b0d2-88a6-4a83-bb26-05c05a51716b
 # ╠═b09cff15-804f-468f-ac3a-0ed825490a8b

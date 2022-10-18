@@ -53,7 +53,7 @@ function Base.show(io::IO, ::MIME"text/html", r::Resource)
 end
 
 
-RemoteResource = Resource
+const RemoteResource = Resource
 
 """
 Create a `Resource` for a local file (a base64 encoded data URL is generated).

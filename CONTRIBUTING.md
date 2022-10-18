@@ -1,6 +1,6 @@
 # Contributing to Pluto.jl
 
-Great that you want to contribute! Its an easy package to cnotribute to, and you will make lots of people happy!
+Great that you want to contribute! It’s an easy package to contribute to, and you will make lots of people happy!
 
 One tip: _use Revise_!
 

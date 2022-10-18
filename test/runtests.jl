@@ -2,7 +2,7 @@ using PlutoUI
 using Test
 import AbstractPlutoDingetjes
 using HypertextLiteral
-import ColorTypes: RGB, N0f8, Colorant
+import ColorTypes: RGB, RGBA, N0f8, Colorant
 import Logging
 using Dates
 
@@ -99,7 +99,14 @@ end
     @test occursin(u4, h4)
 end
 
-default(x) = AbstractPlutoDingetjes.Bonds.initial_value(x)
+function default(x)
+    new = AbstractPlutoDingetjes.Bonds.initial_value(x)
+    if Core.applicable(Base.get, x)
+        # if the default value is defined with both the new and old API, make sure that both APIs return the same value.
+        @assert Base.get(x) == new
+    end
+    new
+end
 transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
 
 @testset "Public API" begin
@@ -237,6 +244,31 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == tan
 
 
+
+    # Downsampling Slider ranges
+    x1 = [1,2,3]
+    x2 = rand(500)
+
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 3) == x1
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 3) === x1
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 30) === x1
+    @test PlutoUI.BuiltinsNotebook.downsample(x1, 2) == [1,3]
+
+    @test PlutoUI.BuiltinsNotebook.downsample(x2, 500) == x2
+    @test PlutoUI.BuiltinsNotebook.downsample(x2, 500) === x2
+    y2 = PlutoUI.BuiltinsNotebook.downsample(x2, 400)
+    @test 250 <= length(y2) <= 400
+    @test y2[begin] == x2[begin]
+    @test y2[end] == x2[end] 
+
+    x3 = rand(50_000_000)
+    max_downsample_time = 0.001 # seconds
+    # this should take less than 0.1ms
+    @test max_downsample_time >= @elapsed PlutoUI.BuiltinsNotebook.downsample(x3, 100)
+
+
+    
+
     el = Scrubbable(60)
     @test default(el) === 60
     el = Scrubbable(60.0)
@@ -302,6 +334,15 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == 4:1//3:5
     el = RangeSlider(1:(1//3):10; default = 4:1//3:(17//3))
     @test default(el) == 4:1//3:(17//3)
+    
+    el = WebcamInput(; help=false)
+    @test default(el) isa Matrix{RGBA{N0f8}}
+    @test size(default(el)) == (1,1)
+    
+    el = WebcamInput(; help=false, avoid_allocs=true)
+    @test !(default(el) isa Matrix{RGBA{N0f8}})
+    @test default(el) isa AbstractMatrix{RGBA{N0f8}}
+    @test size(default(el)) == (1,1)
 
 
     el = confirm(Slider([sin, cos]))
