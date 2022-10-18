@@ -520,6 +520,9 @@ begin
 	result
 end
 
+# ╔═╡ 5d9f2eeb-4cf6-4ab7-8475-301547570a32
+export WebcamInput
+
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═╡ skip_as_script = true
 #=╠═╡
@@ -596,6 +599,7 @@ img3
 
 # ╔═╡ Cell order:
 # ╠═1791669b-d1ee-4c62-9485-52d8493888a7
+# ╠═5d9f2eeb-4cf6-4ab7-8475-301547570a32
 # ╠═25fc026c-c593-11ec-05c8-93e16f9dc527
 # ╠═cfb76adb-96da-493c-859c-ad24aa18437e
 # ╠═b3b59805-7062-463f-b6c5-1679133a589f
