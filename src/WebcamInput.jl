@@ -182,9 +182,17 @@ const help = @htl("""
 
 <h3>Welcome to the PlutoUI Webcam!</h3>
 
-<p>👉🏾 To <strong>disable this help message</strong>, please invoke the constructor with the argument <code>help = false</code> - e.g. <code>WebcamInput(;help=false)</code>.</p>
+<p>👉🏾 To <strong>disable this help message</strong>, you can use <code>WebcamInput(;help=false)</code></p>
 
-<p>👉🏾 The webcam component allows you to pick a device from your system's available ones. Pick the camera you want from the dropdown.</p>
+<p>👉🏾 The bound value will be a <code>Matrix{RGBA}</code>. By default, this will be displayed using text, but if you add <code>import ImageShow</code> somewhere in your notebook, it will be displayed as an image.</p>
+
+	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; border: 3px solid pink; margin: 3em; text-align: center;">
+		<img src="https://user-images.githubusercontent.com/6933510/196425942-2ead75dd-07cc-4a88-b30c-50a0c7835862.png" style="aspect-ratio: 1; object-fit: cover;">
+		<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Macaca_nigra_self-portrait_large.jpg/347px-Macaca_nigra_self-portrait_large.jpg" style="aspect-ratio: 1; object-fit: cover;">
+		<div>default</div>
+		<div>with <code style="font-weight: bold;">import ImageShow</code></div>
+
+	</div>
 
 <p>👉🏾 The Webcam only works in <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure contexts</a> (<code>http://localhost</code> or <code>https://</code>)!</p>
 
@@ -403,7 +411,7 @@ typeof(img1)
 
 # ╔═╡ 62334cca-b9db-4eb0-91e2-25af04c58d0e
 #=╠═╡
-img1
+Text(repr(MIME"text/plain"(), img1))
   ╠═╡ =#
 
 # ╔═╡ cad85f17-ff15-4a1d-8897-6a0a7ca59023
