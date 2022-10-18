@@ -120,6 +120,7 @@ const css = @htl("""<style>
 		color: red;
 	}
 
+	plutoui-webcam .permissions-help,
 	plutoui-webcam video {
 		position: absolute;
 		top: 0;
@@ -127,10 +128,25 @@ const css = @htl("""<style>
 		width: 100%;
 		height: 100%;
 	}
+
+	plutoui-webcam .permissions-help {
+		display: grid;
+		place-items: center;
+		padding: 1em;
+		z-index: 6;
+		pointer-events: none;
+    	touch-action: none;
+	}
+	plutoui-webcam .permissions-help span {
+	    background: #f6d5cc;
+    	color: black;
+		padding: .5em;
+	}
+		
 	plutoui-webcam .grid {
 		display: grid;
-		width: 300px;
-		height: 200px;
+		width: 100%;
+		height: 100%;
 		grid-template-columns: 1fr 1fr 1fr;
 		grid-template-rows: 1fr 1fr 50px;
 	}
@@ -176,12 +192,16 @@ const css = @htl("""<style>
 	}
 	plutoui-webcam .ionic-cam {
 		background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.2/src/svg/camera-outline.svg");
+		/* generated using https://dopiaza.org/tools/datauri/index.php */
+		background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPmlvbmljb25zLXY1LWU8L3RpdGxlPjxwYXRoIGQ9Ik0zNTAuNTQsMTQ4LjY4bC0yNi42Mi00Mi4wNkMzMTguMzEsMTAwLjA4LDMxMC42Miw5NiwzMDIsOTZIMjEwYy04LjYyLDAtMTYuMzEsNC4wOC0yMS45MiwxMC42MmwtMjYuNjIsNDIuMDZDMTU1Ljg1LDE1NS4yMywxNDguNjIsMTYwLDE0MCwxNjBIODBhMzIsMzIsMCwwLDAtMzIsMzJWMzg0YTMyLDMyLDAsMCwwLDMyLDMySDQzMmEzMiwzMiwwLDAsMCwzMi0zMlYxOTJhMzIsMzIsMCwwLDAtMzItMzJIMzczQzM2NC4zNSwxNjAsMzU2LjE1LDE1NS4yMywzNTAuNTQsMTQ4LjY4WiIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2U6IzAwMDtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjMycHgiLz48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNzIiIHI9IjgwIiBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwO3N0cm9rZS1taXRlcmxpbWl0OjEwO3N0cm9rZS13aWR0aDozMnB4Ii8+PHBvbHlsaW5lIHBvaW50cz0iMTI0IDE1OCAxMjQgMTM2IDEwMCAxMzYgMTAwIDE1OCIgc3R5bGU9ImZpbGw6bm9uZTtzdHJva2U6IzAwMDtzdHJva2UtbGluZWNhcDpyb3VuZDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLXdpZHRoOjMycHgiLz48L3N2Zz4=");
 	}
     plutoui-webcam .ionic-start{
 		background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.2/src/svg/play-outline.svg");
+		background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPmlvbmljb25zLXY1LWM8L3RpdGxlPjxwYXRoIGQ9Ik0xMTIsMTExVjQwMWMwLDE3LjQ0LDE3LDI4LjUyLDMxLDIwLjE2bDI0Ny45LTE0OC4zN2MxMi4xMi03LjI1LDEyLjEyLTI2LjMzLDAtMzMuNThMMTQzLDkwLjg0QzEyOSw4Mi40OCwxMTIsOTMuNTYsMTEyLDExMVoiIHN0eWxlPSJmaWxsOm5vbmU7c3Ryb2tlOiMwMDA7c3Ryb2tlLW1pdGVybGltaXQ6MTA7c3Ryb2tlLXdpZHRoOjMycHgiLz48L3N2Zz4=");
 	}
     plutoui-webcam .ionic-stop{
 		background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.2/src/svg/stop-outline.svg");
+		background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHRpdGxlPmlvbmljb25zLXY1LWM8L3RpdGxlPjxyZWN0IHg9Ijk2IiB5PSI5NiIgd2lkdGg9IjMyMCIgaGVpZ2h0PSIzMjAiIHJ4PSIyNCIgcnk9IjI0IiBzdHlsZT0iZmlsbDpub25lO3N0cm9rZTojMDAwO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2Utd2lkdGg6MzJweCIvPjwvc3ZnPg==");
 	}
 </style>""");
 
@@ -203,7 +223,7 @@ const help = @htl("""
 
 </div>
 
-<p>👉🏾 The Webcam only works in <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure contexts</a> (<code>http://localhost</code> or <code>https://</code>)!</p>
+<p>👉🏾 Check out the <em>Live docs</em> for <code>WebcamInput</code> to learn more!</p>
 
 </div>""")
 
@@ -214,37 +234,45 @@ function html(webcam)
 	@htl("""
 	<plutoui-webcam>
 		$(css)
+		<div class="grid">
+			<div class="select-device">
+				<select title="Select Input Device" disabled=""><option value=""></option></select>
+			</div>
+			<div class="start-large">
+				<button class="start-cam" title="Open camera">
+				<span class="ionic ionic-start">
+				</span></button>
+			</div>
+			<div class="controls">
+				<button class="start-cam" title="Open camera">
+					<span class="ionic ionic-start"></span>
+				</button>
+				<button class="stop-cam" title="Stop camera" disabled="">
+					<span class="ionic ionic-stop"></span>
+				</button>
+			    <span style="width: 1em"></span>
+				<button class="capture-img" title="Capture image" disabled="">
+					capture <span class="ionic ionic-cam"></span>
+				</button>
+			</div>
+		</div>
+		<video autoplay=""></video>
+		<div class="permissions-help" style="visibility: hidden;">
+			<span>It looks like this page does not have permission to use the camera. <strong>Enable camera access</strong> and try again.</span>
+		</div>
+			
+		<canvas style="display: none"></canvas>
 		<script>
 		const parent = currentScript.parentElement
-
-	const checkIfHasMedia = () => {
-		return !!(
-			navigator.mediaDevices &&
-			navigator.mediaDevices.getUserMedia
-		)
-	};
-	const hasMedia = checkIfHasMedia()
-	
-	const video = html`<video autoplay></video>`
-	const canvas = html`<canvas style="display: none"></canvas>`
-	const start_video_ctl = html`<button title="Open camera">
-		<span class="ionic ionic-start" />
-		</button>`;
-	const start_video_large_ctl = html`<button title="Open camera">
-		<span class="ionic ionic-start" />
-		</button>`;
-
-	const capture_ctl = html`<button title="Capture image" disabled>
-		capture <span class="ionic ionic-cam" />
-		</button>`;
-
-	const stop_video_ctl = html`<button title="Stop camera" disabled>
-		<span class="ionic ionic-stop" />
-		</button>`;
-	const select_device = html`<select title="Select Input Device" disabled>
-		<option value="">Loading...</option>
-		</select>`;
-
+	const video = parent.querySelector("video")
+	const canvas = parent.querySelector("canvas")
+	const start_video_ctl = parent.querySelector(".controls .start-cam")
+	const start_video_large_ctl = parent.querySelector(".start-large .start-cam")
+	const stop_video_ctl = parent.querySelector(".controls .stop-cam")
+	const capture_ctl = parent.querySelector(".controls .capture-img")
+	const select_device = parent.querySelector("select")
+	const permissionsHelp = parent.querySelector(".permissions-help")
+			
 	const state = {
 		initialized: false,
 		streaming: false,
@@ -256,6 +284,23 @@ function html(webcam)
 		preferredId: null
 	};
 
+		
+	const add_listener_clean = (element, type, f) => {
+		element.addEventListener(type, f)
+		invalidation.then(() => 
+			element.removeEventListener(type, f)
+		 )
+	}
+
+			
+	const checkIfHasMedia = () => {
+		return !!(
+			navigator.mediaDevices &&
+			navigator.mediaDevices.getUserMedia
+		)
+	};
+	const hasMedia = checkIfHasMedia()
+
 	const getDevices = () =>{
 		const constraints = {
 			video: true
@@ -264,6 +309,7 @@ function html(webcam)
 			.mediaDevices
 			.enumerateDevices()
 			.then(devices => {
+				console.log("Found devices", devices)
 				state.devices = devices.filter(({kind}) => kind === "videoinput")
 				state.preferredId = state.devices?.[0]?.deviceId
 				select_device.innerHTML = state
@@ -282,6 +328,8 @@ function html(webcam)
 		navigator.mediaDevices
 			.getUserMedia(constraints)
 			.then((stream) => {
+				permissionsHelp.style.visibility = "hidden";
+					
 				state.stream = stream;
 				let {width, height} = stream.getTracks()[0].getSettings();
 
@@ -300,6 +348,8 @@ function html(webcam)
 				capture_ctl.disabled = false;
 	
 			}).catch(err => {
+				permissionsHelp.style.visibility = null;
+				
 				state.stream = null;
 				state.width = 0;
 	
@@ -342,53 +392,94 @@ function html(webcam)
 	start_video_large_ctl.onclick = tryInitVideo
 	stop_video_ctl.onclick = closeCamera
 	capture_ctl.onclick = capture
-	select_device.addEventListener('change', (event) => {
+
+	add_listener_clean(select_device, 'change', (event) => {
   		state.preferredId = event.target.value
 		closeCamera()
 		tryInitVideo()
 	});
 
 	invalidation.then(closeCamera)
-	const on_vis_change = () => {
+
+	add_listener_clean(document, "visibilitychange", () => {
 		console.log(document.visibilityState)
 		if (document.visibilityState != "visible") {
 			closeCamera()
 		}
-	}
-	document.addEventListener("visibilitychange", on_vis_change)
-	invalidation.then(() => 
-		document.removeEventListener("visibilitychange", on_vis_change)
-	 )
+	})
 	
 	getDevices()
-	return html`
-<div class="grid">
-	<div class="select-device">
-		\${select_device}
-	</div>
-	<div class="start-large">
-		\${start_video_large_ctl}
-	</div>
-	<div class="controls">
-		\${start_video_ctl}
-		\${stop_video_ctl}
-	    <span style="width: 1em"></span>
-		\${capture_ctl}
-	</div>
-</div>
-\${video}
-\${canvas}
-`
+
+	add_listener_clean(navigator.mediaDevices, "devicechange", getDevices)
 		</script>
 	</plutoui-webcam>""")
 end
 
 # ╔═╡ d9b806a2-de81-4b50-88cd-acf7db35da9a
 begin
+	local result = begin
 	Base.@kwdef struct WebcamInput
 		help::Bool = true
 		avoid_allocs::Bool = false
 		default::Union{Nothing,AbstractMatrix{RGBA{N0f8}}}=nothing
+	end
+
+	@doc """
+	```julia
+	@bind image WebcamInput(; kwargs...)
+	```
+
+	A webcam input. Provides the user with a small interface to select a camera and take a picture, the captured image is returned as a `Matrix{RGBA}` via `@bind`. 
+
+	# How to use a `Matrix{RGBA}`
+
+	The output type is of the type `Matrix{RGBA{N0f8}}`, let's break that down:
+	- `Matrix`: This is a 2D **Array**, which you can index like `img[10,20]` to get an entry, of type `RGBA{N0f8}`.
+	- `RGBA` (from [ColorTypes.jl](https://github.com/JuliaGraphics/ColorTypes.jl)): a `struct` with fields `r` (Red), `g` (Green), `b` (Blue) and `a` (Alpha), each of type `N0f8`. These are the digital 'channel' value that make up a color.
+	- `N0f8` (from [FixedPointNumbers.jl](https://github.com/JuliaMath/FixedPointNumbers.jl)): a special type of floating point number that uses only 8 bits. Think of it as a `Float8`, rather than the usual `Float64`. You can use `Float64(x)` to convert to a normal `Float64`.
+
+	By default, a `Matrix{RGBA}` will be displayed using text, but if you add 
+	```julia
+	import ImageShow
+	```
+	somewhere in your notebook, then Pluto will be able to display the matrix as a color image.
+
+	For more image manipulation capabilities, check out [`Images.jl`](https://github.com/JuliaImages/Images.jl).
+
+	# Keyword arguments
+
+	- `help::Bool=true` by default, we display a little help message when you use `WebcamInput`. You can disable that here.
+	- `default::Matrix{RGBA{N0f8}}` set a default image, which is used until the user captures an image. Defaults to a **1x1 transparent image**.
+	- `avoid_allocs::Bool=false` when set to `true`, we lazily convert the raw `Vector{UInt8}` camera data to a `AbstractMatrix{RGBA{N0f8}}`, with zero allocations. This will lead to better performance, but the bound value will be an `AbstractMatrix`, not a `Matrix`.
+	
+	# Examples
+
+	```julia
+	@bind image WebcamInput()
+	```
+
+	Let's see what we captured:
+
+	```julia
+	import ImageShow
+	```
+	```julia
+	image
+	```
+
+	Let's look at the **size** of the matrix:
+
+	```julia
+	size(image)
+	```
+
+	To get the **green** channel value of the **top right** pixel of the image:
+	
+	```julia
+	image[1, end].g
+	```
+
+	""" WebcamInput
 	end
 
 	function AbstractPlutoDingetjes.Bonds.initial_value(w::WebcamInput)
@@ -411,6 +502,7 @@ begin
 		webcam.help && @info help
 		Base.show(io, m, html(webcam))
 	end
+	result
 end
 
 # ╔═╡ ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
@@ -487,9 +579,9 @@ img3
 # ╠═9a07c7f4-e2c1-4322-bcbc-c7db90af0059
 # ╠═43f46ca7-08e0-4687-87eb-218df976a8a5
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
-# ╠═97e2467e-ca58-4b5f-949d-ad95253b1ac0
-# ╠═3d2ed3d4-60a7-416c-aaae-4dc662127f5b
-# ╠═06062a16-d9e1-46ef-95bd-cdae8b03bafd
+# ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
+# ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
+# ╟─06062a16-d9e1-46ef-95bd-cdae8b03bafd
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
 # ╠═55ca59b0-c292-4711-9aa6-81499184423c
