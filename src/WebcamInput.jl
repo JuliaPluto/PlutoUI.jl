@@ -111,9 +111,6 @@ const css = @htl("""<style>
 		width: 300px;
 		height: 200px;
 		display: flex;
-		flex-flow: row nowrap;
-		align-items: center;
-		justify-content: center;
         border: 3px dashed lightgrey; 
 		border-radius: 2px;
 		position: relative;
@@ -134,7 +131,7 @@ const css = @htl("""<style>
 		display: grid;
 		width: 300px;
 		height: 200px;
-		grid-template-columns: 1fr 200px 1fr;
+		grid-template-columns: 1fr 1fr 1fr;
 		grid-template-rows: 1fr 1fr 50px;
 	}
 	plutoui-webcam .select-device {
@@ -145,6 +142,16 @@ const css = @htl("""<style>
 		justify-content: center;
 		margin:0.2em;
 		z-index: 2;
+	}
+	plutoui-webcam .start-large {
+		grid-column-start: 2;
+		grid-row-start: 2;
+		z-index: 2;
+		display: grid;
+		place-items: center;
+	}
+	plutoui-webcam .start-large .ionic {
+		--size: 3em;
 	}
 	plutoui-webcam .controls {
 		grid-column-start: 2;
@@ -159,20 +166,22 @@ const css = @htl("""<style>
 		margin-left: 0.2em;
 	}
 	plutoui-webcam .ionic {
+		--size: 1em;
 		display: inline-block;
-		width: 1em;
-		height: 1em;
-		line-height: 1em;
+		width: var(--size);
+		height: var(--size);
+		line-height: var(--size);
+		background-size: var(--size);
 		margin-bottom: -2px;
 	}
 	plutoui-webcam .ionic-cam {
-		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/camera-outline.svg");
+		background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.2/src/svg/camera-outline.svg");
 	}
     plutoui-webcam .ionic-start{
-		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/play-outline.svg");
+		background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.2/src/svg/play-outline.svg");
 	}
     plutoui-webcam .ionic-stop{
-		background-image: url("https://unpkg.com/ionicons@5.5.2/dist/svg/stop-outline.svg");
+		background-image: url("https://cdn.jsdelivr.net/gh/ionic-team/ionicons@5.5.2/src/svg/stop-outline.svg");
 	}
 </style>""");
 
@@ -184,15 +193,15 @@ const help = @htl("""
 
 <p>👉🏾 To <strong>disable this help message</strong>, you can use <code>WebcamInput(;help=false)</code></p>
 
-<p>👉🏾 The bound value will be a <code>Matrix{RGBA}</code>. By default, this will be displayed using text, but if you add <code>import ImageShow</code> somewhere in your notebook, it will be displayed as an image.</p>
+<p>👉🏾 The bound value will be a <code style="font-weight: bold;">Matrix{RGBA}</code>. By default, this will be displayed using text, but if you add <code style="font-weight: bold;">import ImageShow</code> somewhere in your notebook, it will be displayed as an image.</p>
 
-	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; border: 3px solid pink; margin: 3em; text-align: center;">
-		<img src="https://user-images.githubusercontent.com/6933510/196425942-2ead75dd-07cc-4a88-b30c-50a0c7835862.png" style="aspect-ratio: 1; object-fit: cover;">
-		<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Macaca_nigra_self-portrait_large.jpg/347px-Macaca_nigra_self-portrait_large.jpg" style="aspect-ratio: 1; object-fit: cover;">
-		<div>default</div>
-		<div>with <code style="font-weight: bold;">import ImageShow</code></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; border: 3px solid pink; margin: 1em 3em; text-align: center;">
+	<img src="https://user-images.githubusercontent.com/6933510/196425942-2ead75dd-07cc-4a88-b30c-50a0c7835862.png" style="aspect-ratio: 1; object-fit: cover; width: 100%;">
+	<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Macaca_nigra_self-portrait_large.jpg/347px-Macaca_nigra_self-portrait_large.jpg" style="aspect-ratio: 1; object-fit: cover; width: 100%;">
+	<div>default</div>
+	<div>with <code style="font-weight: bold;">import ImageShow</code></div>
 
-	</div>
+</div>
 
 <p>👉🏾 The Webcam only works in <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure contexts</a> (<code>http://localhost</code> or <code>https://</code>)!</p>
 
@@ -219,6 +228,9 @@ function html(webcam)
 	const video = html`<video autoplay></video>`
 	const canvas = html`<canvas style="display: none"></canvas>`
 	const start_video_ctl = html`<button title="Open camera">
+		<span class="ionic ionic-start" />
+		</button>`;
+	const start_video_large_ctl = html`<button title="Open camera">
 		<span class="ionic ionic-start" />
 		</button>`;
 
@@ -282,6 +294,8 @@ function html(webcam)
 				video.srcObject = stream;
 	
 				start_video_ctl.disabled = true;
+				start_video_large_ctl.disabled = true;
+				start_video_large_ctl.style.visibility = "hidden";
 				stop_video_ctl.disabled = false;
 				capture_ctl.disabled = false;
 	
@@ -301,6 +315,8 @@ function html(webcam)
 	const closeCamera = () => {
 		video.srcObject = null;
 		start_video_ctl.disabled = false;
+		start_video_large_ctl.disabled = false;
+		start_video_large_ctl.style.visibility = null;
 		stop_video_ctl.disabled = true;
 		capture_ctl.disabled = true;
 		if(state.stream)
@@ -323,6 +339,7 @@ function html(webcam)
 	}
 			
 	start_video_ctl.onclick = tryInitVideo
+	start_video_large_ctl.onclick = tryInitVideo
 	stop_video_ctl.onclick = closeCamera
 	capture_ctl.onclick = capture
 	select_device.addEventListener('change', (event) => {
@@ -348,6 +365,9 @@ function html(webcam)
 <div class="grid">
 	<div class="select-device">
 		\${select_device}
+	</div>
+	<div class="start-large">
+		\${start_video_large_ctl}
 	</div>
 	<div class="controls">
 		\${start_video_ctl}
@@ -411,7 +431,7 @@ typeof(img1)
 
 # ╔═╡ 62334cca-b9db-4eb0-91e2-25af04c58d0e
 #=╠═╡
-Text(repr(MIME"text/plain"(), img1))
+img1
   ╠═╡ =#
 
 # ╔═╡ cad85f17-ff15-4a1d-8897-6a0a7ca59023
@@ -423,23 +443,17 @@ img1[:, end:-1:1] img1[end:-1:1, end:-1:1]]
 # ╔═╡ 30267bdc-fe1d-4c73-b322-e19f3e934749
 # ╠═╡ skip_as_script = true
 #=╠═╡
-@bind img2 WebcamInput(; avoid_allocs=true)
+# @bind img2 WebcamInput(; avoid_allocs=true)
   ╠═╡ =#
 
 # ╔═╡ 28d5de0c-f619-4ffd-9be0-623999b437e0
-#=╠═╡
 size(img2)
-  ╠═╡ =#
 
 # ╔═╡ be1b7fd5-6a06-4dee-a479-c84b56edbaba
-#=╠═╡
 typeof(img2)
-  ╠═╡ =#
 
 # ╔═╡ 033fea3f-f0e2-4362-96ce-041b7e0c27c6
-#=╠═╡
 img2
-  ╠═╡ =#
 
 # ╔═╡ 04bbfc5b-2eb2-4024-a035-ddc8fe60a932
 # ╠═╡ skip_as_script = true
@@ -448,24 +462,16 @@ test_img = rand(RGBA{N0f8}, 8, 8)
   ╠═╡ =#
 
 # ╔═╡ 3ed223be-2808-4e8f-b3c0-f2caaa11a6d2
-#=╠═╡
-@bind img3 WebcamInput(; default=test_img)
-  ╠═╡ =#
+# @bind img3 WebcamInput(; default=test_img)
 
 # ╔═╡ e72950c1-2130-4a49-8d9c-0216c365683f
-#=╠═╡
 size(img3)
-  ╠═╡ =#
 
 # ╔═╡ a5308e5b-77d2-4bc3-b368-15320d6a4049
-#=╠═╡
 typeof(img3)
-  ╠═╡ =#
 
 # ╔═╡ af7b1cec-2a47-4d90-8e66-90940ae3a087
-#=╠═╡
 img3
-  ╠═╡ =#
 
 # ╔═╡ Cell order:
 # ╠═1791669b-d1ee-4c62-9485-52d8493888a7
@@ -481,7 +487,7 @@ img3
 # ╠═9a07c7f4-e2c1-4322-bcbc-c7db90af0059
 # ╠═43f46ca7-08e0-4687-87eb-218df976a8a5
 # ╠═d9b806a2-de81-4b50-88cd-acf7db35da9a
-# ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
+# ╠═97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╠═3d2ed3d4-60a7-416c-aaae-4dc662127f5b
 # ╠═06062a16-d9e1-46ef-95bd-cdae8b03bafd
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
