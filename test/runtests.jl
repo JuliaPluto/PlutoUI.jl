@@ -2,7 +2,7 @@ using PlutoUI
 using Test
 import AbstractPlutoDingetjes
 using HypertextLiteral
-import ColorTypes: RGB, RGBA, N0f8, Colorant
+import ColorTypes: RGB, N0f8, Colorant
 import Logging
 using Dates
 
@@ -347,12 +347,12 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == 4:1//3:(17//3)
     
     el = WebcamInput(; help=false)
-    @test default(el) isa Matrix{RGBA{N0f8}}
+    @test default(el) isa Matrix{RGB{N0f8}}
     @test size(default(el)) == (1,1)
     
     el = WebcamInput(; help=false, avoid_allocs=true)
-    @test !(default(el) isa Matrix{RGBA{N0f8}})
-    @test default(el) isa AbstractMatrix{RGBA{N0f8}}
+    @test !(default(el) isa Matrix{RGB{N0f8}})
+    @test default(el) isa AbstractMatrix{RGB{N0f8}}
     @test size(default(el)) == (1,1)
 
 
