@@ -1,5 +1,11 @@
 export ScrubbableMatrix
 
+const scrubbable_matrix_style = (
+	fill_width=false, 
+	column_gap="2px", 
+	row_gap="2px",
+)
+
 
 function ScrubbableMatrix2(A::Matrix{<:Real}; kwargs...)
 	# Create a new widget that combines existing ones
@@ -8,7 +14,7 @@ function ScrubbableMatrix2(A::Matrix{<:Real}; kwargs...)
 		# Create a matrix of scrubbables
 		# (Note that each `Scrubbable` is wrapped in the `Child` function!)
 		scrubbables = map(A) do x
-			Child(PlutoUI.Scrubbable(x); kwargs...)
+			Child(PlutoUI.Scrubbable(x; kwargs...))
 		end
 
 		# use Layout to display them in a grid
