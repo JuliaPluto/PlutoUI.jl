@@ -53,14 +53,14 @@ Accepts a `Dict{Any, Any}` similar to the ImageData type, i.e. with keys
  - `data`: image data - 3 elements per pixel, ``3*width*height`` total length
 
 """
-function ImageDataToRGBA(d::Dict)
+function ImageDataToRGBA(T, d::Dict)
 	width = d["width"]
 	height = d["height"]
 
 	PermutedDimsArray( # lazy transpose
 		reshape( # lazy unflatten
-			reinterpret( # lazy UInt8 to RGB{N0f8}
-				RGB{N0f8}, d["data"]::Vector{UInt8}),
+			reinterpret( # lazy UInt8 to T
+				T, d["data"]::Vector{UInt8}),
 				width, height
 			), 
 		(2,1)
@@ -85,7 +85,7 @@ function RGBAToImageData(img)
 end
 
 # ╔═╡ 6dd82485-a392-4110-9148-f70f0e7c0985
-const standard_default_avoid_allocs = ImageDataToRGBA(Dict{Any,Any}(
+const standard_default_avoid_allocs = ImageDataToRGBA(RGB{N0f8}, Dict{Any,Any}(
 	"width" => 1, "height" => 1, 
 	"data" => UInt8[0,0,0],
 ))
@@ -228,7 +228,7 @@ const help = @htl("""
 </div>""")
 
 # ╔═╡ 06062a16-d9e1-46ef-95bd-cdae8b03bafd
-function html(webcam)
+function webcam_html(webcam)
 
 
 	@htl("""
@@ -469,6 +469,271 @@ function html(webcam)
 	</plutoui-webcam>""")
 end
 
+# ╔═╡ 04bbfc5b-2eb2-4024-a035-ddc8fe60a932
+# ╠═╡ skip_as_script = true
+#=╠═╡
+test_img = rand(RGB{N0f8}, 8, 8)
+  ╠═╡ =#
+
+# ╔═╡ c0b1da1e-8023-4b88-86c2-d93afd40618b
+md"""
+# DrawCanvas
+"""
+
+# ╔═╡ 86c652d4-fa0f-4cfa-831f-e9a893351b81
+function canvas_html(canvas)
+	@htl """<div class="plutoui-drawcanvas"><canvas width=$(canvas.output_size[2]) height=$(canvas.output_size[1]) style="touch-action: none; cursor: crosshair; position: relative; display: block; filter: contrast(0.6) sepia(0.4) brightness(1.1) hue-rotate(358.1deg);"></canvas><button>Clear</button><script>
+const parent = currentScript.parentElement
+const canvas = parent.querySelector("canvas")
+const button = parent.querySelector("button")
+const ctx = canvas.getContext("2d")
+
+// https://github.com/fonsp/Pluto.jl/pull/2331 was released in v0.19.14
+const is_old_pluto = () => {
+	try{
+		let [_, x, y, z] = /(\\d+)\\.(\\d+)\\.(\\d+)/.exec(window.version_info.pluto)
+		return !(+x > 0 || +y > 19 || +z > 13)
+	} catch(e) {
+		return false
+	}
+}
+
+const rgba_to_r = (img_data) => {
+	
+	let t1 = performance.now()
+
+	// (very performance optimized)
+	// the img.data buffer contains R, G, B, A, R, G, B, A, ...
+	// we get rid of the G, B, A, but we reuse the buffer by shifting all the R values back, to avoid allocating again
+	
+	// R, G, B, A, R, G, B, A, R, G, B, A, ...
+	// |  /-------/           /   
+	// |  |   /--------------/  
+	// R, R, R
+
+	const data = img_data
+	const new_length = data.length / 4
+	let j = 0
+	for(let i = 0; i < new_length; i++){
+		data[i] = data[i << 2]
+	}
+
+	let r_data_view = new Uint8ClampedArray(data.buffer, 0, new_length)
+		
+	if(is_old_pluto())
+		r_data_view = new Uint8ClampedArray(r_data_view)
+	
+	let t2 = performance.now()
+
+	console.debug(t2-t1, " ms", is_old_pluto())
+
+	return r_data_view
+
+	// const num_bits = canvas.width * canvas.height
+	// const num_bytes = Math.floor(num_bits / 8)
+
+	// const output_buffer = new Uint8Array(num_bytes)
+
+	// for(let input_index = 0; input_index < num_bits; input_index += 8) {
+	// 	let result = 0
+		
+	// 	for (let bit_index = 0; bit_index < 8; bit_index++) {
+	// 		const idx = (input_index + bit_index) >> 2
+	// 		result |= (img_data[idx] === 0 ? 128 : 0) >> bit_index
+	// 	}
+		
+	// 	output_buffer[input_index << 3] = result
+	// }
+}
+
+const r_to_rgba = (r_data) => {
+	
+	let t1 = performance.now()
+
+	const new_length = r_data.length * 4
+	let rgba_data = new Uint8ClampedArray(new_length)
+		
+	for(let i = 0; i < r_data.length; i++){
+		const d = r_data[i]
+		rgba_data[(i << 2) + 0] = d
+		rgba_data[(i << 2) + 1] = d
+		rgba_data[(i << 2) + 2] = d
+		rgba_data[(i << 2) + 3] = 0xff
+	}
+	
+	let t2 = performance.now()
+
+	console.debug(t2-t1, " ms", is_old_pluto())
+
+	return rgba_data
+}
+
+let val = null
+
+Object.defineProperty(parent, "value", {
+	get: () => val,
+	set: (newval) => {
+		val = newval
+
+		ctx.putImageData(new ImageData(r_to_rgba(newval.data), canvas.width, canvas.height), 0, 0)
+	},
+})
+
+function send_image(){
+	let img_data = ctx.getImageData(0,0,canvas.width,canvas.height).data
+
+	val = {
+		width: canvas.width,
+		height: canvas.height,
+		data: rgba_to_r(img_data),
+	}
+	parent.dispatchEvent(new CustomEvent("input"))
+}
+
+var prev_pos = [80, 40]
+
+function clear(){
+	ctx.fillStyle = '#ffffff'
+	ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+	send_image()
+}
+clear()
+
+function onmove(e){
+	const new_pos = [e.layerX, e.layerY]
+	ctx.lineTo(...new_pos)
+	ctx.stroke()
+	prev_pos = new_pos
+
+	send_image()
+}
+
+canvas.onpointerdown = e => {
+	prev_pos = [e.layerX, e.layerY]
+	ctx.strokeStyle = '#000000'
+	ctx.lineJoin = "round"
+	ctx.lineCap = "round"
+	ctx.lineWidth = 5
+	ctx.beginPath()
+	ctx.moveTo(...prev_pos)
+	canvas.addEventListener("pointermove", onmove)
+	onmove(e)
+}
+
+button.onclick = clear
+
+const onpointerup = e => {
+	canvas.removeEventListener("pointermove", onmove)
+}
+window.addEventListener('pointerup', onpointerup)
+invalidation.then(() => {
+	canvas.onpointerdown = null
+	canvas.removeEventListener("pointermove", onmove)
+	window.removeEventListener('pointerup', onpointerup)
+	
+})
+
+// Fire a fake pointermoveevent to show something
+// canvas.onpointerdown({layerX: 80, layerY: 40})
+// onmove({layerX: 130, layerY: 160})
+// 	onpointerup()
+
+</script></div>"""
+end
+
+# ╔═╡ b31f6b0e-45be-441b-9694-4c786235f132
+begin
+	local result = begin
+	Base.@kwdef struct DrawCanvas
+		help::Bool = true
+		avoid_allocs::Bool = false
+		output_size::Tuple{Int64,Int64}=(200,200)
+		default::Union{Nothing,AbstractMatrix{RGB{N0f8}}}=nothing
+	end
+
+	@doc """
+	```julia
+	@bind image DrawCanvas(; kwargs...)
+	```
+
+	A canvas that you can draw on with your mouse / touch screen. The current drawing is returned as a `Matrix{RGB}` via `@bind`. 
+
+	# How to use a `Matrix{RGB}`
+
+	The output type is of the type `Matrix{RGB{N0f8}}`, let's break that down:
+	- `Matrix`: This is a 2D **Array**, which you can index like `img[10,20]` to get an entry, of type `RGB{N0f8}`.
+	- `RGB` (from [ColorTypes.jl](https://github.com/JuliaGraphics/ColorTypes.jl)): a `struct` with fields `r` (Red), `g` (Green) and `b` (Blue), each of type `N0f8`. These are the digital 'channel' value that make up a color.
+	- `N0f8` (from [FixedPointNumbers.jl](https://github.com/JuliaMath/FixedPointNumbers.jl)): a special type of floating point number that uses only 8 bits. Think of it as a `Float8`, rather than the usual `Float64`. You can use `Float64(x)` to convert to a normal `Float64`.
+
+	By default, a `Matrix{RGB}` will be displayed using text, but if you add 
+	```julia
+	import ImageShow, ImageIO
+	```
+	somewhere in your notebook, then Pluto will be able to display the matrix as a color image.
+
+	For more image manipulation capabilities, check out [`Images.jl`](https://github.com/JuliaImages/Images.jl).
+
+	# Keyword arguments
+
+	- `help::Bool=true` by default, we display a little help message when you use `WebcamInput`. You can disable that here.
+	- `default::Matrix{RGB{N0f8}}` set a default image, which is used until the user captures an image. Defaults to a **1x1 transparent image**.
+	- `max_size::Int64` when given, this constraints the largest dimension of the image, while maintaining aspect ratio. A lower value has better performance.
+	- `avoid_allocs::Bool=false` when set to `true`, we lazily convert the raw `Vector{UInt8}` camera data to a `AbstractMatrix{RGB{N0f8}}`, with zero allocations. This will lead to better performance, but the bound value will be an `AbstractMatrix`, not a `Matrix`.
+	
+	# Examples
+
+	```julia
+	@bind image WebcamInput()
+	```
+
+	Let's see what we captured:
+
+	```julia
+	import ImageShow, ImageIO
+	```
+	```julia
+	image
+	```
+
+	Let's look at the **size** of the matrix:
+
+	```julia
+	size(image)
+	```
+
+	To get the **green** channel value of the **top right** pixel of the image:
+	
+	```julia
+	image[1, end].g
+	```
+
+	""" DrawCanvas
+	end
+
+	function AbstractPlutoDingetjes.Bonds.initial_value(w::DrawCanvas)
+		return w.default !== nothing ? 
+			w.default :
+			w.avoid_allocs ? standard_default_avoid_allocs : standard_default
+	end
+	Base.get(w::DrawCanvas) = AbstractPlutoDingetjes.Bonds.initial_value(w)
+
+	# function AbstractPlutoDingetjes.Bonds.transform_value(w::DrawCanvas, d)
+	# 	if d isa Dict
+	# 		img_lazy = ImageDataToRGBA(RGB{N0f8}, d)
+	# 		w.avoid_allocs ? img_lazy : collect(img_lazy)
+	# 	else
+	# 		AbstractPlutoDingetjes.Bonds.initial_value(w)
+	# 	end
+	# end
+
+	function Base.show(io::IO, m::MIME"text/html", webcam::DrawCanvas)
+		webcam.help && @info help
+		Base.show(io, m, canvas_html(webcam))
+	end
+	result
+end
+
 # ╔═╡ d9b806a2-de81-4b50-88cd-acf7db35da9a
 begin
 	local result = begin
@@ -547,7 +812,7 @@ begin
 
 	function AbstractPlutoDingetjes.Bonds.transform_value(w::WebcamInput, d)
 		if d isa Dict
-			img_lazy = ImageDataToRGBA(d)
+			img_lazy = ImageDataToRGBA(RGB{N0f8}, d)
 			w.avoid_allocs ? img_lazy : collect(img_lazy)
 		else
 			AbstractPlutoDingetjes.Bonds.initial_value(w)
@@ -556,7 +821,7 @@ begin
 
 	function Base.show(io::IO, m::MIME"text/html", webcam::WebcamInput)
 		webcam.help && @info help
-		Base.show(io, m, html(webcam))
+		Base.show(io, m, webcam_html(webcam))
 	end
 	result
 end
@@ -612,12 +877,6 @@ typeof(img2)
 img2
   ╠═╡ =#
 
-# ╔═╡ 04bbfc5b-2eb2-4024-a035-ddc8fe60a932
-# ╠═╡ skip_as_script = true
-#=╠═╡
-test_img = rand(RGB{N0f8}, 8, 8)
-  ╠═╡ =#
-
 # ╔═╡ 3ed223be-2808-4e8f-b3c0-f2caaa11a6d2
 #=╠═╡
 @bind img3 WebcamInput(; default=test_img, help=false)
@@ -638,6 +897,24 @@ typeof(img3)
 img3
   ╠═╡ =#
 
+# ╔═╡ b75fcead-799b-4022-af43-79c4387d64dc
+cb1 = @bind c1 DrawCanvas(help=false, output_size=(199,199))
+
+# ╔═╡ 6eed9b89-4e42-49c1-85e5-6e04d35c889c
+# ImageDataToRGBA(Bool, c1)
+
+# ╔═╡ 0f9aeadb-03a6-40b3-8030-2497c0ab2e7d
+ImageDataToRGBA(Gray{N0f8}, c1)
+
+# ╔═╡ 0ce12c7d-38d2-42ed-80a4-2cec28ab5f54
+cb1
+
+# ╔═╡ 6b5a4aca-3abc-4670-adcc-37539d7530ac
+c1
+
+# ╔═╡ d87918b5-4879-491b-93e0-28d707c17423
+reinterpret(Bool,c1["data"])
+
 # ╔═╡ Cell order:
 # ╠═1791669b-d1ee-4c62-9485-52d8493888a7
 # ╠═5d9f2eeb-4cf6-4ab7-8475-301547570a32
@@ -655,7 +932,7 @@ img3
 # ╟─d9b806a2-de81-4b50-88cd-acf7db35da9a
 # ╟─97e2467e-ca58-4b5f-949d-ad95253b1ac0
 # ╟─3d2ed3d4-60a7-416c-aaae-4dc662127f5b
-# ╠═06062a16-d9e1-46ef-95bd-cdae8b03bafd
+# ╟─06062a16-d9e1-46ef-95bd-cdae8b03bafd
 # ╠═ba3b6ecb-062e-4dd3-bfbe-a757fd63c4a7
 # ╠═d0b8b2ac-60be-481d-8085-3e57525e4a74
 # ╠═55ca59b0-c292-4711-9aa6-81499184423c
@@ -670,3 +947,12 @@ img3
 # ╠═e72950c1-2130-4a49-8d9c-0216c365683f
 # ╠═a5308e5b-77d2-4bc3-b368-15320d6a4049
 # ╠═af7b1cec-2a47-4d90-8e66-90940ae3a087
+# ╟─c0b1da1e-8023-4b88-86c2-d93afd40618b
+# ╠═b31f6b0e-45be-441b-9694-4c786235f132
+# ╠═86c652d4-fa0f-4cfa-831f-e9a893351b81
+# ╠═b75fcead-799b-4022-af43-79c4387d64dc
+# ╠═6eed9b89-4e42-49c1-85e5-6e04d35c889c
+# ╠═0f9aeadb-03a6-40b3-8030-2497c0ab2e7d
+# ╠═0ce12c7d-38d2-42ed-80a4-2cec28ab5f54
+# ╠═6b5a4aca-3abc-4670-adcc-37539d7530ac
+# ╠═d87918b5-4879-491b-93e0-28d707c17423
