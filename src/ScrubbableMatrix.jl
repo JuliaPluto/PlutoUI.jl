@@ -1,4 +1,3 @@
-export ScrubbableMatrix
 
 const scrubbable_matrix_style = (
 	fill_width=false, 
@@ -6,8 +5,8 @@ const scrubbable_matrix_style = (
 	row_gap="2px",
 )
 
-
-function ScrubbableMatrix2(A::Matrix{<:Real}; kwargs...)
+# this shows scrubbables in a grid layout and binds their values as a tuple
+function _ScrubbableMatrixLayout(A::Matrix{<:Real}; kwargs...)
 	# Create a new widget that combines existing ones
 	PlutoUI.combine() do Child
 		
@@ -26,9 +25,16 @@ function ScrubbableMatrix2(A::Matrix{<:Real}; kwargs...)
 end
 
 
-function ScrubbableMatrix3(A::Matrix{T}; kwargs...) where {T<:Real}
+"""
+```julia
+Scrubbable(A::Matrix{<:Real}; kwargs...)
+```
+
+The [`PlutoUI.Scrubbable`](@ref) widget, but in a 2D grid. Additional keyword arguments will apply to all scrubbables.
+"""
+function ScrubbableNotebook.Scrubbable(A::Matrix{T}; kwargs...) where {T<:Real}
 	# Use our previous function:
-	display = ScrubbableMatrix2(A; kwargs...)
+	display = _ScrubbableMatrixLayout(A; kwargs...)
 
 	# Overlay the Tuple -> Matrix transformation
 	PlutoUI.Experimental.transformed_value(display) do input::Tuple
@@ -45,12 +51,3 @@ function ScrubbableMatrix3(A::Matrix{T}; kwargs...) where {T<:Real}
 		Matrix{T}(matrix)
 	end
 end
-
-"""
-```julia
-ScrubbableMatrix(A::Matrix{<:Real}; kwargs...)
-```
-
-The [`PlutoUI.Scrubbable`](@ref) widget, but in a 2D grid. Additional keyword arguments will apply to all scrubbables.
-"""
-const ScrubbableMatrix = ScrubbableMatrix3

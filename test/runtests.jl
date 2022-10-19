@@ -443,7 +443,7 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == sin
     
     A = rand(3,2)
-    el = ScrubbableMatrix(A)
+    el = Scrubbable(A)
     @test default(el) == A
 end
 

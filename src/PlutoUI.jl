@@ -74,9 +74,6 @@ const wrapped = WrappedNotebook.wrapped
 end
 
 
-@reexport module ScrubbableMatrixModule
-    import ..PlutoUI
-    include("./ScrubbableMatrix.jl")
-end
+include("./ScrubbableMatrix.jl")
 
 end
