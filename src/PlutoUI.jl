@@ -55,7 +55,7 @@ end # 0.2 second
 """
 Components in this module are still experimental, and after a trial period (with breaking changes!), they will be added to PlutoUI as public API. Use with caution.
 
-Currently included: [`PlutoUI.Experimental.transformed_value`](@ref).
+Currently included: [`PlutoUI.Experimental.transformed_value`](@ref), [`PlutoUI.Experimental.wrapped`](@ref).
 """
 module Experimental
 module TransformedValueNotebook
@@ -72,4 +72,8 @@ end # 0 second
 const wrapped = WrappedNotebook.wrapped
 
 end
+
+
+include("./ScrubbableMatrix.jl")
+
 end

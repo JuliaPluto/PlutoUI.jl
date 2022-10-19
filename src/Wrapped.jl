@@ -36,3 +36,5 @@ num_dogs == 5 # (initially)
 
 """
 wrapped(f::Function) = transformed_value(only, combine(f))
+
+# that's just 1 line of code, pretty cool right!
