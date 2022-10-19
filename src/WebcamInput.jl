@@ -213,13 +213,13 @@ const help = @htl("""
 
 <p>👉🏾 To <strong>disable this help message</strong>, you can use <code>WebcamInput(;help=false)</code></p>
 
-<p>👉🏾 The bound value will be a <code style="font-weight: bold;">Matrix{RGBA}</code>. By default, this will be displayed using text, but if you add <code style="font-weight: bold;">import ImageShow</code> somewhere in your notebook, it will be displayed as an image.</p>
+<p>👉🏾 The bound value will be a <code style="font-weight: bold;">Matrix{RGBA}</code>. By default, this will be displayed using text, but if you add <code style="font-weight: bold;">import ImageShow, ImageIO</code> somewhere in your notebook, it will be displayed as an image.</p>
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; border: 3px solid pink; margin: 1em 3em; text-align: center;">
 	<img src="https://user-images.githubusercontent.com/6933510/196425942-2ead75dd-07cc-4a88-b30c-50a0c7835862.png" style="aspect-ratio: 1; object-fit: cover; width: 100%;">
 	<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Macaca_nigra_self-portrait_large.jpg/347px-Macaca_nigra_self-portrait_large.jpg" style="aspect-ratio: 1; object-fit: cover; width: 100%;">
 	<div>default</div>
-	<div>with <code style="font-weight: bold;">import ImageShow</code></div>
+	<div>with <code style="font-weight: bold;">import ImageShow, ImageIO</code></div>
 
 </div>
 
@@ -454,7 +454,7 @@ begin
 
 	By default, a `Matrix{RGBA}` will be displayed using text, but if you add 
 	```julia
-	import ImageShow
+	import ImageShow, ImageIO
 	```
 	somewhere in your notebook, then Pluto will be able to display the matrix as a color image.
 
@@ -476,7 +476,7 @@ begin
 	Let's see what we captured:
 
 	```julia
-	import ImageShow
+	import ImageShow, ImageIO
 	```
 	```julia
 	image
