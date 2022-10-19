@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.14
 
 using Markdown
 using InteractiveUtils
@@ -45,12 +45,12 @@ import AbstractPlutoDingetjes
 
 # ╔═╡ 5104aabe-43f7-451e-b4c1-68c0b345669e
 """
-Converts [ImageData](https://developer.mozilla.org/en-US/docs/Web/API/ImageData) vector to an RGBA Matrix.
+Converts [ImageData](https://developer.mozilla.org/en-US/docs/Web/API/ImageData) vector to an RGB Matrix.
 
 Accepts a `Dict{Any, Any}` similar to the ImageData type, i.e. with keys
  - `width`: width of the image
  - `height`: height of the image
- - `data`: image data - 4 elements per pixel, ``4*width*height`` total length
+ - `data`: image data - 3 elements per pixel, ``3*width*height`` total length
 
 """
 function ImageDataToRGBA(d::Dict)
@@ -59,8 +59,8 @@ function ImageDataToRGBA(d::Dict)
 
 	PermutedDimsArray( # lazy transpose
 		reshape( # lazy unflatten
-			reinterpret( # lazy UInt8 to RGBA{N0f8}
-				RGBA{N0f8}, d["data"]::Vector{UInt8}),
+			reinterpret( # lazy UInt8 to RGB{N0f8}
+				RGB{N0f8}, d["data"]::Vector{UInt8}),
 				width, height
 			), 
 		(2,1)
@@ -87,7 +87,7 @@ end
 # ╔═╡ 6dd82485-a392-4110-9148-f70f0e7c0985
 const standard_default_avoid_allocs = ImageDataToRGBA(Dict{Any,Any}(
 	"width" => 1, "height" => 1, 
-	"data" => UInt8[0,0,0,0],
+	"data" => UInt8[0,0,0],
 ))
 
 # ╔═╡ c917c90c-6999-4553-9187-a84e1f3b9315
@@ -213,7 +213,7 @@ const help = @htl("""
 
 <p>👉🏾 To <strong>disable this help message</strong>, you can use <code>WebcamInput(;help=false)</code></p>
 
-<p>👉🏾 The bound value will be a <code style="font-weight: bold;">Matrix{RGBA}</code>. By default, this will be displayed using text, but if you add <code style="font-weight: bold;">import ImageShow, ImageIO</code> somewhere in your notebook, it will be displayed as an image.</p>
+<p>👉🏾 The bound value will be a <code style="font-weight: bold;">Matrix{RGB}</code>. By default, this will be displayed using text, but if you add <code style="font-weight: bold;">import ImageShow, ImageIO</code> somewhere in your notebook, it will be displayed as an image.</p>
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; border: 3px solid pink; margin: 1em 3em; text-align: center;">
 	<img src="https://user-images.githubusercontent.com/6933510/196425942-2ead75dd-07cc-4a88-b30c-50a0c7835862.png" style="aspect-ratio: 1; object-fit: cover; width: 100%;">
@@ -393,11 +393,52 @@ function html(webcam)
 		state.height = 0;
 	}
 
+	// https://github.com/fonsp/Pluto.jl/pull/2331 was released in v0.19.14
+	const is_old_pluto = () => {
+		try{
+			let [_, x, y, z] = /(\\d+)\\.(\\d+)\\.(\\d+)/.exec(window.version_info.pluto)
+			return !(+x > 0 || +y > 19 || +z > 13)
+		} catch(e) {
+			return false
+		}
+	}
+
 	const capture = () => {
 		const context = canvas.getContext('2d');
 		context.drawImage(video, 0, 0, canvas.width, canvas.height)
 		const img = context.getImageData(0, 0, canvas.width, canvas.height)
-		parent.value = {width: canvas.width, height: canvas.height, data: img.data}
+
+		let t1 = performance.now()
+
+		// (very performance optimized)
+		// the img.data buffer contains R, G, B, A, R, G, B, A, ...
+		// we get rid of the A, but we reuse the buffer by shifting all the RGB values back, to avoid allocating again
+		
+		// R, G, B, A, R, G, B, A, R, G, B, A, ...
+		// |  |  |    /  /  /    /  /  /
+		// |  |  |   |  |  |   /  /  / 
+		// R, G, B, R, G, B, R, G, B, ...
+
+		const data = img.data
+		let j = 0
+		for(let i = 0; i < data.length; i++){
+			if((i+1)%4 !== 0){
+				data[j] = data[i]
+				j++
+			}
+		}
+
+		let rgb_data_view = new Uint8ClampedArray(data.buffer, 0, Math.floor(data.length * 3 / 4))
+			
+		if(is_old_pluto())
+			rgb_data_view = new Uint8ClampedArray(rgb_data_view)
+		
+		let t2 = performance.now()
+
+		console.debug(t2-t1, " ms", is_old_pluto())
+
+					
+		parent.value = {width: canvas.width, height: canvas.height, data: rgb_data_view}
 		parent.dispatchEvent(new CustomEvent('input'))
 	}
 			
@@ -435,7 +476,7 @@ begin
 		help::Bool = true
 		avoid_allocs::Bool = false
 		max_size::Union{Nothing,Int64}=nothing
-		default::Union{Nothing,AbstractMatrix{RGBA{N0f8}}}=nothing
+		default::Union{Nothing,AbstractMatrix{RGB{N0f8}}}=nothing
 	end
 
 	@doc """
@@ -443,16 +484,16 @@ begin
 	@bind image WebcamInput(; kwargs...)
 	```
 
-	A webcam input. Provides the user with a small interface to select a camera and take a picture, the captured image is returned as a `Matrix{RGBA}` via `@bind`. 
+	A webcam input. Provides the user with a small interface to select a camera and take a picture, the captured image is returned as a `Matrix{RGB}` via `@bind`. 
 
-	# How to use a `Matrix{RGBA}`
+	# How to use a `Matrix{RGB}`
 
-	The output type is of the type `Matrix{RGBA{N0f8}}`, let's break that down:
-	- `Matrix`: This is a 2D **Array**, which you can index like `img[10,20]` to get an entry, of type `RGBA{N0f8}`.
-	- `RGBA` (from [ColorTypes.jl](https://github.com/JuliaGraphics/ColorTypes.jl)): a `struct` with fields `r` (Red), `g` (Green), `b` (Blue) and `a` (Alpha), each of type `N0f8`. These are the digital 'channel' value that make up a color.
+	The output type is of the type `Matrix{RGB{N0f8}}`, let's break that down:
+	- `Matrix`: This is a 2D **Array**, which you can index like `img[10,20]` to get an entry, of type `RGB{N0f8}`.
+	- `RGB` (from [ColorTypes.jl](https://github.com/JuliaGraphics/ColorTypes.jl)): a `struct` with fields `r` (Red), `g` (Green) and `b` (Blue), each of type `N0f8`. These are the digital 'channel' value that make up a color.
 	- `N0f8` (from [FixedPointNumbers.jl](https://github.com/JuliaMath/FixedPointNumbers.jl)): a special type of floating point number that uses only 8 bits. Think of it as a `Float8`, rather than the usual `Float64`. You can use `Float64(x)` to convert to a normal `Float64`.
 
-	By default, a `Matrix{RGBA}` will be displayed using text, but if you add 
+	By default, a `Matrix{RGB}` will be displayed using text, but if you add 
 	```julia
 	import ImageShow, ImageIO
 	```
@@ -463,9 +504,9 @@ begin
 	# Keyword arguments
 
 	- `help::Bool=true` by default, we display a little help message when you use `WebcamInput`. You can disable that here.
-	- `default::Matrix{RGBA{N0f8}}` set a default image, which is used until the user captures an image. Defaults to a **1x1 transparent image**.
+	- `default::Matrix{RGB{N0f8}}` set a default image, which is used until the user captures an image. Defaults to a **1x1 transparent image**.
 	- `max_size::Int64` when given, this constraints the largest dimension of the image, while maintaining aspect ratio. A lower value has better performance.
-	- `avoid_allocs::Bool=false` when set to `true`, we lazily convert the raw `Vector{UInt8}` camera data to a `AbstractMatrix{RGBA{N0f8}}`, with zero allocations. This will lead to better performance, but the bound value will be an `AbstractMatrix`, not a `Matrix`.
+	- `avoid_allocs::Bool=false` when set to `true`, we lazily convert the raw `Vector{UInt8}` camera data to a `AbstractMatrix{RGB{N0f8}}`, with zero allocations. This will lead to better performance, but the bound value will be an `AbstractMatrix`, not a `Matrix`.
 	
 	# Examples
 
@@ -553,7 +594,7 @@ img1[:, end:-1:1] img1[end:-1:1, end:-1:1]]
 # ╔═╡ 30267bdc-fe1d-4c73-b322-e19f3e934749
 # ╠═╡ skip_as_script = true
 #=╠═╡
-@bind img2 WebcamInput(; avoid_allocs=true, max_size=40)
+@bind img2 WebcamInput(; avoid_allocs=true, max_size=40, help=false)
   ╠═╡ =#
 
 # ╔═╡ 28d5de0c-f619-4ffd-9be0-623999b437e0
@@ -574,12 +615,12 @@ img2
 # ╔═╡ 04bbfc5b-2eb2-4024-a035-ddc8fe60a932
 # ╠═╡ skip_as_script = true
 #=╠═╡
-test_img = rand(RGBA{N0f8}, 8, 8)
+test_img = rand(RGB{N0f8}, 8, 8)
   ╠═╡ =#
 
 # ╔═╡ 3ed223be-2808-4e8f-b3c0-f2caaa11a6d2
 #=╠═╡
-@bind img3 WebcamInput(; default=test_img)
+@bind img3 WebcamInput(; default=test_img, help=false)
   ╠═╡ =#
 
 # ╔═╡ e72950c1-2130-4a49-8d9c-0216c365683f
