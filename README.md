@@ -1,6 +1,6 @@
 # PlutoUI.jl
 
-[![Run with binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fonsp/pluto-on-binder/v0.17.3/?urlpath=pluto/sample/PlutoUI.jl.jl)
+[![Run with binder](https://mybinder.org/badge_logo.svg)](https://pluto-featured-notebooks.netlify.app/classic%20samples/plutoui.jl)
 
 A tiny package to make `html"<input>"` a bit more Julian. Use it with the [`@bind`](https://juliapluto.github.io/sample-notebook-previews/Interactivity.html) macro in [Pluto](https://github.com/fonsp/Pluto.jl).
 
