@@ -1,6 +1,6 @@
 # PlutoUI.jl
 
-[![Run with binder](https://mybinder.org/badge_logo.svg)](https://pluto-featured-notebooks.netlify.app/classic%20samples/plutoui.jl)
+[![Run with binder](https://mybinder.org/badge_logo.svg)](https://pluto-featured-notebooks.netlify.app/classic%20samples/plutoui.jl?preamble_html=%0A%3Cscript%3E%0ArequestIdleCallback(()%20%3D%3E%20window.start_binder())%0A%3C%2Fscript%3E%0A)
 
 A tiny package to make `html"<input>"` a bit more Julian. Use it with the [`@bind`](https://juliapluto.github.io/sample-notebook-previews/Interactivity.html) macro in [Pluto](https://github.com/fonsp/Pluto.jl).
 
