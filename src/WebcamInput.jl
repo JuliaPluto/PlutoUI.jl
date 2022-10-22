@@ -718,14 +718,14 @@ begin
 	end
 	Base.get(w::DrawCanvas) = AbstractPlutoDingetjes.Bonds.initial_value(w)
 
-	# function AbstractPlutoDingetjes.Bonds.transform_value(w::DrawCanvas, d)
-	# 	if d isa Dict
-	# 		img_lazy = ImageDataToRGBA(RGB{N0f8}, d)
-	# 		w.avoid_allocs ? img_lazy : collect(img_lazy)
-	# 	else
-	# 		AbstractPlutoDingetjes.Bonds.initial_value(w)
-	# 	end
-	# end
+	function AbstractPlutoDingetjes.Bonds.transform_value(w::DrawCanvas, d)
+		if d isa Dict
+			img_lazy = ImageDataToRGBA(Gray{N0f8}, d)
+			w.avoid_allocs ? img_lazy : collect(img_lazy)
+		else
+			AbstractPlutoDingetjes.Bonds.initial_value(w)
+		end
+	end
 
 	function Base.show(io::IO, m::MIME"text/html", webcam::DrawCanvas)
 		webcam.help && @info help
@@ -898,13 +898,10 @@ img3
   ╠═╡ =#
 
 # ╔═╡ b75fcead-799b-4022-af43-79c4387d64dc
-cb1 = @bind c1 DrawCanvas(help=false, output_size=(199,199))
-
-# ╔═╡ 6eed9b89-4e42-49c1-85e5-6e04d35c889c
-# ImageDataToRGBA(Bool, c1)
+cb1 = @bind c1 DrawCanvas(help=false)
 
 # ╔═╡ 0f9aeadb-03a6-40b3-8030-2497c0ab2e7d
-ImageDataToRGBA(Gray{N0f8}, c1)
+c1
 
 # ╔═╡ 0ce12c7d-38d2-42ed-80a4-2cec28ab5f54
 cb1
@@ -951,7 +948,6 @@ reinterpret(Bool,c1["data"])
 # ╠═b31f6b0e-45be-441b-9694-4c786235f132
 # ╠═86c652d4-fa0f-4cfa-831f-e9a893351b81
 # ╠═b75fcead-799b-4022-af43-79c4387d64dc
-# ╠═6eed9b89-4e42-49c1-85e5-6e04d35c889c
 # ╠═0f9aeadb-03a6-40b3-8030-2497c0ab2e7d
 # ╠═0ce12c7d-38d2-42ed-80a4-2cec28ab5f54
 # ╠═6b5a4aca-3abc-4670-adcc-37539d7530ac
