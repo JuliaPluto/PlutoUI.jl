@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.14
 
 using Markdown
 using InteractiveUtils
@@ -34,7 +34,7 @@ using Markdown: withtag, htmlesc
 # ╔═╡ d8f907cd-2f89-4d54-a311-998dc8ee148e
 # ╠═╡ skip_as_script = true
 #=╠═╡
-teststr = "<x>\"\"woa"
+teststr = "<x>\"\" woa"
   ╠═╡ =#
 
 # ╔═╡ ac542b84-dbc8-47e2-8835-9e43582b6ad7
@@ -776,8 +776,6 @@ function Base.show(io::IO, m::MIME"text/html", radio::Radio)
             val = e.target.value
             // and bubble upwards
         }
-
-        
 		</script></form>""")
 	show(io, m, h)
 end
@@ -1965,7 +1963,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═609ab7f4-4fc4-4122-986d-9bfe54fa715d
 # ╠═6459df3f-143f-4d1a-a238-4447b11cc56c
 # ╠═f3bef89c-61ac-4dcf-bf47-3824f11db26f
-# ╟─42e9e5ab-7d34-4300-a6c0-47f5cde658d8
+# ╠═42e9e5ab-7d34-4300-a6c0-47f5cde658d8
 # ╠═57232d88-b74f-4823-be61-8db450c93f5c
 # ╠═04ed1e71-d806-423e-b99c-476ea702feb3
 # ╟─7c4303a1-19be-41a2-a6c7-90146e01401d
