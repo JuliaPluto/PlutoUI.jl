@@ -484,6 +484,8 @@ begin
 	`depth` value to limit the header elements, should be in range 1 to 6 (default = 3)
 
 	`aside` fix the element to right of page, defaults to true
+		
+	`include_definitions` add cells that start with docstrings to the ToC, defaults to false
 
 	# Examples:
 
