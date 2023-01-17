@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.14
+# v0.19.19
 
 using Markdown
 using InteractiveUtils
@@ -832,18 +832,6 @@ begin
 	OldMultiSelect
 end
 
-# ╔═╡ f21db694-2acb-417d-9f4d-0d2400aa067e
-subarrays(x) = (
-	x[collect(I)]
-	for I in Iterators.product(Iterators.repeated([true,false],length(x))...) |> collect |> vec
-)
-
-# ╔═╡ 4d8ea460-ff2b-4e92-966e-89e76d4806af
-# ╠═╡ skip_as_script = true
-#=╠═╡
-subarrays([2,3,3]) |> collect
-  ╠═╡ =#
-
 # ╔═╡ e058076f-46fc-4435-ab45-530e27c95478
 begin
 local result = begin
@@ -1231,116 +1219,6 @@ begin
 	result
 end
 
-# ╔═╡ 38a7533e-7b0f-4c55-ade5-5a8d879d14c7
-begin
-	local result = begin
-	"""
-	```julia
-	MultiSelect(options::Vector; [default], [size::Int])
-	# or with a custom display value:
-	MultiSelect(options::Vector{Pair{Any,String}}; [default], [size::Int])
-	```
-	
-	A multi-selector - the user can choose one or more of the `options`.
-	
-	See [`Select`](@ref) for a version that allows only one selected item.
-	
-	# Examples
-	```julia
-	@bind vegetables MultiSelect(["potato", "carrot"])
-	
-	if "carrot" ∈ vegetables
-		"yum yum!"
-	end
-	```
-	
-	```julia
-	@bind chosen_functions MultiSelect([sin, cos, tan, sqrt])
-	
-	[f(0.5) for f in chosen_functions]
-	```
-	
-	You can also specify a display value by giving pairs `bound_value => display_value`:
-	
-	```julia
-	@bind chosen_functions MultiSelect([
-		cos => "cosine function", 
-		sin => "sine function",
-	])
-	
-	[f(0.5) for f in chosen_functions]
-	```
-	
-	The `size` keyword argument may be used to specify how many rows should be visible at once.
-	
-	```julia
-	@bind letters MultiSelect(string.('a':'z'), size=20)
-	```
-	"""
-	struct MultiSelect{BT,DT}
-		options::AbstractVector{Pair{BT,DT}}
-		default::Union{Missing, AbstractVector{BT}}
-		size::Union{Missing,Int}
-	end
-	end
-	MultiSelect(options::AbstractVector{<:Pair{BT,DT}}; default=missing, size=missing) where {BT,DT} = MultiSelect(options, default, size)
-	MultiSelect(options::AbstractVector{BT}; default=missing, size=missing) where BT = MultiSelect{BT,BT}(Pair{BT,BT}[o => o for o in options], default, size)
-	
-	function Base.show(io::IO, m::MIME"text/html", select::MultiSelect)
-	
-		# compat code
-		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
-			compat_element = try
-				OldMultiSelect(select.options, select.default, select.size)
-			catch
-				HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>")
-			end
-			return show(io, m, compat_element)
-		end
-		
-		
-		show(io, m, @htl(
-			"""<select title='Cmd+Click or Ctrl+Click to select multiple items.' multiple size=$(
-				coalesce(select.size, min(10, length(select.options)))
-			)>$(
-		map(enumerate(select.options)) do (i,o)
-				@htl(
-				"<option value=$(i) selected=$(!ismissing(select.default) && o.first ∈ select.default)>$(
-				string(o.second)
-				)</option>")
-			end
-		)</select>"""))
-	end
-	
-	
-		Base.get(select::MultiSelect) = Bonds.initial_value(select)
-		Bonds.initial_value(select::MultiSelect{BT,DT}) where {BT,DT} = 
-			ismissing(select.default) ? BT[] : select.default
-		Bonds.possible_values(select::MultiSelect) = 
-			subarrays((string(i) for i in 1:length(select.options)))
-			
-		function Bonds.transform_value(select::MultiSelect{BT,DT}, val_from_js) where {BT,DT}
-			# val_from_js will be a vector of Strings, but let's allow Integers as well, there's no harm in that
-			@assert val_from_js isa Vector
-			
-			val_nums = (
-				v isa Integer ? v : tryparse(Int64, v)
-				for v in val_from_js
-			)
-			
-			BT[select.options[v].first for v in val_nums]
-		end
-		
-		function Bonds.validate_value(select::MultiSelect, val)
-			val isa Vector && all(val_from_js) do v
-				val_num = v isa Integer ? v : tryparse(Int64, v)
-				1 ≤ val_num ≤ length(select.options)
-			end
-		end
-	
-		result
-	end
-
 # ╔═╡ c2b473f4-b56b-4a91-8377-6c86da895cbe
 # ╠═╡ skip_as_script = true
 #=╠═╡
@@ -1611,43 +1489,6 @@ r1
 # ╔═╡ 69a94f6a-420a-4587-bbad-1219a390862d
 #=╠═╡
 push!(r1s, r1)
-  ╠═╡ =#
-
-# ╔═╡ 998a3bd7-2d09-4b3f-8a41-50736b666dea
-# ╠═╡ skip_as_script = true
-#=╠═╡
-MultiSelect(["a" => "🆘", "b" => "✅", "c" => "🆘",  "d" => "✅", "c" => "🆘2", "c3" => "🆘"]; default=["b","d"])
-  ╠═╡ =#
-
-# ╔═╡ 78473a2f-0a64-4aa5-a60a-94031a4167b8
-#=╠═╡
-bms = @bind ms1 MultiSelect(["a" => "default", teststr => teststr])
-  ╠═╡ =#
-
-# ╔═╡ 43f86637-9f0b-480c-826a-bbf583e44646
-#=╠═╡
-bms
-  ╠═╡ =#
-
-# ╔═╡ b6697df5-fd21-4553-9e90-1d33c0b51f70
-#=╠═╡
-ms1
-  ╠═╡ =#
-
-# ╔═╡ 7bffc5d6-4056-4060-903e-7a1f73b6a8a0
-# ╠═╡ skip_as_script = true
-#=╠═╡
-@bind fs MultiSelect([sin, cos, tan])
-  ╠═╡ =#
-
-# ╔═╡ 7f112de0-2678-4793-a25f-42e7495e6590
-#=╠═╡
-fs
-  ╠═╡ =#
-
-# ╔═╡ 8fd52496-d4c9-4106-8a97-f19f1d8d8b0f
-#=╠═╡
-[f(0.5) for f in fs]
   ╠═╡ =#
 
 # ╔═╡ a03af14a-e030-4ac1-b61a-0275c9956454
@@ -1973,16 +1814,6 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═69a94f6a-420a-4587-bbad-1219a390862d
 # ╠═d9522557-07e6-4a51-ae92-3abe7a7d2732
 # ╟─cc80b7eb-ca09-41ca-8015-933591378437
-# ╟─38a7533e-7b0f-4c55-ade5-5a8d879d14c7
-# ╟─f21db694-2acb-417d-9f4d-0d2400aa067e
-# ╠═4d8ea460-ff2b-4e92-966e-89e76d4806af
-# ╠═78473a2f-0a64-4aa5-a60a-94031a4167b8
-# ╠═43f86637-9f0b-480c-826a-bbf583e44646
-# ╠═b6697df5-fd21-4553-9e90-1d33c0b51f70
-# ╠═998a3bd7-2d09-4b3f-8a41-50736b666dea
-# ╠═7bffc5d6-4056-4060-903e-7a1f73b6a8a0
-# ╠═7f112de0-2678-4793-a25f-42e7495e6590
-# ╠═8fd52496-d4c9-4106-8a97-f19f1d8d8b0f
 # ╟─e058076f-46fc-4435-ab45-530e27c95478
 # ╠═a03af14a-e030-4ac1-b61a-0275c9956454
 # ╠═d4a0e98d-666c-4588-8499-f253a309a403

@@ -1,10 +1,12 @@
 using PlutoUI
 using Test
 import AbstractPlutoDingetjes
+import AbstractPlutoDingetjes: Bonds
 using HypertextLiteral
 import ColorTypes: RGB, N0f8, Colorant
 import Logging
 using Dates
+import StatsBase: countmap
 
 # has to be outside of the begin block for julia 1.0 compat
 struct Uhm end
@@ -120,6 +122,12 @@ function default(x)
 end
 transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
 
+struct CustomVector{T} <: AbstractVector{T}
+    v::Vector{T}
+end
+Base.size(c::CustomVector) = size(c.v)
+Base.getindex(c::CustomVector, i) = c.v[i]
+
 @testset "Public API" begin
     el = Button()
     el = Button("asdf")
@@ -183,14 +191,37 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = FilePicker()
     @test default(el) === nothing
 
+    @testset "MultiWidgets: $f" for f in [MultiSelect, MultiCheckBox]
+        bound_values(v) = v
+        bound_values(v::AbstractVector{<:Pair}) = first.(v)
 
-    @testset "MultiSelect" for f in [MultiSelect, MultiCheckBox]
-        el = f(["asdf", "x"])
-        @test default(el) == []
-        el = f(["asdf"])
-        @test default(el) == []
-        el = f(["sin" => "asdf"])
-        @test default(el) == []
+        for v in (["asdf"], ["asdf", "x"], ["asdf", "x", "x"], [1:5; 1:5], ["sin" => "asdf"], (1:5 .=> 'a':'e'))
+            bv = bound_values(v)
+        
+            el = f(v)
+            @test default(el) == []
+            @test default(el) isa Vector{eltype(bv)}
+            for js_x in Bonds.possible_values(el)
+                @test Bonds.validate_value(el, js_x)
+                x = Bonds.transform_value(el, js_x)
+                @test eltype(x) == eltype(bv)
+                # `x` should be a subset of `bv` in the multiset sense
+                counts_x = countmap(x)
+                counts_bv = countmap(bv)
+                @test all(counts_x[k] ≤ counts_bv[k] for k in keys(counts_x))
+            end
+            @test !Bonds.validate_value(el, ["0"])
+            @test !Bonds.validate_value(el, [string(lastindex(v)+1)])
+
+            # `default(el)` should have the contents specified in the `default` kwarg, 
+            # but its type and eltype should not depend on the type of that vector
+            for def in (bv, eltype(bv)[]), g in (identity, Vector{Any}, CustomVector, CustomVector ∘ Vector{Any})
+                el = f(v; default = g(def))
+                @test default(el) == def
+                @test default(el) isa Vector{eltype(bv)}
+            end
+        end
+
         el = f(["sin" => "asdf"]; default = ["sin"])
         @test default(el) == ["sin"]
         
@@ -203,19 +234,19 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
         ])
         @test default(el) |> isempty
         @test default(el) isa Vector{Function}
-    end
-    
-    el = MultiCheckBox(
-        ["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
-        default=["🐱", "🐱"]
-    )
-    @test default(el) == ["🐱", "🐱"]
-    el = MultiCheckBox(
-        ["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
-        default=["🐱"]
-    )
-    @test default(el) == ["🐱"]
 
+        # Some cases of repeated bound values
+        el = f(
+            ["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
+            default=["🐱", "🐱"]
+        )
+        @test default(el) == ["🐱", "🐱"]
+        el = f(
+            ["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
+            default=["🐱"]
+        )
+        @test default(el) == ["🐱"]        
+    end
 
     el = Select(["asdf", "x"])
     @test default(el) == "asdf"
