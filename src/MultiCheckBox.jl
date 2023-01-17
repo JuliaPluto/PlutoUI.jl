@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.19
 
 using Markdown
 using InteractiveUtils
@@ -38,13 +38,47 @@ md"""
 animals_count = Ref(0)
   ╠═╡ =#
 
+# ╔═╡ ba2cf480-ff5e-43a3-8cba-5a4754b776f5
+md"""
+# MultiSelect
+"""
+
+# ╔═╡ 775c49e9-bb4d-42ca-8ed0-d259d0d18725
+teststr = "<x>\"\" woa"
+
 # ╔═╡ c8350f43-0d30-45d0-873b-ff56c5801ac1
 md"""
-## Definition
+## Definitions
 """
+
+# ╔═╡ 693f0bc4-2076-44e4-84f4-5ef1f3f43dd7
+import AbstractPlutoDingetjes
 
 # ╔═╡ 631c14bf-e2d3-4a24-8ddc-095a3dab80ef
 import AbstractPlutoDingetjes.Bonds
+
+# ╔═╡ a666d4df-dbbb-4837-b850-363caa576fe9
+function initially_selected(options, defaults)
+	# Given pairs of `bound_value => display_value` 
+	# (for MultiSelect or MultiCheckBox),
+	# and list of default bound values,
+	# return a bool array of which options should be initially selected to result
+	# in the supplied defaults as the widget's value.
+	# This is a bit tricky due to the possibility of duplicate bound values.
+	# See https://github.com/JuliaPluto/PlutoUI.jl/issues/106
+	defaults_copy = copy(defaults)
+	[
+		let
+			i = findfirst(isequal(k), defaults_copy)
+			if i === nothing
+				false
+			else
+				deleteat!(defaults_copy, i)
+				true
+			end
+		end
+	for (k,v) in options]
+end
 
 # ╔═╡ c38de38d-e900-4309-a9f6-1392af2f245b
 subarrays(x) = (
@@ -52,9 +86,133 @@ subarrays(x) = (
 	for I in Iterators.product(Iterators.repeated([true,false],length(x))...) |> collect |> vec
 )
 
+# ╔═╡ cd217cac-658a-44b7-8c88-348ae1af9b64
+subarrays([2,3,3]) |> collect
+
+# ╔═╡ 2c634e7f-428f-4655-951b-2a8e4efce548
+multi_possible_values(options) = subarrays(string.(eachindex(options)))
+
+# ╔═╡ d7d9f4f3-4bac-4431-b3af-0af651a483b7
+function multi_transform_value(options, val_from_js)
+	# val_from_js will be a vector of Strings, but let's allow Integers as well, there's no harm in that
+	@assert val_from_js isa Vector
+	
+	val_nums = (
+		v isa Integer ? v : tryparse(Int64, v)
+		for v in val_from_js
+	)
+	
+	[options[v].first for v in val_nums]
+end
+
+# ╔═╡ 9cd42452-149e-4080-972f-a31f7023f67d
+function multi_validate_value(options, val_from_js)
+	allunique(val_from_js) && all(val_from_js) do v
+		val_num = v isa Integer ? v : tryparse(Int64, v)
+		1 ≤ val_num ≤ length(options)
+	end
+end
+
+# ╔═╡ 41515a2f-81d7-4a47-8139-e0e4096c8cd4
+begin
+	local result = begin
+	"""
+	```julia
+	MultiSelect(options::Vector; [default], [size::Int])
+	# or with a custom display value:
+	MultiSelect(options::Vector{Pair}; [default], [size::Int])
+	```
+	
+	A multi-selector - the user can choose one or more of the `options`.
+	
+	See [`Select`](@ref) for a version that allows only one selected item.
+	
+	# Examples
+	```julia
+	@bind vegetables MultiSelect(["potato", "carrot"])
+	
+	if "carrot" ∈ vegetables
+		"yum yum!"
+	end
+	```
+	
+	```julia
+	@bind chosen_functions MultiSelect([sin, cos, tan, sqrt])
+	
+	[f(0.5) for f in chosen_functions]
+	```
+	
+	You can also specify a display value by giving pairs `bound_value => display_value`:
+	
+	```julia
+	@bind chosen_functions MultiSelect([
+		cos => "cosine function", 
+		sin => "sine function",
+	])
+	
+	[f(0.5) for f in chosen_functions]
+	```
+	
+	The `size` keyword argument may be used to specify how many rows should be visible at once.
+	
+	```julia
+	@bind letters MultiSelect(string.('a':'z'), size=20)
+	```
+	"""
+	struct MultiSelect{BT,DT}
+		options::AbstractVector{Pair{BT,DT}}
+		default::Vector{BT}
+		size::Int
+		
+		MultiSelect{BT,DT}(options::AbstractVector{<:Pair{BT,DT}}, default, size) where {BT,DT} = new{BT,DT}(options, default, coalesce(size, min(10, length(options))))
+	end
+	end
+	MultiSelect(options::AbstractVector{<:Pair{BT,DT}}; default = BT[], size = missing) where {BT,DT} = MultiSelect{BT,DT}(options, default, size)
+	MultiSelect(options::AbstractVector{BT}; default = BT[], size = missing) where BT = MultiSelect{BT,BT}(Pair{BT,BT}[o => o for o in options], default, size)
+	
+	function Base.show(io::IO, m::MIME"text/html", select::MultiSelect)
+	
+		# compat code
+		if !AbstractPlutoDingetjes.is_supported_by_display(io, Bonds.transform_value)
+			compat_element = try
+				OldMultiSelect(select.options, select.default, select.size)
+			catch
+				HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>")
+			end
+			return show(io, m, compat_element)
+		end
+
+		selected = initially_selected(select.options, select.default)
+		
+		show(io, m, @htl(
+			"""<select title='Cmd+Click or Ctrl+Click to select multiple items.' multiple size=$(select.size)>$(
+		map(enumerate(select.options)) do (i,o)
+				@htl(
+				"<option value=$(i) selected=$(selected[i])>$(
+				string(o.second)
+				)</option>")
+			end
+		)</select>"""))
+	end
+	
+	Base.get(select::MultiSelect) = Bonds.initial_value(select)
+	Bonds.initial_value(select::MultiSelect) = select.default
+	Bonds.possible_values(select::MultiSelect) = multi_possible_values(select.options)
+	Bonds.transform_value(select::MultiSelect, val_from_js) = multi_transform_value(select.options, val_from_js)
+	Bonds.validate_value(select::MultiSelect, val_from_js) = multi_validate_value(select.options, val_from_js)
+	
+	result
+end
+
+# ╔═╡ 112a576c-66fa-4336-a538-3843b8306587
+MultiSelect(["a" => "🆘", "b" => "✅", "c" => "🆘",  "d" => "✅", "c" => "🆘2", "c3" => "🆘"]; default=["b","d"])
+
+# ╔═╡ 11fbe522-4596-418c-b1d4-076a83a8408b
+MultiSelect([[1 => "1.$i" for i=1:5]; [2 => "2.$i" for i=1:50]]; default=[1,1,1,2,2])
+
 # ╔═╡ 430e2c1a-832f-11eb-024a-13e3989fd7c2
 begin
-	export MultiCheckBox
+	export MultiCheckBox, MultiSelect
     local result = begin
     """
     ```julia
@@ -66,7 +224,7 @@ begin
 
     See also: [`MultiSelect`](@ref).
 
-    `options` can also be an array of pairs `key::Any => value::String`. The `key` is returned via `@bind`; the `value` is shown.
+    `options` can also be an array of pairs `key => value`. The `key` is returned via `@bind`; the `value` is shown.
 
     # Keyword arguments
     - `defaults` specifies which options should be checked initally.
@@ -98,37 +256,31 @@ begin
     """
     struct MultiCheckBox{BT,DT}
         options::AbstractVector{Pair{BT,DT}}
-        default::Union{Missing,AbstractVector{BT}}
+        default::Vector{BT}
         orientation::Symbol
         select_all::Bool
+		
+		function MultiCheckBox{BT,DT}(options::AbstractVector{<:Pair{BT,DT}}, default, orientation, select_all) where {BT,DT}
+			@assert orientation == :column || orientation == :row "Invalid orientation $(mc.orientation). Orientation should be :row or :column"
+			new{BT,DT}(options, default, orientation, select_all)
+		end
     end
     end
 
-    MultiCheckBox(options::AbstractVector{<:Pair{BT,DT}}; default=missing, orientation=:row, select_all=false) where {BT,DT} = MultiCheckBox(options, default, orientation, select_all)
+    MultiCheckBox(options::AbstractVector{<:Pair{BT,DT}}; default=BT[], orientation=:row, select_all=false) where {BT,DT} = MultiCheckBox{BT,DT}(options, default, orientation, select_all)
         
-    MultiCheckBox(options::AbstractVector{BT}; default=missing, orientation=:row, select_all=false) where BT = MultiCheckBox{BT,BT}(Pair{BT,BT}[o => o for o in options], default, orientation, select_all)
+    MultiCheckBox(options::AbstractVector{BT}; default=BT[], orientation=:row, select_all=false) where BT = MultiCheckBox{BT,BT}(Pair{BT,BT}[o => o for o in options], default, orientation, select_all)
 
-    function Base.show(io::IO, m::MIME"text/html", mc::MultiCheckBox)
-        @assert mc.orientation == :column || mc.orientation == :row "Invalid orientation $(mc.orientation). Orientation should be :row or :column"
 
-        defaults = coalesce(mc.default, [])
+    Base.get(select::MultiCheckBox) = Bonds.initial_value(select)
+    Bonds.initial_value(select::MultiCheckBox) = select.default
+    Bonds.possible_values(select::MultiCheckBox) = multi_possible_values(select.options)
+    Bonds.transform_value(select::MultiCheckBox, val_from_js) = multi_transform_value(select.options, val_from_js)
+    Bonds.validate_value(select::MultiCheckBox, val_from_js) = multi_validate_value(select.options, val_from_js)
 
-		# Old:
-		# checked = [k in defaults for (k,v) in mc.options]
-		# 
-		# More complicated to fix https://github.com/JuliaPluto/PlutoUI.jl/issues/106
-		defaults_copy = copy(defaults)
-		checked = [
-			let
-				i = findfirst(isequal(k), defaults_copy)
-				if i === nothing
-					false
-				else
-					deleteat!(defaults_copy, i)
-					true
-				end
-			end
-		for (k,v) in mc.options]
+	function Base.show(io::IO, m::MIME"text/html", mc::MultiCheckBox)
+
+		checked = initially_selected(mc.options, mc.default)
 		
         show(io, m, @htl("""
         <plj-multi-checkbox style="flex-direction: $(mc.orientation);"></plj-multi-checkbox>
@@ -291,31 +443,7 @@ begin
         """))
     end
 
-    Base.get(select::MultiCheckBox) = Bonds.initial_value(select)
-    Bonds.initial_value(select::MultiCheckBox{BT,DT}) where {BT,DT} = 
-        ismissing(select.default) ? BT[] : select.default
-    Bonds.possible_values(select::MultiCheckBox) = 
-        subarrays((string(i) for i in 1:length(select.options)))
-    
-    function Bonds.transform_value(select::MultiCheckBox{BT,DT}, val_from_js) where {BT,DT}
-        # val_from_js will be a vector of Strings, but let's allow Integers as well, there's no harm in that
-        @assert val_from_js isa Vector
-        
-        val_nums = (
-            v isa Integer ? v : tryparse(Int64, v)
-            for v in val_from_js
-        )
-        
-        BT[select.options[v].first for v in val_nums]
-    end
-    
-    function Bonds.validate_value(select::MultiCheckBox, val)
-        val isa Vector && all(val_from_js) do v
-            val_num = v isa Integer ? v : tryparse(Int64, v)
-            1 ≤ val_num ≤ length(select.options)
-        end
-    end
-    result
+	result
 end
 
 # ╔═╡ 8bfaf4c8-557d-433e-a228-aac493746efc
@@ -384,6 +512,24 @@ MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "
 snacks
   ╠═╡ =#
 
+# ╔═╡ c8bf9a17-14ce-4802-b578-81eb10bdd7be
+bms = @bind ms1 MultiSelect(["a" => "default", teststr => teststr])
+
+# ╔═╡ 9b8efd9f-8c24-4cf0-97a1-87fb8f4dadd2
+bms
+
+# ╔═╡ 9b888e03-242f-4a41-bb25-c62fa7daf12a
+ms1
+
+# ╔═╡ 1f8f2492-8624-496d-9aba-a3d5e1d1accb
+@bind fs MultiSelect([sin, cos, tan])
+
+# ╔═╡ ad25b07b-fa5b-41eb-a928-6012e2f2c0ec
+fs
+
+# ╔═╡ 5d14aaa7-587e-4c39-8e54-2c46a1581a11
+[f(0.5) for f in fs]
+
 # ╔═╡ Cell order:
 # ╟─a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 # ╠═8bfaf4c8-557d-433e-a228-aac493746efc
@@ -398,9 +544,26 @@ snacks
 # ╠═60183ad1-4919-4402-83fb-d53b86dda0a6
 # ╠═abe4c3e0-6e1e-4e26-a4fa-bd60f31c1a4c
 # ╠═ad6dcdec-2fc9-45d2-8828-62ac857b4afa
+# ╟─ba2cf480-ff5e-43a3-8cba-5a4754b776f5
+# ╠═775c49e9-bb4d-42ca-8ed0-d259d0d18725
+# ╠═cd217cac-658a-44b7-8c88-348ae1af9b64
+# ╠═c8bf9a17-14ce-4802-b578-81eb10bdd7be
+# ╠═9b8efd9f-8c24-4cf0-97a1-87fb8f4dadd2
+# ╠═9b888e03-242f-4a41-bb25-c62fa7daf12a
+# ╠═112a576c-66fa-4336-a538-3843b8306587
+# ╠═11fbe522-4596-418c-b1d4-076a83a8408b
+# ╠═1f8f2492-8624-496d-9aba-a3d5e1d1accb
+# ╠═ad25b07b-fa5b-41eb-a928-6012e2f2c0ec
+# ╠═5d14aaa7-587e-4c39-8e54-2c46a1581a11
 # ╟─c8350f43-0d30-45d0-873b-ff56c5801ac1
 # ╠═499ca710-1a50-4aa1-87d8-d213416e8e30
+# ╠═693f0bc4-2076-44e4-84f4-5ef1f3f43dd7
 # ╠═631c14bf-e2d3-4a24-8ddc-095a3dab80ef
 # ╠═b65c67ec-b79f-4f0e-85e6-78ff22b279d4
+# ╟─a666d4df-dbbb-4837-b850-363caa576fe9
+# ╟─c38de38d-e900-4309-a9f6-1392af2f245b
+# ╟─2c634e7f-428f-4655-951b-2a8e4efce548
+# ╠═d7d9f4f3-4bac-4431-b3af-0af651a483b7
+# ╠═9cd42452-149e-4080-972f-a31f7023f67d
 # ╠═430e2c1a-832f-11eb-024a-13e3989fd7c2
-# ╠═c38de38d-e900-4309-a9f6-1392af2f245b
+# ╟─41515a2f-81d7-4a47-8139-e0e4096c8cd4
