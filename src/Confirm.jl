@@ -113,6 +113,7 @@ return result
 begin
 	Base.@kwdef struct ConfirmBond
 		element::Any
+		text::String="confirm"
 		secret_key::String=String(rand('a':'z', 10))
 	end
 
@@ -123,7 +124,7 @@ begin
 		output = @htl(
 			"""<span style='display: contents;'>$(
 				cb.element
-			)<input type=submit id=$(cb.secret_key)><script id=$(cb.secret_key)>
+			)<input type=submit id=$(cb.secret_key) value=$(cb.text)><script id=$(cb.secret_key)>
 		
 		let key = $(cb.secret_key)
 		
@@ -244,7 +245,7 @@ You can combine this with [`PlutoUI.combine`](@ref)!
 		<h3>Wind speeds</h3>
 		<ul>
 		\$([
-			@htl("<li>\$(name): \$(Child(name, Slider(1:100)))")
+			@htl("<li>\$(name): \$(confirm(Child(name, Slider(1:100))))")
 			for name in ["North", "East", "South", "West"]
 		])
 		</ul>
@@ -258,9 +259,10 @@ You can combine this with [`PlutoUI.combine`](@ref)!
 > ![screenshot of running the code above in pluto](https://user-images.githubusercontent.com/6933510/145614965-7a1e8630-4766-4589-8a84-b022bdfb09fc.gif)
 
 """
-function confirm(element::Any)
+function confirm(element::Any, text::String="Confirm")
 	ConfirmBond(;
 		element=element,
+		text=text,
 	)
 end
 
