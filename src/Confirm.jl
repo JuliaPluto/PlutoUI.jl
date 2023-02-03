@@ -211,7 +211,7 @@ end
 # ╔═╡ a20da18f-7a74-43ca-9b66-1f3b82efa0c3
 """
 ```julia
-confirm(element::Any)
+confirm(element::Any, text::String="Confirm")
 ```
 
 Normally, when you move a [`Slider`](@ref) or type in a [`TextField`](@ref), all intermediate values are sent back to `@bind`.
