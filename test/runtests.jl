@@ -276,10 +276,13 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     max_downsample_time = 0.001 # seconds
     # this should take less than 0.1ms
     @test max_downsample_time >= @elapsed PlutoUI.BuiltinsNotebook.downsample(x3, 100)
-
-
     
-
+    x4 = 1:9802439083
+    el = Slider(x4; default=2, show_value=true)
+    
+    @test length(el.values) <= 1000
+    @test default(el) == 1
+    
     el = Scrubbable(60)
     @test default(el) === 60
     el = Scrubbable(60.0)

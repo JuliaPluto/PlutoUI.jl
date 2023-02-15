@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.14
+# v0.19.18
 
 using Markdown
 using InteractiveUtils
@@ -156,7 +156,7 @@ begin
 	
 	function Slider(values::AbstractVector{T}; default=missing, show_value=false, max_steps=1_000) where T
 		new_values = downsample(values, max_steps)
-		Slider(values, (default === missing) ? first(new_values) : let
+		Slider(new_values, (default === missing) ? first(new_values) : let
 			d = default
 			d ∈ new_values ? convert(T, d) : closest(new_values, d)
 		end, show_value)
