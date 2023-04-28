@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.24
 
 using Markdown
 using InteractiveUtils
@@ -48,6 +48,9 @@ md"""
 const toc_js = toc -> @htl """
 <script>
 	
+// Load the library for consistent smooth scrolling
+const {default: scrollIntoView} = await import('https://esm.sh/smooth-scroll-into-view-if-needed@2.0.0')
+
 const indent = $(toc.indent)
 const aside = $(toc.aside)
 const title_text = $(toc.title)
@@ -181,7 +184,7 @@ const render = (elements) => {
 	a.onclick=(e) => {
 		e.preventDefault();
 		last_toc_element_click_time.current = Date.now()
-		h.scrollIntoView({
+		scrollIntoView(h, {
 			behavior: 'smooth', 
 			block: 'start'
 		})
