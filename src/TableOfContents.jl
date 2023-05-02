@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.24
 
 using Markdown
 using InteractiveUtils
@@ -44,10 +44,38 @@ md"""
 # JS code
 """
 
+# ╔═╡ b3f94978-cfdc-458a-b556-c828637fddc0
+md"""
+## Smooth scroll library
+"""
+
+# ╔═╡ aa7aeffb-f4e3-4e09-b99e-681720b04681
+import Base64
+
+# ╔═╡ dfd83110-fe76-4369-9981-fcdcb8d1fafe
+# ╠═╡ skip_as_script = true
+#=╠═╡
+md"""
+To get the bundled library code below:
+1. Run `deno bundle deno bundle https://esm.sh/smooth-scroll-into-view-if-needed@2.0.0\?target\=es2022`
+2. *(optional)* Copy the output and put it in a JS minifier, like [https://www.toptal.com/developers/javascript-minifier](https://www.toptal.com/developers/javascript-minifier)
+3. Paste it into the cell below
+"""
+  ╠═╡ =#
+
+# ╔═╡ 8b9371fc-fa29-483f-8ee4-35338b47e596
+const smooth_scoll_lib = raw"""var Q=e=>"object"==typeof e&&null!=e&&1===e.nodeType,U=(e,t)=>(!t||"hidden"!==e)&&"visible"!==e&&"clip"!==e,A=(e,t)=>{if(e.clientHeight<e.scrollHeight||e.clientWidth<e.scrollWidth){let l=getComputedStyle(e,null);return U(l.overflowY,t)||U(l.overflowX,t)||(e=>{let t=(e=>{if(!e.ownerDocument||!e.ownerDocument.defaultView)return null;try{return e.ownerDocument.defaultView.frameElement}catch{return null}})(e);return!!t&&(t.clientHeight<e.scrollHeight||t.clientWidth<e.scrollWidth)})(e)}return!1},X=(e,t,l,o,n,r,i,s)=>r<e&&i>t||r>e&&i<t?0:r<=e&&s<=l||i>=t&&s>=l?r-e-o:i>t&&s<l||r<e&&s>l?i-t+n:0,$=e=>e.parentElement??(e.getRootNode().host||null),tt=(e,t)=>{var l,o,n,r;if(typeof document>"u")return[];let{scrollMode:i,block:s,inline:a,boundary:h,skipOverflowHiddenElements:u}=t,g="function"==typeof h?h:e=>e!==h;if(!Q(e))throw TypeError("Invalid target");let v=document.scrollingElement||document.documentElement,m=[],w=e;for(;Q(w)&&g(w);){if((w=$(w))===v){m.push(w);break}null!=w&&w===document.body&&A(w)&&!A(document.documentElement)||null!=w&&A(w,u)&&m.push(w)}let W=null!=(o=null==(l=window.visualViewport)?void 0:l.width)?o:innerWidth,H=null!=(r=null==(n=window.visualViewport)?void 0:n.height)?r:innerHeight,{scrollX:_,scrollY:x}=window,{height:E,width:T,top:N,right:L,bottom:Y,left:C}=e.getBoundingClientRect(),R="start"===s||"nearest"===s?N:"end"===s?Y:N+E/2,V="center"===a?C+T/2:"end"===a?L:C,B=[];for(let D=0;D<m.length;D++){let O=m[D],{height:j,width:I,top:S,right:q,bottom:z,left:F}=O.getBoundingClientRect();if("if-needed"===i&&N>=0&&C>=0&&Y<=H&&L<=W&&N>=S&&Y<=z&&C>=F&&L<=q)break;let G=getComputedStyle(O),J=parseInt(G.borderLeftWidth,10),K=parseInt(G.borderTopWidth,10),P=parseInt(G.borderRightWidth,10),Z=parseInt(G.borderBottomWidth,10),ee=0,et=0,el="offsetWidth"in O?O.offsetWidth-O.clientWidth-J-P:0,eo="offsetHeight"in O?O.offsetHeight-O.clientHeight-K-Z:0,en="offsetWidth"in O?0===O.offsetWidth?0:I/O.offsetWidth:0,er="offsetHeight"in O?0===O.offsetHeight?0:j/O.offsetHeight:0;if(v===O)ee="start"===s?R:"end"===s?R-H:"nearest"===s?X(x,x+H,H,K,Z,x+R,x+R+E,E):R-H/2,et="start"===a?V:"center"===a?V-W/2:"end"===a?V-W:X(_,_+W,W,J,P,_+V,_+V+T,T),ee=Math.max(0,ee+x),et=Math.max(0,et+_);else{ee="start"===s?R-S-K:"end"===s?R-z+Z+eo:"nearest"===s?X(S,z,j,K,Z+eo,R,R+E,E):R-(S+j/2)+eo/2,et="start"===a?V-F-J:"center"===a?V-(F+I/2)+el/2:"end"===a?V-q+P+el:X(F,q,I,J,P+el,V,V+T,T);let{scrollLeft:ei,scrollTop:ed}=O;ee=Math.max(0,Math.min(ed+ee/er,O.scrollHeight-j/er+eo)),et=Math.max(0,Math.min(ei+et/en,O.scrollWidth-I/en+el)),R+=ed-ee,V+=ei-et}B.push({el:O,top:ee,left:et})}return B},f=e=>{var t;return!1===e?{block:"end",inline:"nearest"}:(t=e)===Object(t)&&0!==Object.keys(t).length?e:{block:"start",inline:"nearest"}};function c(e,t){var l;if(!e.isConnected||!(e=>{let t=e;for(;t&&t.parentNode;){if(t.parentNode===document)return!0;t=t.parentNode instanceof ShadowRoot?t.parentNode.host:t.parentNode}return!1})(e))return;if("object"==typeof(l=t)&&"function"==typeof l.behavior)return t.behavior(tt(e,t));let o="boolean"==typeof t||null==t?void 0:t.behavior;for(let{el:n,top:r,left:i}of tt(e,f(t)))n.scroll({top:r,left:i,behavior:o})}var d,p=()=>(d||(d="performance"in window?performance.now.bind(performance):Date.now),d());function b(e){let t=Math.min((p()-e.startTime)/e.duration,1),l=e.ease(t),o=e.startX+(e.x-e.startX)*l,n=e.startY+(e.y-e.startY)*l;e.method(o,n,t,l),o!==e.x||n!==e.y?requestAnimationFrame(()=>b(e)):e.cb()}function y(e,t,l){let o=arguments.length>3&&void 0!==arguments[3]?arguments[3]:600,n=arguments.length>4&&void 0!==arguments[4]?arguments[4]:e=>1+--e*e*e*e*e,r=arguments.length>5?arguments[5]:void 0,i=arguments.length>6?arguments[6]:void 0,s=e.scrollLeft,a=e.scrollTop;b({scrollable:e,method(t,l,o,n){let r=Math.ceil(t),s=Math.ceil(l);e.scrollLeft=r,e.scrollTop=s,i?.({target:e,elapsed:o,value:n,left:r,top:s})},startTime:p(),startX:s,startY:a,x:t,y:l,duration:o,ease:n,cb:r})}var M=e=>e&&!e.behavior||"smooth"===e.behavior,k=function(e,t){let l=t||{};return M(l)?c(e,{block:l.block,inline:l.inline,scrollMode:l.scrollMode,boundary:l.boundary,skipOverflowHiddenElements:l.skipOverflowHiddenElements,behavior:e=>Promise.all(e.reduce((e,t)=>{let{el:o,left:n,top:r}=t,i=o.scrollLeft,s=o.scrollTop;return i===n&&s===r?e:[...e,new Promise(e=>y(o,n,r,l.duration,l.ease,()=>e({el:o,left:[i,n],top:[s,r]}),l.onScrollChange))]},[]))}):Promise.resolve(c(e,t))};export{k as default};"""
+
+# ╔═╡ 2c860192-3bef-4c76-8365-007182a6ed67
+const smooth_scoll_lib_url = "data:text/javascript;base64,$(Base64.base64encode(smooth_scoll_lib))"
+
 # ╔═╡ d6940210-4f9b-47b5-af74-e53700a42417
 const toc_js = toc -> @htl """
 <script>
 	
+// Load the library for consistent smooth scrolling
+const {default: scrollIntoView} = await import($smooth_scoll_lib_url)
+
 const indent = $(toc.indent)
 const aside = $(toc.aside)
 const title_text = $(toc.title)
@@ -181,10 +209,17 @@ const render = (elements) => {
 	a.onclick=(e) => {
 		e.preventDefault();
 		last_toc_element_click_time.current = Date.now()
-		h.scrollIntoView({
+		scrollIntoView(h, {
 			behavior: 'smooth', 
-			block: 'start'
-		})
+			block: 'start',
+		}).then(() => 
+			// sometimes it doesn't scroll to the right place
+			// solution: try a second time!
+			scrollIntoView(h, {
+				behavior: 'smooth', 
+				block: 'start',
+			})
+	   )
 	}
 
 	const row =  html`<div class="toc-row \${className} after-\${last_level}">\${a}</div>`
@@ -263,6 +298,39 @@ invalidation.then(() => {
 return tocNode
 </script>
 """;
+
+# ╔═╡ c7b295dd-c5b7-4909-a589-ddec8f2e583d
+# ╠═╡ skip_as_script = true
+#=╠═╡
+md"""
+> The code above is generated from [https://github.com/scroll-into-view/smooth-scroll-into-view-if-needed](https://github.com/scroll-into-view/smooth-scroll-into-view-if-needed)
+> 
+> Original license:
+> ```
+> MIT License
+> 
+> Copyright (c) 2023 Cody Olsen
+> 
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+> 
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+> 
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
+> ```
+"""
+  ╠═╡ =#
 
 # ╔═╡ 354d8ac1-5c55-4765-8681-656c0da2f1a9
 md"""
@@ -673,6 +741,12 @@ $p
 # ╠═434cc67b-a1e8-4804-b7ba-f47d0f879046
 # ╟─c98059f6-2078-46f6-a2ea-4e70c226b2be
 # ╠═d6940210-4f9b-47b5-af74-e53700a42417
+# ╟─b3f94978-cfdc-458a-b556-c828637fddc0
+# ╠═aa7aeffb-f4e3-4e09-b99e-681720b04681
+# ╟─dfd83110-fe76-4369-9981-fcdcb8d1fafe
+# ╟─8b9371fc-fa29-483f-8ee4-35338b47e596
+# ╟─2c860192-3bef-4c76-8365-007182a6ed67
+# ╟─c7b295dd-c5b7-4909-a589-ddec8f2e583d
 # ╟─354d8ac1-5c55-4765-8681-656c0da2f1a9
 # ╠═731a4662-c329-42a2-ae71-7954140bb290
 # ╠═3ab2da5f-943e-42e8-8e46-4a7031ba4227
