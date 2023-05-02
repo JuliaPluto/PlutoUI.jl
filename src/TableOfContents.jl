@@ -211,8 +211,15 @@ const render = (elements) => {
 		last_toc_element_click_time.current = Date.now()
 		scrollIntoView(h, {
 			behavior: 'smooth', 
-			block: 'start'
-		})
+			block: 'start',
+		}).then(() => 
+			// sometimes it doesn't scroll to the right place
+			// solution: try a second time!
+			scrollIntoView(h, {
+				behavior: 'smooth', 
+				block: 'start',
+			})
+	   )
 	}
 
 	const row =  html`<div class="toc-row \${className} after-\${last_level}">\${a}</div>`
