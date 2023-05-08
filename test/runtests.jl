@@ -171,6 +171,12 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == Dates.Date(2022, 4, 1)
     el = DatePicker(default=Dates.DateTime(2022, 12, 31, 23, 59, 59))
     @test default(el) == Dates.Date(2022, 12, 31)
+    el = DateRangePicker()
+    @test default(el) === nothing
+    el = DateRangePicker(
+        default_start=Dates.Date(2023, 03, 01),
+        default_stop=Dates.Date(2023, 04, 01))
+    @test default(el) === Dates.Date(2023,03,01):Dates.Date(2023,04,01)
     el = TimeField()
     @test default(el) === "" # ugh 
     el = TimePicker()
