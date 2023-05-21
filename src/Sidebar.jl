@@ -4,18 +4,11 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
 # ╔═╡ 2d3f1d9d-2c06-4f15-a2f3-f72134e08235
+# ╠═╡ skip_as_script = true
+#=╠═╡
 using PlutoUI
+  ╠═╡ =#
 
 # ╔═╡ 18a62430-6ca5-4c7c-94bb-be7db46fe7d8
 using HypertextLiteral
@@ -66,19 +59,27 @@ aside.aside-sticky table {
 """)
 
 # ╔═╡ 8dfccfed-0561-407d-91c3-cc89023c83b2
+# ╠═╡ skip_as_script = true
+#=╠═╡
 map(Iterators.product(["upper", "center", "lower"], ["left", "center", "right"])) do (v, h)
-	Sidebar((;v, h), location="$v $h")
+	Sidebar(embed_display((;v, h)), location="$v $h")
 end |> vec
+  ╠═╡ =#
 
 # ╔═╡ 4175be46-cc6e-44bf-b853-aa4f6846a842
+# ╠═╡ skip_as_script = true
+#=╠═╡
 Sidebar(
 	"abc "^10,
 	md"---",
 	(@bind a Slider(1:10)),
 )
+  ╠═╡ =#
 
 # ╔═╡ 48aecfd3-6954-47f0-970a-27533a7e23ec
+#=╠═╡
 a
+  ╠═╡ =#
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
