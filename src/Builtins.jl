@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.18
+# v0.19.25
 
 using Markdown
 using InteractiveUtils
@@ -833,7 +833,7 @@ begin
 end
 
 # ╔═╡ f21db694-2acb-417d-9f4d-0d2400aa067e
-subarrays(x) = (
+subarrays(x::Vector) = (
 	x[collect(I)]
 	for I in Iterators.product(Iterators.repeated([true,false],length(x))...) |> collect |> vec
 )
@@ -1317,7 +1317,7 @@ begin
 		Bonds.initial_value(select::MultiSelect{BT,DT}) where {BT,DT} = 
 			ismissing(select.default) ? BT[] : select.default
 		Bonds.possible_values(select::MultiSelect) = 
-			subarrays((string(i) for i in 1:length(select.options)))
+			subarrays(map(string, 1:length(select.options)))
 			
 		function Bonds.transform_value(select::MultiSelect{BT,DT}, val_from_js) where {BT,DT}
 			# val_from_js will be a vector of Strings, but let's allow Integers as well, there's no harm in that
@@ -1973,8 +1973,8 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═69a94f6a-420a-4587-bbad-1219a390862d
 # ╠═d9522557-07e6-4a51-ae92-3abe7a7d2732
 # ╟─cc80b7eb-ca09-41ca-8015-933591378437
-# ╟─38a7533e-7b0f-4c55-ade5-5a8d879d14c7
-# ╟─f21db694-2acb-417d-9f4d-0d2400aa067e
+# ╠═38a7533e-7b0f-4c55-ade5-5a8d879d14c7
+# ╠═f21db694-2acb-417d-9f4d-0d2400aa067e
 # ╠═4d8ea460-ff2b-4e92-966e-89e76d4806af
 # ╠═78473a2f-0a64-4aa5-a60a-94031a4167b8
 # ╠═43f86637-9f0b-480c-826a-bbf583e44646
