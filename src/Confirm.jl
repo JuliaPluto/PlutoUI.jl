@@ -176,7 +176,7 @@ begin
 			div.dispatchEvent(new CustomEvent("input", {}))
 		})
 
-	
+
 		Object.defineProperty(div, 'value', {
 			get: () => public_value,
 			set: (newval) => {
@@ -187,7 +187,7 @@ begin
 			},
 			configurable: true,
 		});
-	
+
 		</script></span>""")
 		Base.show(io, m, output)
 	end
