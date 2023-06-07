@@ -169,7 +169,7 @@ begin
 
 
 		let set_input_value = $(set_input_value_compat)
-	
+
 		Object.defineProperty(div, 'value', {
 			get: () => values,
 			set: (newvals) => {
@@ -183,7 +183,7 @@ begin
 		},
 			configurable: true,
 		});
-	
+
 		</script></span>""")
 		Base.show(io, m, output)
 	end
