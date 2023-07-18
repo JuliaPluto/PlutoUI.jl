@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.25
 
 using Markdown
 using InteractiveUtils
@@ -295,7 +295,7 @@ begin
     Bonds.initial_value(select::MultiCheckBox{BT,DT}) where {BT,DT} = 
         ismissing(select.default) ? BT[] : select.default
     Bonds.possible_values(select::MultiCheckBox) = 
-        subarrays((string(i) for i in 1:length(select.options)))
+        subarrays(map(string, 1:length(select.options)))
     
     function Bonds.transform_value(select::MultiCheckBox{BT,DT}, val_from_js) where {BT,DT}
         # val_from_js will be a vector of Strings, but let's allow Integers as well, there's no harm in that
@@ -384,6 +384,12 @@ MultiCheckBox(["🐰 &&\\a \$\$", "🐱" , "🐵", "🐘", "🦝", "🐿️" , "
 snacks
   ╠═╡ =#
 
+# ╔═╡ 7db1539d-0a36-4446-abdb-d8d7e6aaaee1
+# ╠═╡ skip_as_script = true
+#=╠═╡
+Bonds.possible_values(MultiCheckBox([1,2,3])) |> collect
+  ╠═╡ =#
+
 # ╔═╡ Cell order:
 # ╟─a8c1e0d2-3604-4e1d-a87c-c8f5b86b79ed
 # ╠═8bfaf4c8-557d-433e-a228-aac493746efc
@@ -404,3 +410,4 @@ snacks
 # ╠═b65c67ec-b79f-4f0e-85e6-78ff22b279d4
 # ╠═430e2c1a-832f-11eb-024a-13e3989fd7c2
 # ╠═c38de38d-e900-4309-a9f6-1392af2f245b
+# ╠═7db1539d-0a36-4446-abdb-d8d7e6aaaee1
