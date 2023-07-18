@@ -227,7 +227,26 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
         @test default(el) |> isempty
         @test default(el) isa Vector{Function}
     end
-    
+
+    expected = Set([
+        ["1", "2", "3"],
+        ["1", "2"],
+        ["1", "3"],
+        ["2", "3"],
+        ["1"],
+        ["2"],
+        ["3"],
+        [],
+    ])
+
+    el = MultiSelect(["🐱", true, "🐵"])
+    ps = Set(AbstractPlutoDingetjes.Bonds.possible_values(el))
+    @test ps == expected
+
+    el = MultiCheckBox(["🐱", true, "🐵"])
+    ps = Set(AbstractPlutoDingetjes.Bonds.possible_values(el))
+    @test ps == expected
+
     el = MultiCheckBox(
         ["🐱" => "🐝", "🐵" => "🦝", "🐱" => "🐿️"]; 
         default=["🐱", "🐱"]
