@@ -109,6 +109,9 @@ export WithIOContext
 
 A wrapper around `x` with extra IOContext properties set, just for the display of `x`.
 
+!!! compat "PlutoUI 0.7.52"
+    Before PlutoUI 0.7.52, `x` would be displayed using only the properties from `properties`, ignoring the properties from the IOContext used for the render. This has been fixed.
+
 # Examples
 
 ```julia
@@ -128,12 +131,19 @@ end
 
 Base.:(==)(w1::WithIOContext, w2::WithIOContext) = w1.x == w2.x && w1.context == w2.context
 
+# weird... 
+# - `IOContext(io, :a => :b)` will have all the properties from `io`, with `:a => :b` added, wheras
+# - `IOContext(io, second_io)` will only have the properties from `second_io`, with properties from `io` ignored.
+# 
+# This function will create an IOContext with all the properties from both `a` and `b`, with properties from `b` taking precedence.
+_layer_iocontext(a::IO, b::IOContext) = IOContext(a, (key => get(b, key, nothing) for key in keys(b))...)
+
 function Base.show(io::IO, m::MIME, w::WithIOContext)
-	Base.show(IOContext(io, w.context), m, w.x)
+	Base.show(_layer_iocontext(io, w.context), m, w.x)
 end
 # we need to add a more specific method for text/plain because Julia base has a fallback method here
 function Base.show(io::IO, m::MIME"text/plain", w::WithIOContext)
-	Base.show(IOContext(io, w.context), m, w.x)
+	Base.show(_layer_iocontext(io, w.context), m, w.x)
 end
 
 Base.showable(m::MIME, w::WithIOContext) = Base.showable(m, w.x)
