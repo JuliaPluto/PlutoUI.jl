@@ -112,7 +112,8 @@ end
 
 # ╔═╡ db3aefaa-9539-4c46-ad9b-83763f9ef624
 # Like `argmin` in Julia 1.7
-argmin_compat(f,xs) = xs[findmin(Iterators.map(f,xs))[2]]
+# based on Compat.jl
+argmin_compat(f,xs) = mapfoldl(x -> (f(x), x), ((a1,a2),(b1,b2)) -> a1 > b1 ? (b1,b2) : (a1,a2), xs)[2]
 
 # ╔═╡ 97fc914b-005f-4b4d-80cb-23016d589609
 function closest(values::AbstractVector{<:Real}, x::Real)
