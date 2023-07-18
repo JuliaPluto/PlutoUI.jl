@@ -109,6 +109,9 @@ export WithIOContext
 
 A wrapper around `x` with extra IOContext properties set, just for the display of `x`.
 
+!!! compat "PlutoUI 0.7.52"
+    Before PlutoUI 0.7.52, `x` would be displayed using only the properties from `properties`, ignoring the properties from the IOContext used for the render. This has been fixed.
+
 # Examples
 
 ```julia
