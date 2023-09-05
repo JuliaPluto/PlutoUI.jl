@@ -141,6 +141,7 @@ begin
 		values::AbstractVector{T}
 		default::T
 		show_value::Bool
+		update_on_release::Bool
 	end
 	end
 	
@@ -155,12 +156,12 @@ begin
 		end
 	end
 	
-	function Slider(values::AbstractVector{T}; default=missing, show_value=false, max_steps=1_000) where T
+	function Slider(values::AbstractVector{T}; default=missing, show_value=false, max_steps=1_000, update_on_release=false) where T
 		new_values = downsample(values, max_steps)
 		Slider(new_values, (default === missing) ? first(new_values) : let
 			d = default
 			d ∈ new_values ? convert(T, d) : closest(new_values, d)
-		end, show_value)
+		end, show_value, update_on_release)
 	end
 	
 	function Base.show(io::IO, m::MIME"text/html", slider::Slider)
@@ -178,22 +179,45 @@ begin
 		start_index = findfirst(isequal(slider.default), slider.values)
 		
 		show(io, m, @htl(
-			"""<input $((
+			"""
+			<span></span>
+			<input $((
 				type="range",
 				min=1,
 				max=length(slider.values),
 				value=start_index,
-			))>$(
-					slider.show_value ? @htl(
-					"""<script>
-					const input_el = currentScript.previousElementSibling
-					const output_el = currentScript.nextElementSibling
-					const displays = $(string.(slider.values))
-					
-					input_el.addEventListener("input", () => {
-						output_el.value = displays[input_el.valueAsNumber - 1]
-					})
-					</script><output style='
+			))>
+			<script>
+			const input_el = currentScript.previousElementSibling
+			const span_el = input_el.previousElementSibling
+			const show_value = $(slider.show_value)
+			const update_on_release = $(slider.update_on_release)
+			const updatevalue = () => {
+				span_el.value = input_el.valueAsNumber
+				span_el.dispatchEvent(new CustomEvent("input"))
+			}
+
+			if (update_on_release) {
+				input_el.addEventListener("mouseup", updatevalue)
+				input_el.addEventListener("touchend", updatevalue)
+			}
+			else {
+				input_el.addEventListener("input", updatevalue)
+			}
+
+			span_el.value = $(start_index)
+
+			if (show_value) {
+				const output_el = currentScript.nextElementSibling
+				const displays = $(string.(slider.values))
+				input_el.addEventListener("input", () => {
+					output_el.value = displays[input_el.valueAsNumber - 1]
+				})
+			}
+			</script>
+			$(
+				slider.show_value ? @htl(
+					"""<output style='
 						font-family: system-ui;
     					font-size: 15px;
     					margin-left: 3px;
