@@ -1,18 +1,8 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.27
 
 using Markdown
 using InteractiveUtils
-
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
 
 # ╔═╡ 3689bb1b-23f8-41ae-a392-fb2ee2ec40d7
 # ╠═╡ skip_as_script = true
@@ -22,12 +12,6 @@ begin
 	Pkg.activate(Base.current_project(@__DIR__))
 	Pkg.instantiate()
 end
-  ╠═╡ =#
-
-# ╔═╡ e7a070ab-67e7-444b-88d8-87c14aaef046
-# ╠═╡ skip_as_script = true
-#=╠═╡
-names(@__MODULE__)
   ╠═╡ =#
 
 # ╔═╡ fed9022f-1e8e-4f47-92d8-f99065023d29
@@ -47,6 +31,7 @@ begin
 		fixed::Bool = false
 		start_running::Bool = false
 		max_value::Union{Int64,Nothing} = nothing
+		repeat::Bool = false
 		
 		# Clock(interval, fixed, start_running, max_value) = interval >= 0 ? new(interval, fixed, start_running, max_value) : error("interval must be non-negative")
 	end
@@ -67,7 +52,7 @@ begin
 		clock.interval < 0 && error("interval must be non-negative")
 		
 		result = """
-		<plutoui-clock class='$(clock.fixed ? " fixed" : "")$(clock.start_running ? "" : " stopped")' data-max-value=$(repr(clock.max_value))>
+		<plutoui-clock class='$(clock.fixed ? " fixed" : "")$(clock.start_running ? "" : " stopped")' data-max-value=$(repr(clock.max_value)) data-repeat=$(repr(clock.repeat))>
 			<plutoui-analog>
 				<plutoui-back>$(cb)</plutoui-back>
 				<plutoui-front>$(cf)</plutoui-front>
@@ -105,6 +90,11 @@ end
 @bind tick Clock()
   ╠═╡ =#
 
+# ╔═╡ 4930b73b-14e1-4b1d-8efe-686e31d69070
+#=╠═╡
+tick
+  ╠═╡ =#
+
 # ╔═╡ 9ecd95f0-d7a5-4ee9-9e18-9d87e5d43ab7
 #=╠═╡
 tick; rand()
@@ -124,6 +114,18 @@ tick
 # ╔═╡ 63854404-e6a5-4dc6-a40e-b09b9f531465
 #=╠═╡
 fasttick
+  ╠═╡ =#
+
+# ╔═╡ b45005b3-822b-4b72-88ef-3f9fe865de6a
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind loopy Clock(0.5, max_value=4, repeat=true)
+  ╠═╡ =#
+
+# ╔═╡ e7a070ab-67e7-444b-88d8-87c14aaef046
+# ╠═╡ skip_as_script = true
+#=╠═╡
+loopy
   ╠═╡ =#
 
 # ╔═╡ a5f8ed96-136c-4ff4-8275-bd569f0dae40
@@ -194,10 +196,12 @@ a
 
 # ╔═╡ Cell order:
 # ╠═06289ad2-9e2f-45b3-9d15-7c5a4167e138
+# ╠═4930b73b-14e1-4b1d-8efe-686e31d69070
 # ╠═9ecd95f0-d7a5-4ee9-9e18-9d87e5d43ab7
 # ╠═d82dae11-b2c6-42b5-8c52-67fbb6cc236a
 # ╠═80c6e80e-077a-4e31-9467-788a8c437bfc
 # ╠═63854404-e6a5-4dc6-a40e-b09b9f531465
+# ╠═b45005b3-822b-4b72-88ef-3f9fe865de6a
 # ╠═e7a070ab-67e7-444b-88d8-87c14aaef046
 # ╠═3689bb1b-23f8-41ae-a392-fb2ee2ec40d7
 # ╠═fed9022f-1e8e-4f47-92d8-f99065023d29
