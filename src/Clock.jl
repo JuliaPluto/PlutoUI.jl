@@ -37,9 +37,9 @@ begin
 	end
 	
 	# for backwards compat
-	Clock(interval; kwargs...) = Clock(interval=interval; kwargs...)
+	Clock(interval; kwargs...) = Clock(; interval=interval, kwargs...)
 
-	Clock(interval, fixed, start_running=false) = Clock(interval, fixed, start_running, nothing)
+	Clock(interval, fixed, start_running=false, max_value=nothing) = Clock(; interval=interval, fixed=fixed, start_running=start_running, max_value=max_value)
 	
 	# We split the HTML string into multiple files, but you could also write all of this into a single (long) string 🎈
 	const cb = read(joinpath(@__DIR__, "..", "assets", "clock_back.svg"), String)
@@ -157,6 +157,12 @@ Clock(3.0, true, true)
 Clock(3.0, true, true, 5)
   ╠═╡ =#
 
+# ╔═╡ f9f1e6db-d4a6-40dc-908e-51ed5833011c
+# ╠═╡ skip_as_script = true
+#=╠═╡
+Clock(3.0, true, true, 5, true)
+  ╠═╡ =#
+
 # ╔═╡ 9115fbcd-1550-4439-a830-c69b83b774b3
 # ╠═╡ skip_as_script = true
 #=╠═╡
@@ -212,6 +218,7 @@ a
 # ╠═83a021ab-7cca-47c7-a560-9cbf58b35ab7
 # ╠═c96dfd13-ddd4-443f-ab09-30e15ea76785
 # ╠═78ee5465-ce3b-45f6-acec-aa69175807f5
+# ╠═f9f1e6db-d4a6-40dc-908e-51ed5833011c
 # ╠═9115fbcd-1550-4439-a830-c69b83b774b3
 # ╠═f4104cb3-7c07-4814-99f9-a00764ebadf6
 # ╠═21cba3fb-7bb0-43ae-b4c4-5c1eb7241fec
