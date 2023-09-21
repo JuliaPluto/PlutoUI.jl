@@ -192,7 +192,8 @@ begin
 			const span_el = input_el.previousElementSibling
 			const show_value = $(slider.show_value)
 			const update_on_release = $(slider.update_on_release)
-			const updatevalue = () => {
+			const updatevalue = (e) => {
+				e.stopPropagation()
 				span_el.value = input_el.valueAsNumber
 				span_el.dispatchEvent(new CustomEvent("input"))
 			}
@@ -200,6 +201,7 @@ begin
 			if (update_on_release) {
 				input_el.addEventListener("mouseup", updatevalue)
 				input_el.addEventListener("touchend", updatevalue)
+				input_el.addEventListener("input", e => e.stopPropagation())
 			}
 			else {
 				input_el.addEventListener("input", updatevalue)
