@@ -194,8 +194,11 @@ begin
 			const update_on_release = $(slider.update_on_release)
 			const updatevalue = (e) => {
 				e.stopPropagation()
-				span_el.value = input_el.valueAsNumber
-				span_el.dispatchEvent(new CustomEvent("input"))
+				const new_value = input_el.valueAsNumber
+				if (new_value !== span_el.value) {
+					span_el.value = new_value
+					span_el.dispatchEvent(new CustomEvent("input"))
+				}
 			}
 
 			if (update_on_release) {
