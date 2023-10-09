@@ -187,7 +187,7 @@ function with_terminal(f, args...; color=true, show_value=true)
 end
 
 # ╔═╡ fe8c0c2f-8555-44f0-ae30-628ad4860157
-export with_terminal, @with_terminal
+export with_terminal
 
 # ╔═╡ 376b7763-dd17-4147-a246-a530ace698ec
 # ╠═╡ skip_as_script = true
