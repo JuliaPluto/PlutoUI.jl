@@ -140,12 +140,16 @@ DownloadButton(data) = DownloadButton(data, "result")
 
 function Base.show(io::IO, m::MIME"text/html", db::DownloadButton)
     mime = mime_fromfilename(db.filename)
-    data = to_data(db.data, mime)
+    data = if db.data isa String || db.data isa AbstractVector{UInt8} || isnothing(mime)
+        db.data
+    else
+        repr(mime, db.data)
+    end
 
     write(io, "<a href=\"data:")
 	write(io, string(!isnothing(mime) ? mime : ""))
 	write(io, ";base64,")
-	write(io, data)
+	write(io, Base64.base64encode(data))
 	write(io, "\" download=\"")
 	write(io, Markdown.htmlesc(db.filename))
 	write(io, "\" style=\"text-decoration: none; font-weight: normal; font-size: .75em; font-family: sans-serif;\"><button>Download...</button> ")
@@ -153,7 +157,7 @@ function Base.show(io::IO, m::MIME"text/html", db::DownloadButton)
 	write(io, "</a>")
 end
 
-function to_data(object::Any, mime::Union{MIME, Nothing})::String
+function downloadbutton_data(object::Any, mime::Union{MIME, Nothing})::String
     data = if object isa String || object isa AbstractVector{UInt8} || isnothing(mime)
         object
     else
