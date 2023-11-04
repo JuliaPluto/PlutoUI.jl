@@ -7,8 +7,9 @@ const unit = clock.querySelector("span#unit")
 const button = clock.querySelector("button")
 
 const max_value = +clock.dataset.maxValue
+const repeat = clock.dataset.repeat === "true"
 
-var t = clock.value = 1
+var t = (clock.value = 1)
 var starttime = null
 var dt = 1
 
@@ -29,15 +30,20 @@ analogfront.onanimationiteration = (e) => {
         const running_time = (Date.now() - starttime) / 1000
         t = Math.max(t + 1, Math.floor(running_time / dt))
         if (!isNaN(max_value)) {
-            t = Math.min(t, max_value)
+            if (repeat) {
+                if(t > max_value) {
+                    t = 1
+                    starttime = Date.now()
+                }
+            } else {
+                if (t >= max_value) {
+                    clock.classList.add("stopped")
+                    t = max_value
+                }
+            }
         }
         clock.value = t
         clock.dispatchEvent(new CustomEvent("input"))
-    }
-
-    if (t >= max_value) {
-        clock.classList.add("stopped")
-        t = 0
     }
 }
 unit.onclick = (e) => {
@@ -48,6 +54,6 @@ button.onclick = (e) => {
     starttime = Date.now()
     clock.classList.toggle("stopped")
     if (!clock.classList.contains("stopped")) {
-        t = 1 - 1
+        t = 1
     }
 }
