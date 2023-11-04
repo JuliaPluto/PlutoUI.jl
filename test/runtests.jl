@@ -133,6 +133,17 @@ end
         
 end
 
+@testset "DownloadButton" begin
+    data = "test"
+    db1 = DownloadButton(data, "test.txt")
+    db2 = DownloadButton(html"<b>test</b>", "test.html")
+
+    hr(x) = repr(MIME"text/html"(), x)
+
+    hr(db1)
+    hr(db2)
+end
+
 function default(x)
     new = AbstractPlutoDingetjes.Bonds.initial_value(x)
     if Core.applicable(Base.get, x)

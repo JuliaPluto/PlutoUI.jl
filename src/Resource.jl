@@ -138,12 +138,18 @@ struct DownloadButton
 end
 DownloadButton(data) = DownloadButton(data, "result")
 
-
 function Base.show(io::IO, m::MIME"text/html", db::DownloadButton)
-	write(io, "<a href=\"data:")
-	write(io, string(mime_fromfilename(db.filename, default="")))
+    mime = mime_fromfilename(db.filename)
+    data = if db.data isa String || db.data isa AbstractVector{UInt8} || isnothing(mime)
+        db.data
+    else
+        repr(mime, db.data)
+    end
+
+    write(io, "<a href=\"data:")
+	write(io, string(!isnothing(mime) ? mime : ""))
 	write(io, ";base64,")
-	write(io, Base64.base64encode(db.data))
+	write(io, Base64.base64encode(data))
 	write(io, "\" download=\"")
 	write(io, Markdown.htmlesc(db.filename))
 	write(io, "\" style=\"text-decoration: none; font-weight: normal; font-size: .75em; font-family: sans-serif;\"><button>Download...</button> ")
@@ -151,12 +157,22 @@ function Base.show(io::IO, m::MIME"text/html", db::DownloadButton)
 	write(io, "</a>")
 end
 
+function downloadbutton_data(object::Any, mime::Union{MIME, Nothing})::String
+    data = if object isa String || object isa AbstractVector{UInt8} || isnothing(mime)
+        object
+    else
+        repr(mime, object)
+    end
+    Base64.base64encode(data)
+end
+
+
 ###
 # MIMES
 ###
 
 "Attempt to find the MIME pair corresponding to the extension of a filename. Defaults to `text/plain`."
-function mime_fromfilename(filename; default=nothing, filename_maxlength=2000)
+function mime_fromfilename(filename; default::T=nothing, filename_maxlength=2000)::Union{MIME, T} where T
 	if length(filename) > filename_maxlength
 		default
     else
