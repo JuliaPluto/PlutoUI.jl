@@ -140,7 +140,7 @@ DownloadButton(data) = DownloadButton(data, "result")
 
 function Base.show(io::IO, m::MIME"text/html", db::DownloadButton)
     mime = mime_fromfilename(db.filename)
-    data = if db.data isa String || db.data isa AbstractVector{UInt8} || isnothing(mime)
+    data = if db.data isa Union{AbstractString,AbstractVector{UInt8}} || isnothing(mime)
         db.data
     else
         repr(mime, db.data)
