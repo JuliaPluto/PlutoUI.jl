@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.25
+# v0.19.31
 
 using Markdown
 using InteractiveUtils
@@ -189,9 +189,17 @@ begin
 					const input_el = currentScript.previousElementSibling
 					const output_el = currentScript.nextElementSibling
 					const displays = $(string.(slider.values))
-					
-					input_el.addEventListener("input", () => {
+
+					let update_output = () => {
 						output_el.value = displays[input_el.valueAsNumber - 1]
+					}
+					
+					input_el.addEventListener("input", update_output)
+					// We also poll for changes because the `input_el.value` can change from the outside, e.g. https://github.com/JuliaPluto/PlutoUI.jl/issues/277
+					let id = setInterval(update_output, 200)
+					invalidation.then(() => {
+						clearInterval(id)
+						input_el.removeEventListener("input", update_output)
 					})
 					</script><output style='
 						font-family: system-ui;
@@ -1372,13 +1380,18 @@ bs
 # ╔═╡ 75b008b2-afc0-4bd5-9183-e0e0d392a4c5
 # ╠═╡ skip_as_script = true
 #=╠═╡
-@bind s2 Slider(30:.5:40; default=38, show_value=true)
+bs2 = @bind s2 Slider(30:.5:40; default=38, show_value=true)
   ╠═╡ =#
 
 # ╔═╡ 9df251eb-b4f5-46cc-a4fe-ff2fa670b773
 # ╠═╡ skip_as_script = true
 #=╠═╡
-@bind s3 Slider([sin, cos, tan], default=cos, show_value=true)
+bs3 = @bind s3 Slider([sin, cos, tan], default=cos, show_value=true)
+  ╠═╡ =#
+
+# ╔═╡ 85900f8c-a1e1-4ffe-a932-b9860749b5ec
+#=╠═╡
+bs2, bs3
   ╠═╡ =#
 
 # ╔═╡ 7c5765ae-c10a-4677-97a3-848a423cb8b9
@@ -1888,7 +1901,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═dc3b6628-f453-46d9-b6a1-957608a20764
 # ╠═a203d9d4-cd7b-4368-9f6d-e040a5757565
 # ╠═98d251ff-67e7-4b16-b2e0-3e2102918ca2
-# ╟─0baae341-aa0d-42fd-9f21-d40dd5a03af9
+# ╠═0baae341-aa0d-42fd-9f21-d40dd5a03af9
 # ╠═c2b473f4-b56b-4a91-8377-6c86da895cbe
 # ╠═5caa34e8-e501-4248-be65-ef9c6303d025
 # ╠═46a90b45-8fef-493e-9bd1-a71d1f9c53f6
@@ -1896,6 +1909,7 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═38d32393-49be-469c-840b-b58c7339a276
 # ╠═75b008b2-afc0-4bd5-9183-e0e0d392a4c5
 # ╠═9df251eb-b4f5-46cc-a4fe-ff2fa670b773
+# ╠═85900f8c-a1e1-4ffe-a932-b9860749b5ec
 # ╠═7c5765ae-c10a-4677-97a3-848a423cb8b9
 # ╠═f70c1f7b-f3c5-4aff-b39c-add64afbd635
 # ╟─d088bcdb-d851-4ad7-b5a0-751c1f348995
