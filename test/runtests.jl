@@ -2,7 +2,7 @@ using PlutoUI
 using Test
 import AbstractPlutoDingetjes
 using HypertextLiteral
-import ColorTypes: RGB, N0f8, Colorant
+import ColorTypes: RGB, N0f8, Colorant, Gray
 import Logging
 using Dates
 
@@ -355,6 +355,14 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) isa AbstractMatrix{RGB{N0f8}}
     @test size(default(el)) == (1,1)
 
+    el = DrawCanvas(; help=false)
+    @test default(el) isa Matrix{Gray{N0f8}}
+    @test size(default(el)) == (100,100)
+    
+    el = DrawCanvas(; help=false, avoid_allocs=true)
+    @test !(default(el) isa Matrix{Gray{N0f8}})
+    @test default(el) isa AbstractMatrix{Gray{N0f8}}
+    @test size(default(el)) == (200,200)
 
     el = confirm(Slider([sin, cos]))
     @test default(el) == sin
