@@ -1,7 +1,7 @@
 name = "PlutoUI"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 authors = ["Fons van der Plas <fons@plutojl.org>"]
-version = "0.7.54"
+version = "0.7.55"
 
 [deps]
 AbstractPlutoDingetjes = "6e696c72-6542-2067-7265-42206c756150"
@@ -28,7 +28,7 @@ Base64 = "1"
 ColorTypes = "0.11"
 Dates = "1"
 FixedPointNumbers = "0.5, 0.6, 0.7, 0.8"
-Hyperscript = "0.0.4"
+Hyperscript = "0.0.4, 0.0.5"
 HypertextLiteral = "0.9.4"
 IOCapture = "0.2"
 InteractiveUtils = "1"
