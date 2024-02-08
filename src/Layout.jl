@@ -621,8 +621,8 @@ plutoui-detail:last-child {
 
 # ╔═╡ 0d6ce65d-dbd0-4016-a052-009911011108
 begin
-	local embed(detail::AbstractString) = detail
-	local embed(detail) = embed_display(detail)
+	embed_detail(detail::AbstractString) = detail
+	embed_detail(detail) = embed_display(detail)
 	
 	function details(summary::AbstractString, contents::Union{AbstractVector,Tuple,Base.Generator}; open::Bool=false)
 		@htl("""
@@ -631,7 +631,7 @@ begin
 			<summary>$(summary)</summary>
 			<div class="summary-details">
 				$(map(contents) do detail
-					@htl("<plutoui-detail>$(embed(detail))</plutoui-detail>")
+					@htl("<plutoui-detail>$(embed_detail(detail))</plutoui-detail>")
 				end)
 			</div>
 		</details>
