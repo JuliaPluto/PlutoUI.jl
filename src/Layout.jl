@@ -623,9 +623,7 @@ begin
 	local embed(detail::AbstractString) = detail
 	local embed(detail) = embed_display(detail)
 	
-	local Iterable = Union{AbstractVector,Tuple,Base.Generator}
-	
-	function details(summary::AbstractString, contents::Iterable; open::Bool=false)
+	function details(summary::AbstractString, contents::Union{AbstractVector,Tuple,Base.Generator}; open::Bool=false)
 		@htl("""
 		$(style)
 		<details $(open ? (open=true,) : nothing)>
@@ -640,7 +638,7 @@ begin
 	end
 
 	# Convenience function for when you just provide a single detail
-	details(summary::AbstractString, contents; open::Bool=false) = details(summary, (contents,), open=open)
+	details(summary::AbstractString, contents; open::Bool=false) = details(summary, [contents], open=open)
 
 	"""
 	```julia
