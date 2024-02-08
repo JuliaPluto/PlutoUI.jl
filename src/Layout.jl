@@ -571,61 +571,62 @@ end
 aside(embed_display(p))
   ╠═╡ =#
 
+# ╔═╡ c11eafa2-ddce-418b-8a3a-6673392511d0
+const details_css = @htl("""
+<style type="text/css">
+pluto-output details {
+	border: 1px solid var(--rule-color);
+	border-radius: 4px;
+	padding: 0.5em 0.5em 0;
+	margin-block-start: 0;
+	margin-block-end: var(--pluto-cell-spacing);
+}
+
+pluto-output details:first-child {
+	margin-block-start: 0;
+}
+
+pluto-output details:last-child {
+	margin-block-end: 0;
+}
+
+pluto-output summary {
+	cursor: pointer;
+	font-weight: bold;
+	margin: -0.5em -0.5em 0;
+	padding: 0.5em;
+}
+
+pluto-output details[open] {
+	padding: 0.5em;
+}
+
+pluto-output details[open] summary {
+	border-bottom: 1px solid var(--rule-color);
+	margin-bottom: 0.5em;
+}
+
+plutoui-detail {
+	display: block;
+	line-height: 1.45em;
+	word-spacing: .053em;
+	margin-block-end: var(--pluto-cell-spacing);
+}
+
+plutoui-detail:last-child {
+	margin-block-end: 0;
+}
+</style>
+""")
+
 # ╔═╡ 0d6ce65d-dbd0-4016-a052-009911011108
 begin
-	local style = @htl("""
-	<style type="text/css">
-	pluto-output details {
-		border: 1px solid var(--rule-color);
-		border-radius: 4px;
-		padding: 0.5em 0.5em 0;
-		margin-block-start: 0;
-		margin-block-end: var(--pluto-cell-spacing);
-	}
-	
-	pluto-output details:first-child {
-		margin-block-start: 0;
-	}
-	
-	pluto-output details:last-child {
-		margin-block-end: 0;
-	}
-	
-	pluto-output summary {
-		cursor: pointer;
-		font-weight: bold;
-		margin: -0.5em -0.5em 0;
-		padding: 0.5em;
-	}
-	
-	pluto-output details[open] {
-		padding: 0.5em;
-	}
-	
-	pluto-output details[open] summary {
-		border-bottom: 1px solid var(--rule-color);
-		margin-bottom: 0.5em;
-	}
-	
-	plutoui-detail {
-		display: block;
-		line-height: 1.45em;
-		word-spacing: .053em;
-		margin-block-end: var(--pluto-cell-spacing);
-	}
-	
-	plutoui-detail:last-child {
-		margin-block-end: 0;
-	}
-	</style>
-	""")
-	
 	local embed(detail::AbstractString) = detail
 	local embed(detail) = embed_display(detail)
 	
 	function details(summary::AbstractString, contents::Union{AbstractVector,Tuple,Base.Generator}; open::Bool=false)
 		@htl("""
-		$(style)
+		$(details_css)
 		<details $(open ? (open=true,) : nothing)>
 			<summary>$(summary)</summary>
 			<div class="summary-details">
@@ -777,4 +778,5 @@ export details
 # ╠═9d82ca2b-664d-461e-a93f-61c467bd983a
 # ╟─9cd41081-68ac-4b46-bc78-8d4c028faed9
 # ╠═716a13e2-d615-4032-86e9-a2085c95f252
-# ╠═0d6ce65d-dbd0-4016-a052-009911011108
+# ╟─c11eafa2-ddce-418b-8a3a-6673392511d0
+# ╟─0d6ce65d-dbd0-4016-a052-009911011108
