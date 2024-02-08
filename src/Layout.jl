@@ -646,6 +646,7 @@ begin
 	```julia
 	details(summary::AbstractString, contents; [open::Bool=false])
 	```
+	
 	Create a collapsable details disclosure element.
 	
 	Useful for initially hiding content that may be important yet overly verbose or advanced variables that may not always be worthy of screen space.
@@ -664,8 +665,15 @@ begin
 	])
 	```
 
-	!!! warning "Beware `@bind` in list"
-		You may want to `@bind` several variables within the details element by inlining a list of `@bind` expressions, but you have to be careful of how macro expansion operates. Wrapping each `@bind` expression in parenthesis or interpolating them in markdown strings with `md` like the example above will prevent issues where the macro expansion modifies how your inlined list is interpreted.
+	!!! warning "Beware @bind in collection declaration"
+		You may want to `@bind` several variables within the details element by inlining a collection of `@bind` expressions, to do so you need to be careful of how macro expansion operates. Wrapping each `@bind` expression in parenthesis or interpolating them in markdown strings with `md` like the example above will prevent issues where the macro expansion modifies how your collection declaration is interpreted.
+
+	```julia
+	details("My summary", [
+		"My first item",
+		@bind my_var Slider(1:10),  # This will cause an error
+	])
+	```
 	"""
 	details
 end
