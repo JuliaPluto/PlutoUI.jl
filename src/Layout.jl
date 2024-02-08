@@ -657,11 +657,15 @@ begin
 	```
 	
 	```julia
-	details("My summary", [
-		"My first item",
-		(@bind my_var Slider(1:10)),
-		md"How are you feeling? \$(@bind feeling Slider(1:10))",
-	])
+	details(
+		"My summary",
+		[
+			"My first item",
+			(@bind my_var Slider(1:10)),
+			md"How are you feeling? \$(@bind feeling Slider(1:10))",
+		],
+		open=true,
+	)
 	```
 
 	!!! warning "Beware @bind in collection declaration"
@@ -669,10 +673,13 @@ begin
 
 	```julia
 	# This example will cause an error
-	details("My summary", [
-		"My first item",
-		@bind my_var Slider(1:10),
-	])
+	details(
+		"My summary",
+		[
+			"My first item",
+			@bind my_var Slider(1:10),
+		]
+	)
 	```
 	"""
 	details
@@ -779,4 +786,4 @@ export details
 # ╟─9cd41081-68ac-4b46-bc78-8d4c028faed9
 # ╠═716a13e2-d615-4032-86e9-a2085c95f252
 # ╟─c11eafa2-ddce-418b-8a3a-6673392511d0
-# ╟─0d6ce65d-dbd0-4016-a052-009911011108
+# ╠═0d6ce65d-dbd0-4016-a052-009911011108
