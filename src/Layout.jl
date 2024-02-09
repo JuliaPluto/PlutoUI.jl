@@ -630,7 +630,7 @@ begin
 		<details $(open ? (open=true,) : nothing)>
 			<summary>$(summary)</summary>
 			<div class="summary-details">
-				$(map(contents) do detail
+				$(Iterators.map(contents) do detail
 					@htl("<plutoui-detail>$(embed_detail(detail))</plutoui-detail>")
 				end)
 			</div>
