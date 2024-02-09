@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.38
+# v0.19.12
 
 using Markdown
 using InteractiveUtils
@@ -571,154 +571,6 @@ end
 aside(embed_display(p))
   ╠═╡ =#
 
-# ╔═╡ c11eafa2-ddce-418b-8a3a-6673392511d0
-const details_css = @htl("""
-<style type="text/css">
-pluto-output details {
-	border: 1px solid var(--rule-color);
-	border-radius: 4px;
-	padding: 0.5em 0.5em 0;
-	margin-block-start: 0;
-	margin-block-end: var(--pluto-cell-spacing);
-}
-
-pluto-output details:first-child {
-	margin-block-start: 0;
-}
-
-pluto-output details:last-child {
-	margin-block-end: 0;
-}
-
-pluto-output summary {
-	cursor: pointer;
-	font-weight: bold;
-	margin: -0.5em -0.5em 0;
-	padding: 0.5em;
-}
-
-pluto-output details[open] {
-	padding: 0.5em;
-}
-
-pluto-output details[open] summary {
-	border-bottom: 1px solid var(--rule-color);
-	margin-bottom: 0.5em;
-}
-
-plutoui-detail {
-	display: block;
-	line-height: 1.45em;
-	word-spacing: .053em;
-	margin-block-end: var(--pluto-cell-spacing);
-}
-
-plutoui-detail:last-child {
-	margin-block-end: 0;
-}
-</style>
-""")
-
-# ╔═╡ 0d6ce65d-dbd0-4016-a052-009911011108
-begin
-	embed_detail(detail::AbstractString) = detail
-	embed_detail(detail) = embed_display(detail)
-	
-	function details(summary::AbstractString, contents::Union{AbstractVector,Tuple,Base.Generator}; open::Bool=false)
-		@htl("""
-		$(details_css)
-		<details $(open ? (open=true,) : nothing)>
-			<summary>$(summary)</summary>
-			<div class="summary-details">
-				$(Iterators.map(contents) do detail
-					@htl("<plutoui-detail>$(embed_detail(detail))</plutoui-detail>")
-				end)
-			</div>
-		</details>
-		""")
-	end
-
-	# Convenience function for when you just provide a single detail
-	details(summary::AbstractString, contents; open::Bool=false) = details(summary, [contents], open=open)
-
-	"""
-	```julia
-	details(summary::AbstractString, contents; open::Bool=false)
-	```
-	
-	Create a collapsable details disclosure element.
-	
-	Useful for initially hiding content that may be important yet overly verbose or advanced variables that may not always need displayed.
-
-	# Examples
-
-	```julia
-	details("My summary", "Some contents")
-	```
-	
-	```julia
-	details(
-		"My summary",
-		[
-			"My first item",
-			(@bind my_var Slider(1:10)),
-			md"How are you feeling? \$(@bind feeling Slider(1:10))",
-		],
-		open=true,
-	)
-	```
-
-	!!! warning "Beware @bind in collection declaration"
-		You may want to `@bind` several variables with `contents` by inlining a collection of `@bind` expressions. Wrap each `@bind` expression in parenthesis or interpolate them in `md` strings like the example above to prevent macro expansion from modifying how your collection declaration is interpreted.
-
-	```julia
-	# This example will cause an error
-	details(
-		"My summary",
-		[
-			"My first item",
-			@bind my_var Slider(1:10),
-		]
-	)
-	```
-	"""
-	details
-end
-
-# ╔═╡ 9cd41081-68ac-4b46-bc78-8d4c028faed9
-#=╠═╡
-begin
-	my_details = details("I'm going to take over the world! Would you like to know more?", [
-		"I'm going to start small",
-		md"#### But don't mark me down just yet!",
-		md"""
-		Here are my steps for world domination! 🌍
-		- Perfect my **evil laugh** 🦹
-		- Create **_Laser (Pointer) of Doom_™** ⚡
-		- Train **ninja cats** 🥷🐈
-		- Build **volcanic lair** 🌋
-		""",
-		["Cat", "Laser (Pointer) ", "Volcano"],
-		Dict(
-			:cat => "Fluffy",
-			:laser => "Pointy",
-			:volcano => "Toasty",
-		),
-		"Maybe I'll need a guard dog too?",
-		p,
-	])
-	
-	md"""
-	# Details
-	
-	$(my_details)
-	"""
-end
-  ╠═╡ =#
-
-# ╔═╡ 716a13e2-d615-4032-86e9-a2085c95f252
-export details
-
 # ╔═╡ Cell order:
 # ╠═9113b5a3-d1a6-4594-bb84-33f9ae56c9e5
 # ╠═dd45b118-7a4d-45b3-8961-0c4fb337841b
@@ -777,13 +629,9 @@ export details
 # ╟─916f95ff-f568-48cc-91c3-ef2d2c9e397a
 # ╠═d24dfd97-5100-45f4-be12-ad30f98cc519
 # ╠═18cc9fbe-a37a-11eb-082b-e99673bd677d
-# ╟─9a166646-75c2-4711-9fad-665b01731759
+# ╠═9a166646-75c2-4711-9fad-665b01731759
 # ╠═d373edd9-5537-4f15-8c36-31aebc2569b5
 # ╟─50c3dce4-48c7-46b4-80a4-5af9cd83a0a8
-# ╠═87d374e1-e75f-468f-bc90-59d2013c361f
+# ╟─87d374e1-e75f-468f-bc90-59d2013c361f
 # ╠═773685a4-a6f7-4f59-98d5-83adcd176a8e
-# ╠═9d82ca2b-664d-461e-a93f-61c467bd983a
-# ╟─9cd41081-68ac-4b46-bc78-8d4c028faed9
-# ╠═716a13e2-d615-4032-86e9-a2085c95f252
-# ╟─c11eafa2-ddce-418b-8a3a-6673392511d0
-# ╠═0d6ce65d-dbd0-4016-a052-009911011108
+# ╟─9d82ca2b-664d-461e-a93f-61c467bd983a
