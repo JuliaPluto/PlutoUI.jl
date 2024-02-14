@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.24
+# v0.19.37
 
 using Markdown
 using InteractiveUtils
@@ -343,7 +343,7 @@ const toc_css = @htl """
 @media not print {
 
 .plutoui-toc {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Cantarell, Helvetica, Arial, "Apple Color Emoji",
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Cantarell, "Apple Color Emoji",
 		"Segoe UI Emoji", "Segoe UI Symbol", system-ui, sans-serif;
 	--main-bg-color: #fafafa;
 	--pluto-output-color: hsl(0, 0%, 36%);
