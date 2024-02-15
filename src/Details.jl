@@ -34,60 +34,6 @@ using HypertextLiteral
 const testslider = html"<input>"
   ╠═╡ =#
 
-# ╔═╡ 13e81634-3b72-4b1d-a89b-36d184698d21
-const details_css = @htl("""
-<style type="text/css">
-pluto-output details {
-	border: 1px solid var(--rule-color);
-	border-radius: 4px;
-	padding: 0.5em 0.5em 0;
-	margin-block-start: 0;
-	margin-block-end: var(--pluto-cell-spacing);
-}
-
-pluto-output details:first-child {
-	margin-block-start: 0;
-}
-
-pluto-output details:last-child {
-	margin-block-end: 0;
-}
-
-pluto-output details summary {
-	cursor: pointer;
-	font-weight: bold;
-	margin: -0.5em -0.5em 0;
-	padding: 0.5em;
-	font-family: var(--system-ui-font-stack);
-	border-radius: 3px;
-	transition: color .25s ease-in-out, background-color .25s ease-in-out;
-}
-
-pluto-output details summary:hover {
-	color: var(--blockquote-color);
-	background-color: var(--blockquote-bg);
-}
-
-pluto-output details[open] {
-	padding: 0.5em;
-}
-
-pluto-output details[open] summary {
-	border-radius: 3px 3px 0 0;
-	border-bottom: 1px solid var(--rule-color);
-	margin-bottom: 0.5em;
-}
-
-plutoui-detail {
-	display: block;
-	margin-block-end: var(--pluto-cell-spacing);
-}
-plutoui-detail:last-child {
-	margin-block-end: 0;
-}
-</style>
-""")
-
 # ╔═╡ df840588-23bd-4b03-b5ab-ef273052d198
 const Iterable = Union{AbstractVector, Tuple, Base.Generator}
 
@@ -106,7 +52,6 @@ begin
 				end)
 			</div>
 		</details>
-		$(details_css)
 		""")
 	end
 
@@ -185,7 +130,7 @@ begin
 			- Build **volcanic lair** 🌋
 			""",
 			@htl("<p>Fantastic!</p>"),
-			["Cat", "Laser (Pointer) ", "Volcano"],
+			["Cat", "Laser (Pointer)", "Volcano"],
 			Dict(
 				:cat => "Fluffy",
 				:laser => "Pointy",
@@ -259,6 +204,5 @@ export details
 # ╠═a5663932-9a19-4d6d-9b20-d6fefac8cf9d
 # ╠═cd2bcfa2-5759-40d6-9358-3e7e605c5bc2
 # ╠═5d28fa36-49dc-4d0f-a1c3-3fc2a5efdd0a
-# ╠═13e81634-3b72-4b1d-a89b-36d184698d21
 # ╟─df840588-23bd-4b03-b5ab-ef273052d198
 # ╠═46521e2b-ea06-491a-9842-13dff7dc8299
