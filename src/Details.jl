@@ -77,6 +77,14 @@ pluto-output details[open] summary {
 	border-bottom: 1px solid var(--rule-color);
 	margin-bottom: 0.5em;
 }
+
+plutoui-detail {
+	display: block;
+	margin-block-end: var(--pluto-cell-spacing);
+}
+plutoui-detail:last-child {
+	margin-block-end: 0;
+}
 </style>
 """)
 
@@ -85,7 +93,8 @@ const Iterable = Union{AbstractVector, Tuple, Base.Generator}
 
 # ╔═╡ 46521e2b-ea06-491a-9842-13dff7dc8299
 begin
-	const embed_detail = isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display) ? Main.PlutoRunner.embed_display : identity
+	embed_detail(x) = isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display) ? Main.PlutoRunner.embed_display(x) : x
+	embed_detail(x::AbstractString) = x
 	
 	function details(summary::AbstractString, contents::Iterable; open::Bool=false)
 		@htl("""
@@ -94,9 +103,7 @@ begin
 			<summary>$(summary)</summary>
 			<div class="details-content">
 				$(Iterators.map(contents) do detail
-					detail isa AbstractString ? 
-						@htl("<p>$(detail)</p>") : 
-						embed_detail(detail)
+					@htl("<plutoui-detail>$(embed_detail(detail))</plutoui-detail>")
 				end)
 			</div>
 		</details>
@@ -167,6 +174,8 @@ begin
 		"I'm going to take over the world! Would you like to know more?", 
 		[
 			"I'm going to start small",
+			"I'm going to start small",
+			"I'm going to start small",
 			md"#### But don't mark me down just yet!",
 			md"""
 			Here are my steps for world domination! 🌍
@@ -175,13 +184,14 @@ begin
 			- Train **ninja cats** 🥷🐈
 			- Build **volcanic lair** 🌋
 			""",
+			@htl("<p>Fantastic!</p>"),
 			["Cat", "Laser (Pointer) ", "Volcano"],
 			Dict(
 				:cat => "Fluffy",
 				:laser => "Pointy",
 				:volcano => "Toasty",
 			),
-		]
+		]; open=true
 	)
 	
 	md"""
