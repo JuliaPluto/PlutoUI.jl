@@ -98,7 +98,6 @@ begin
 	
 	function details(summary::AbstractString, contents::Iterable; open::Bool=false)
 		@htl("""
-		$(details_css)
 		<details $(open ? (open=true,) : nothing)>
 			<summary>$(summary)</summary>
 			<div class="details-content">
@@ -107,6 +106,7 @@ begin
 				end)
 			</div>
 		</details>
+		$(details_css)
 		""")
 	end
 
