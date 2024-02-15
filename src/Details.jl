@@ -59,6 +59,13 @@ pluto-output details summary {
 	margin: -0.5em -0.5em 0;
 	padding: 0.5em;
 	font-family: var(--system-ui-font-stack);
+	border-radius: 3px;
+	transition: color .25s ease-in-out, background-color .25s ease-in-out;
+}
+
+pluto-output details summary:hover {
+	color: var(--blockquote-color);
+	background-color: var(--blockquote-bg);
 }
 
 pluto-output details[open] {
@@ -66,6 +73,7 @@ pluto-output details[open] {
 }
 
 pluto-output details[open] summary {
+	border-radius: 3px 3px 0 0;
 	border-bottom: 1px solid var(--rule-color);
 	margin-bottom: 0.5em;
 }
