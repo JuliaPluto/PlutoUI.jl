@@ -44,6 +44,10 @@ end # 0.06 second
 # not exporting to avoid clash with DataFrames.combine
 const combine = CombineNotebook.combine
 
+@reexport module DetailsNotebook
+    include("./Details.jl")
+end # ? second
+
 # this is a submodule
 using HypertextLiteral
 using Hyperscript

@@ -288,10 +288,11 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = Radio(["sin" => "asdf", "cos" => "cos"]; default = "cos")
     @test default(el) == "cos"
 
+    hrd(x) = occursin("<details", repr(MIME"text/html"(), x))
 
-
-
-
+    @test hrd(details("a", "b"))
+    @test hrd(details("a", ("b","c"); open=true))
+    @test hrd(details("a", [htl"b", Slider(1:10)]; open=true))
 
     el = Slider(0.0:π:20)
     @test default(el) == 0
@@ -502,4 +503,3 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = Scrubbable(A)
     @test default(el) == A
 end
-
