@@ -34,6 +34,20 @@ using HypertextLiteral
 const testslider = html"<input>"
   ╠═╡ =#
 
+# ╔═╡ 13e81634-3b72-4b1d-a89b-36d184698d21
+const details_css = @htl("""
+<style type="text/css">
+plutoui-detail {
+	display: block;
+	margin-block-end: var(--pluto-cell-spacing);
+}
+
+plutoui-detail:last-child {
+	margin-block-end: 0;
+}
+</style>
+""")
+
 # ╔═╡ df840588-23bd-4b03-b5ab-ef273052d198
 const Iterable = Union{AbstractVector, Tuple, Base.Generator}
 
@@ -52,6 +66,7 @@ begin
 				end)
 			</div>
 		</details>
+		$(details_css)
 		""")
 	end
 
@@ -204,5 +219,6 @@ export details
 # ╠═a5663932-9a19-4d6d-9b20-d6fefac8cf9d
 # ╠═cd2bcfa2-5759-40d6-9358-3e7e605c5bc2
 # ╠═5d28fa36-49dc-4d0f-a1c3-3fc2a5efdd0a
+# ╠═13e81634-3b72-4b1d-a89b-36d184698d21
 # ╟─df840588-23bd-4b03-b5ab-ef273052d198
 # ╠═46521e2b-ea06-491a-9842-13dff7dc8299
