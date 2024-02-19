@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.32
+# v0.19.38
 
 using Markdown
 using InteractiveUtils
@@ -667,7 +667,7 @@ begin
 	Base.get(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
 	Bonds.initial_value(select::Select) = ismissing(select.default) ? first(select.options).first : select.default
 	
-	Bonds.possible_values(select::Select) = (string(i) for i in 1:length(select.options))
+	Bonds.possible_values(select::Select) = ("puiselect-$(i)" for i in 1:length(select.options))
 	
 	function Bonds.transform_value(select::Select, val_from_js)
 		if startswith(val_from_js, "puiselect-")
