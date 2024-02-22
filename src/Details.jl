@@ -231,6 +231,12 @@ details("# Hello!", "**How are you?**"; open=true)
 details(md"# Hello!", md"**How are you?**"; open=true)
   ╠═╡ =#
 
+# ╔═╡ 2f3bc9f1-3055-465a-8a29-792969279e06
+# ╠═╡ skip_as_script = true
+#=╠═╡
+details(htl"<h1>Hello!</h1>", md"**How are you?**"; open=true)
+  ╠═╡ =#
+
 # ╔═╡ b7349133-2590-415c-9a11-15c85e897a5c
 # ╠═╡ skip_as_script = true
 #=╠═╡
@@ -256,14 +262,16 @@ feeling
   ╠═╡ =#
 
 # ╔═╡ ffb735cd-a98e-4e98-909e-4d7e9f2dec5e
+# ╠═╡ skip_as_script = true
+#=╠═╡
 begin
 	bad_summary = Dict(
 		:a => "A",
 		:b => "B",
 	)
-	
-	details(bad_summary, "asdf")
+	details(bad_summary, "Why have you done this?"; open=true)
 end
+  ╠═╡ =#
 
 # ╔═╡ 5d28fa36-49dc-4d0f-a1c3-3fc2a5efdd0a
 export details
@@ -275,6 +283,7 @@ export details
 # ╠═b8434c11-2bb5-47ba-8562-e1176cba0af7
 # ╠═f833a0bf-f7f7-417d-8cd9-5f93a90aecf6
 # ╠═ef3ebb39-03ce-407b-9796-cae10d88f4a0
+# ╠═2f3bc9f1-3055-465a-8a29-792969279e06
 # ╠═b3732e34-d331-4dd2-b4fb-11b2f397d7c1
 # ╠═b7349133-2590-415c-9a11-15c85e897a5c
 # ╠═a5663932-9a19-4d6d-9b20-d6fefac8cf9d
