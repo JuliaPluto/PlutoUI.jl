@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.19.38
 
 using Markdown
 using InteractiveUtils
@@ -114,6 +114,7 @@ begin
 	Base.@kwdef struct ConfirmBond
 		element::Any
 		secret_key::String=String(rand('a':'z', 10))
+		label::Union{String, Nothing}=nothing
 	end
 
 	function Base.show(io::IO, m::MIME"text/html", cb::ConfirmBond)
@@ -121,9 +122,10 @@ begin
 			return Base.show(io, m, HTML("<span>❌ You need to update Pluto to use this PlutoUI element.</span>"))
 		end
 		output = @htl(
-			"""<span style='display: contents;'>$(
-				cb.element
-			)<input type=submit id=$(cb.secret_key)><script id=$(cb.secret_key)>
+			"""<span style='display: contents;'>
+			$(cb.element)
+			<input type=submit $((id=cb.secret_key, value=cb.label))>
+			<script id=$(cb.secret_key)>
 		
 		let key = $(cb.secret_key)
 		
@@ -210,7 +212,7 @@ end
 # ╔═╡ a20da18f-7a74-43ca-9b66-1f3b82efa0c3
 """
 ```julia
-confirm(element::Any)
+confirm(element::Any; label::Union{String, Nothing}=nothing)
 ```
 
 Normally, when you move a [`Slider`](@ref) or type in a [`TextField`](@ref), all intermediate values are sent back to `@bind`.
@@ -218,6 +220,8 @@ Normally, when you move a [`Slider`](@ref) or type in a [`TextField`](@ref), all
 By wrapping an input element in `confirm`, you get a button to manually control when the value is sent, intermediate updates are hidden from Pluto.
 
 One case where this is useful is a notebook that does a long computation based on a `@bind` input.
+
+`label` specifies a custom label for the confirm button.
 
 # Examples
 
@@ -258,9 +262,10 @@ You can combine this with [`PlutoUI.combine`](@ref)!
 > ![screenshot of running the code above in pluto](https://user-images.githubusercontent.com/6933510/145614965-7a1e8630-4766-4589-8a84-b022bdfb09fc.gif)
 
 """
-function confirm(element::Any)
+function confirm(element::Any; label::Union{String, Nothing}=nothing)
 	ConfirmBond(;
 		element=element,
+		label=label,
 	)
 end
 
@@ -291,7 +296,7 @@ x(234)
 # ╔═╡ fc92b3fc-6143-477c-a413-84dcd1b4cfc0
 # ╠═╡ skip_as_script = true
 #=╠═╡
-@bind t confirm(html"<input>")
+@bind t confirm(html"<input>"; label="Submit your text")
   ╠═╡ =#
 
 # ╔═╡ 363a65ec-218c-43a2-b740-8061fac25011
