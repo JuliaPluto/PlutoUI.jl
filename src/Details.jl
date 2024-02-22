@@ -88,7 +88,7 @@ plutoui-detail:last-child {
 
 pluto-output div.summary-title {
 	display: inline-block;
-	width: 100%;
+	width: calc(100% - 1em);
 	margin-left: -1em;
 	padding-left: 1em;
 }
@@ -273,6 +273,12 @@ begin
 end
   ╠═╡ =#
 
+# ╔═╡ f18bf0a3-e59b-45d4-b8b1-5404145db44e
+# ╠═╡ skip_as_script = true
+#=╠═╡
+details(md"This is a very long markdown summary to make sure everything is hunky-dory :)", "arst"; open=true)
+  ╠═╡ =#
+
 # ╔═╡ 5d28fa36-49dc-4d0f-a1c3-3fc2a5efdd0a
 export details
 
@@ -289,6 +295,7 @@ export details
 # ╠═a5663932-9a19-4d6d-9b20-d6fefac8cf9d
 # ╠═cd2bcfa2-5759-40d6-9358-3e7e605c5bc2
 # ╠═ffb735cd-a98e-4e98-909e-4d7e9f2dec5e
+# ╠═f18bf0a3-e59b-45d4-b8b1-5404145db44e
 # ╠═5d28fa36-49dc-4d0f-a1c3-3fc2a5efdd0a
 # ╠═13e81634-3b72-4b1d-a89b-36d184698d21
 # ╟─df840588-23bd-4b03-b5ab-ef273052d198
