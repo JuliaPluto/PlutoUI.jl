@@ -129,8 +129,9 @@ end
         occursin("https://asdf.com/a/b/c.mp4?b=23f&amp;c=asdf.png", h4)
     )
     @test occursin(r"asdf=[\'\"]123px", h5)
-    
-        
+    @test Vector{UInt8}(r3) == Vector{UInt8}("asdf")
+
+
 end
 
 @testset "DownloadButton" begin
