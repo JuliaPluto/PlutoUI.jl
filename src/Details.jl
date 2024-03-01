@@ -88,6 +88,7 @@ plutoui-detail:last-child {
 
 pluto-output div.summary-title-outer {
 	display: inline-flex;
+	vertical-align: text-top;
 	width: calc(100% - 1em);
 	margin-left: -1em;
 	padding-left: 1em;
