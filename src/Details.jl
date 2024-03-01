@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.38
+# v0.19.40
 
 using Markdown
 using InteractiveUtils
@@ -86,11 +86,15 @@ plutoui-detail:last-child {
 	margin-block-end: 0;
 }
 
-pluto-output div.summary-title {
-	display: inline-block;
+pluto-output div.summary-title-outer {
+	display: inline-flex;
 	width: calc(100% - 1em);
 	margin-left: -1em;
 	padding-left: 1em;
+}
+
+pluto-output div.summary-title-outer > div.summary-title-inner {
+	display: inline-block;
 }
 </style>
 """)
@@ -100,7 +104,13 @@ const Iterable = Union{AbstractVector, Tuple, Base.Generator}
 
 # ╔═╡ 46521e2b-ea06-491a-9842-13dff7dc8299
 begin
-	embed_summary(summary) = @htl("<div class='summary-title'>$(summary)</div>")
+	embed_summary(summary) = @htl("""
+		<div class='summary-title-outer'>
+			<div class='summary-title-inner'>
+				$(summary)
+			</div>
+		</div>
+		""")
 	embed_summary(summary::AbstractString) = summary
 
 	embed_detail(detail) = isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display) ?
@@ -282,6 +292,18 @@ details(md"This is a very long markdown summary to make sure everything is hunky
 # ╔═╡ 5d28fa36-49dc-4d0f-a1c3-3fc2a5efdd0a
 export details
 
+# ╔═╡ 1a6003f5-0157-43cb-9316-bbdf9fccb438
+# ╠═╡ skip_as_script = true
+#=╠═╡
+details(md"_I'm_ **going** _to_ **take** _over_ **the world!** _Would_ **you** _like_ **to** _know_ **more?** _Let's_ **make** _this_ **even** _longer_ **to** _check_ **how** _everything_ **wraps.**", "arst", open=true)
+  ╠═╡ =#
+
+# ╔═╡ 0bc0b59e-a84f-465a-9397-9d81db09a3b6
+# ╠═╡ skip_as_script = true
+#=╠═╡
+details(htl"<em>I'm</em> <b>going</b> <em>to</em> <b>take</b> <em>over</em> <b>the world!</b> <em>Would</em> <b>you</b> <em>like</em> <b>to</b> <em>know</em> <b>more?</b> <em>Let's</em> <b>make</b> <em>this</em> <b>even</b> <em>longer</em> <b>to</b> <em>check</em> <b>how</b> <em>everything</em> <b>wraps.</b>", "arst", open=true)
+  ╠═╡ =#
+
 # ╔═╡ Cell order:
 # ╠═81f5b495-76c4-4c54-93ab-b49c5ecb810a
 # ╠═b7b18a54-afd7-4467-83ed-cc4f07c321fb
@@ -298,5 +320,7 @@ export details
 # ╠═f18bf0a3-e59b-45d4-b8b1-5404145db44e
 # ╠═5d28fa36-49dc-4d0f-a1c3-3fc2a5efdd0a
 # ╠═13e81634-3b72-4b1d-a89b-36d184698d21
+# ╠═1a6003f5-0157-43cb-9316-bbdf9fccb438
+# ╠═0bc0b59e-a84f-465a-9397-9d81db09a3b6
 # ╟─df840588-23bd-4b03-b5ab-ef273052d198
 # ╠═46521e2b-ea06-491a-9842-13dff7dc8299
