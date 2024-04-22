@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.37
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -278,11 +278,14 @@ const bodyClassObserver = new MutationObserver(updateCallback)
 bodyClassObserver.observe(document.body, {attributeFilter: ["class"]})
 
 // Hide/show the ToC when the screen gets small
-let m = matchMedia("(max-width: 1000px)")
 let match_listener = () => 
-	tocNode.classList.toggle("hide", m.matches)
+	tocNode.classList.toggle("hide", (tocNode.closest("pluto-editor") ?? document.body).scrollWidth < 1000)
+for(let s of [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]) {
+	let m = matchMedia(`(max-width: \${s}px)`)
+	m.addListener(match_listener)
+	invalidation.then(() => m.removeListener(match_listener))
+}
 match_listener()
-m.addListener(match_listener)
 
 invalidation.then(() => {
 	invalidated.current = true
@@ -292,7 +295,6 @@ invalidation.then(() => {
 	bodyClassObserver.disconnect()
 	mut_observers.current.forEach((o) => o.disconnect())
 	document.removeEventListener("click", document_click_handler)
-	m.removeListener(match_listener)
 })
 
 return tocNode
