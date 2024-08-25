@@ -79,5 +79,6 @@ end
 
 
 include("./ScrubbableMatrix.jl")
+include("./bindname.jl")
 
 end
