@@ -23,7 +23,7 @@ macro bindname(name::Symbol, ex::Expr)
         bond = $(esc(bindcall))
         
         HypertextLiteral.@htl(
-            """<div style='display: flex; flex-wrap: wrap; align-items: baseline;'><code style='color: var(--cm-color-var) !important; font-weight: 700;'>$(
+            """<div style='display: flex; flex-wrap: wrap; align-items: baseline;'><code style='color: var(--cm-color-variable) !important; font-weight: 700;'>$(
                 $(String(name))
             )&nbsp<span style="opacity: .6">=</span>&nbsp</code>$(
                 bond

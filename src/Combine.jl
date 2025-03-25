@@ -377,6 +377,8 @@ values == (1, 5, true) # (initially)
 > The output looks like:
 > 
 > ![screenshot of running the code above inside Pluto](https://user-images.githubusercontent.com/6933510/145589918-25a3c732-c02e-482b-831b-06131b283597.png)
+> 
+> And the bound value `(1, 5, true)`.
 
 ## 🎏
 
@@ -409,6 +411,8 @@ speeds == (100, 36, 73, 60)
 > The output looks like:
 > 
 > ![screenshot of running the code above inside Pluto](https://user-images.githubusercontent.com/6933510/145588612-14824654-5c73-45f8-983c-8913c7101a78.png)
+> 
+> And the bound value `(1, 1, 1, 1)`.
 
 
 # Named variant
