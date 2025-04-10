@@ -28,3 +28,7 @@ end
 have fun!
 
 -fonsi
+
+# Documentation
+
+The documentation of PlutoUI.jl is a [featured notebook](https://github.com/JuliaPluto/featured/). You can edit this notebook to update: https://github.com/JuliaPluto/featured/blob/main/src/basic/PlutoUI.jl.jl Updating this file will update the Pluto main menu, the Pluto website and the Pluto docs.
