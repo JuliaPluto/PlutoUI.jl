@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.38
+# v0.20.6
 
 using Markdown
 using InteractiveUtils
@@ -134,6 +134,8 @@ begin
 	`@bind x Slider(0.00 : 0.01 : 0.30)`
 
 	`@bind x Slider(1:10; default=8, show_value=true)`
+	
+	`@bind x Slider(range(-π, π, 1000); default=0, show_value=x-> "\$(round(x, digits=2)) rad")`
 
 	`@bind x Slider(["hello", "world!"])`
 	"""
@@ -141,6 +143,7 @@ begin
 		values::AbstractVector{T}
 		default::T
 		show_value::Bool
+		formatter::Function
 	end
 	end
 	
@@ -155,12 +158,19 @@ begin
 		end
 	end
 	
-	function Slider(values::AbstractVector{T}; default=missing, show_value=false, max_steps=1_000) where T
+	function Slider(values::AbstractVector{T}; default=missing, show_value::Union{Bool,Function}=false, max_steps=1_000) where {T}
 		new_values = downsample(values, max_steps)
-		Slider(new_values, (default === missing) ? first(new_values) : let
-			d = default
-			d ∈ new_values ? convert(T, d) : closest(new_values, d)
-		end, show_value)
+		formatter = show_value isa Function ? show_value : identity
+		show_value = show_value isa Bool ? show_value : true
+		Slider(
+			new_values,
+			(default === missing) ? first(new_values) : let
+				d = default
+				d ∈ new_values ? convert(T, d) : closest(new_values, d)
+			end,
+			show_value,
+			formatter
+		)
 	end
 	
 	function Base.show(io::IO, m::MIME"text/html", slider::Slider)
@@ -188,7 +198,7 @@ begin
 					"""<script>
 					const input_el = currentScript.previousElementSibling
 					const output_el = currentScript.nextElementSibling
-					const displays = $(string.(slider.values))
+					const displays = $(string.(slider.formatter.(slider.values)))
 
 					let update_output = () => {
 						output_el.value = displays[input_el.valueAsNumber - 1]
@@ -206,7 +216,7 @@ begin
     					font-size: 15px;
     					margin-left: 3px;
     					transform: translateY(-4px);
-    					display: inline-block;'>$(string(slider.default))</output>"""
+    					display: inline-block;'>$(string(slider.formatter(slider.default)))</output>"""
 				) : nothing
 			)"""))
 	end
@@ -1403,15 +1413,24 @@ bs2 = @bind s2 Slider(30:.5:40; default=38, show_value=true)
 bs3 = @bind s3 Slider([sin, cos, tan], default=cos, show_value=true)
   ╠═╡ =#
 
+# ╔═╡ 62c21b71-e38b-4225-889e-c161393f541e
+bs4 = @bind s4 Slider(
+    range(-π, π, 800);
+    show_value=x -> "$(round(x, digits=2)) rad"
+)
+
 # ╔═╡ 85900f8c-a1e1-4ffe-a932-b9860749b5ec
 #=╠═╡
-bs2, bs3
+bs2, bs3, bs4
   ╠═╡ =#
 
 # ╔═╡ 7c5765ae-c10a-4677-97a3-848a423cb8b9
 #=╠═╡
-s1, s2, s3
+s1, s2, s3, s4
   ╠═╡ =#
+
+# ╔═╡ 2302d45d-0d37-427d-9efd-546db71753f4
+bs5 = @bind s5 Slider(0:.5:10; default=38, show_value=x -> x + 0.5)
 
 # ╔═╡ f70c1f7b-f3c5-4aff-b39c-add64afbd635
 # ╠═╡ skip_as_script = true
@@ -1948,6 +1967,8 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═38d32393-49be-469c-840b-b58c7339a276
 # ╠═75b008b2-afc0-4bd5-9183-e0e0d392a4c5
 # ╠═9df251eb-b4f5-46cc-a4fe-ff2fa670b773
+# ╠═62c21b71-e38b-4225-889e-c161393f541e
+# ╠═2302d45d-0d37-427d-9efd-546db71753f4
 # ╠═85900f8c-a1e1-4ffe-a932-b9860749b5ec
 # ╠═7c5765ae-c10a-4677-97a3-848a423cb8b9
 # ╠═f70c1f7b-f3c5-4aff-b39c-add64afbd635
