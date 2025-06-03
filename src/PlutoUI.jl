@@ -48,6 +48,11 @@ const combine = CombineNotebook.combine
     include("./Details.jl")
 end # ? second
 
+@reexport module WideCellNotebook
+    include("./WideCell.jl")
+end
+
+
 # this is a submodule
 using HypertextLiteral
 using Hyperscript
