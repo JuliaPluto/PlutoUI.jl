@@ -502,4 +502,12 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     A = rand(3,2)
     el = Scrubbable(A)
     @test default(el) == A
+    
+    # warn log message because it'ss not running inside Pluto
+    @test_logs (:warn,) WideCell(Base.HTML("asdf"))
+    @test 1 == @test_logs (:warn,) WideCell(1)
+    @test 1 == @test_logs (:warn,) WideCell(1; max_width=123)
+    wc1 = WideCell(; max_width=123)
+    @test 1 == @test_logs (:warn,) wc1(1)
+
 end
