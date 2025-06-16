@@ -25,7 +25,7 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 [compat]
 AbstractPlutoDingetjes = "1.1"
 Base64 = "1"
-ColorTypes = "0.11"
+ColorTypes = "0.11, 0.12"
 Dates = "1"
 FixedPointNumbers = "0.5, 0.6, 0.7, 0.8"
 Hyperscript = "0.0.4, 0.0.5"
