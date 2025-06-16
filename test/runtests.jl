@@ -9,6 +9,7 @@ using Dates
 # has to be outside of the begin block for julia 1.0 compat
 struct Uhm end
 
+hr(x) = repr(MIME"text/html"(), x)
 
 @testset "DisplayTricks" begin
 
@@ -138,7 +139,6 @@ end
     db1 = DownloadButton(data, "test.txt")
     db2 = DownloadButton(html"<b>test</b>", "test.html")
 
-    hr(x) = repr(MIME"text/html"(), x)
 
     hr(db1)
     hr(db2)
@@ -509,5 +509,8 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test 1 == @test_logs (:warn,) WideCell(1; max_width=123)
     wc1 = WideCell(; max_width=123)
     @test 1 == @test_logs (:warn,) wc1(1)
-
+    
+    NotebookCard("https://plutojl.org/en/docs/expressionexplorer/") |> hr
+    NotebookCard("https://plutojl.org/en/docs/ExpressionExplorer/index.html"; link_text="asdfasdf" ) |> hr
+    NotebookCard("https://featured.plutojl.org/basic/basic%20mathematics"; link_text="Yes I want pizzaaa") |> hr
 end
