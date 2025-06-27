@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.9
+# v0.20.14
 
 using Markdown
 using InteractiveUtils
@@ -69,7 +69,7 @@ function find_root_json(notebook_html_url)
 end
 
 # ╔═╡ 6f8c5856-bf1a-4aa8-b9e1-fe58fb11f811
-const white_svg_uri = """data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='white'/></svg>"""
+const white_svg_uri = """data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='ivory'/></svg>"""
 
 # ╔═╡ ececef64-34d7-4697-ad13-0e014d8fa1fa
 """
@@ -84,7 +84,7 @@ This only works for notebooks hosted on websites that are generated with PlutoPa
 The `notebook_url` argument should be the **public URL** where users can read the notebook. If you are working on a (course) website, go to your website, and just copy the URL of the web page that you want to link to. You can add a `#hash` subsection at the end of the URL if you wish.
 
 # Frontmatter
-The image, title and description will be taken from notebook frontmatter (of the notebook you are linking to). You can edit frontmatter of that notebook using Pluto's [built-in frontmatter editor](https://github.com/fonsp/Pluto.jl/pull/2104).
+The image, title and description will be taken from notebook frontmatter (of the notebook you are linking to). You can edit frontmatter of that notebook using Pluto's [built-in frontmatter editor](https://plutojl.org/en/docs/frontmatter/).
 
 # Example
 Here is an example card, linking to a page in the Pluto documentation website (generated with PlutoPages.jl):
@@ -148,8 +148,8 @@ function NotebookCard(notebook_url; link_text = "Read article")
 			const q = sel => currentScript.parentElement.querySelector(".pe-card").querySelector(sel)
 	
 			q("a img").src = frontmatter.image ?? $white_svg_uri
-			q(".pe-about h2").innerText = frontmatter.title
-			q(".pe-about p").innerText = frontmatter.description
+			q(".pe-about h2").innerText = frontmatter.title ?? "Untitled"
+			q(".pe-about p").innerText = frontmatter.description ?? ""
 		</script>
 	
 		<style>
