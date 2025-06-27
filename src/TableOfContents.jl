@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.41
+# v0.20.14
 
 using Markdown
 using InteractiveUtils
@@ -189,10 +189,16 @@ const render = (elements) => {
 
 		let [className, title_el] = h.matches(`.pluto-docs-binding`) ? ["pluto-docs-binding-el", h.firstElementChild] : [h.nodeName, h]
 
+	const id = title_el.matches("assignee") ?
+		title_el.innerText.replace(/^const /, "") :
+		title_el.id ?
+		title_el.id :
+		parent_cell.id
+	
 	const a = html`<a 
 		class="\${className}" 
 		title="\${title_el.innerText}"
-		href="#\${parent_cell.id}"
+		href="#\${id}"
 	>\${title_el.innerHTML}</a>`
 	/* a.onmouseover=()=>{
 		parent_cell.firstElementChild.classList.add(
