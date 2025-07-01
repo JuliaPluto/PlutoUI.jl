@@ -126,7 +126,7 @@ function NotebookCard(notebook_url; link_text = "Read article")
 			<a href=$href aria-hidden="true"><img src=$image_url></a>
 			<div class="pe-right">
 				<div class="pe-about">
-					<h2>$title</h2>
+					<h2 class="no-toc">$title</h2>
 					<p>$description</p>
 				</div>
 				<div class="pe-nav">

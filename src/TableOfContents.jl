@@ -110,7 +110,7 @@ const getHeaders = () => {
 	].join(",")
 	return Array.from(document.querySelectorAll(selector)).filter(el => 
 		// exclude headers inside of a pluto-docs-binding block
-		!(el.nodeName.startsWith("H") && el.closest(".pluto-docs-binding"))
+		!(el.nodeName.startsWith("H") && el.closest(".pluto-docs-binding")) && !el.classList.contains("no-toc")
 	)
 }
 
