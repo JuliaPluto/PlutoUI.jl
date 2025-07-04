@@ -35,6 +35,10 @@ end # 0.2 second
 @reexport module WebcamInputNotebook
     include("./WebcamInput.jl")
 end # ? second
+
+@reexport module NotebookCardNotebook
+    include("./NotebookCard.jl")
+end # ? second
 @reexport module ConfirmNotebook
     include("./Confirm.jl")
 end # 0 second
@@ -47,6 +51,11 @@ const combine = CombineNotebook.combine
 @reexport module DetailsNotebook
     include("./Details.jl")
 end # ? second
+
+@reexport module WideCellNotebook
+    include("./WideCell.jl")
+end
+
 
 # this is a submodule
 using HypertextLiteral

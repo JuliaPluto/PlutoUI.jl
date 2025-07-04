@@ -48,6 +48,7 @@ LabelButton
 # Display helpers
 ```@docs
 TableOfContents
+WideCell
 br
 Resource
 LocalResource
