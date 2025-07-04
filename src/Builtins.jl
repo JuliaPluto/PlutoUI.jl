@@ -1502,10 +1502,13 @@ bs3 = @bind s3 Slider([sin, cos, tan], default=cos, show_value=true)
   ╠═╡ =#
 
 # ╔═╡ 62c21b71-e38b-4225-889e-c161393f541e
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bs4 = @bind s4 Slider(
-    range(-π, π, 800);
+    range(-π; stop=π, length=800);
     show_value=x -> "$(round(x, digits=2)) rad"
 )
+  ╠═╡ =#
 
 # ╔═╡ 85900f8c-a1e1-4ffe-a932-b9860749b5ec
 #=╠═╡
@@ -1518,7 +1521,10 @@ s1, s2, s3, s4
   ╠═╡ =#
 
 # ╔═╡ 2302d45d-0d37-427d-9efd-546db71753f4
+# ╠═╡ skip_as_script = true
+#=╠═╡
 bs5 = @bind s5 Slider(0:.5:10; default=38, show_value=x -> x + 0.5)
+  ╠═╡ =#
 
 # ╔═╡ f70c1f7b-f3c5-4aff-b39c-add64afbd635
 # ╠═╡ skip_as_script = true
