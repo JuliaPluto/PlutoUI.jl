@@ -120,119 +120,117 @@ function NotebookCard(notebook_url; link_text = "Read article")
 	
 	
 	@htl(
-	"""
-	<div class="pe-container">
-		<div class="pe-card">
-			<a href=$href aria-hidden="true"><img src=$image_url></a>
-			<div class="pe-right">
-				<div class="pe-about">
-					<h2 class="no-toc">$title</h2>
-					<p>$description</p>
-				</div>
-				<div class="pe-nav">
-					<a href=$href>$link_text →</a>
-				</div>
+	"""<div class="pe-container">
+	<div class="pe-card">
+		<a href=$href aria-hidden="true"><img src=$image_url></a>
+		<div class="pe-right">
+			<div class="pe-about">
+				<h2 class="no-toc">$title</h2>
+				<p>$description</p>
+			</div>
+			<div class="pe-nav">
+				<a href=$href>$link_text →</a>
 			</div>
 		</div>
-	
-		<script>
-			const json_url = $(json_result.json_url |> string)
-			const jlpath_relative = $(json_result.jlpath_relative)
-	
-			const json_data = await (await fetch(json_url)).json()
-			console.log(json_data)
-	
-			const frontmatter = json_data.notebooks[jlpath_relative].frontmatter
-			console.log(frontmatter)
-	
-			const q = sel => currentScript.parentElement.querySelector(".pe-card").querySelector(sel)
-	
-			q("a img").src = frontmatter.image ?? $white_svg_uri
-			q(".pe-about h2").innerText = frontmatter.title ?? "Untitled"
-			q(".pe-about p").innerText = frontmatter.description ?? ""
-		</script>
-	
-		<style>
-
-			.pe-container {
-				container-type: inline-size;
-			}
-			
-			.pe-card {
-				display: flex;
-				flex-direction: row;
-    			max-width: 700px;
-	
-				border-radius: 6px;
-				background: salmon;
-	      background: linear-gradient(80deg, #e9dbe3, #ffdabe);
-	    padding: 10px;
-	    gap: 20px;
-	    margin: 10px 0;
-	    box-shadow: 0 2px 10px rgb(0 0 0 / 14%);
-
-			}
-
-			@container (max-width: 400px) {
-			  .pe-card {
-				  flex-direction: column;
-				  gap: 0;
-			  }
-			.pe-about {
-				margin: 0 10px 10px 10px;
-			}
-			}
-	
-			.pe-card > a {
-				overflow: hidden;
-				border-radius: 5px;
-	
-				flex: 0 0 35%;
-			    aspect-ratio: 3 / 2;
-			}
-			
-			.pe-card > a > img {
-				height: 100%;
-				width: 100%;
-				
-			    object-fit: cover;
-			}
-	
-			div.pe-about :is(p, h2) {
-				color: black;
-				text-decoration: none;
-				border-bottom: none;
-				margin-block-end: 0;
-			}
-			div.pe-about h2 {
-			}
-	
-			.pe-right {
-				flex: 1 1 auto;
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-			}
-	
-			.pe-nav {
-				display: flex;
-				flex-direction: row;
-				justify-content: flex-end;
-			}
-	
-			.pe-nav a {
-				text-decoration: none;
-				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Cantarell, "Apple Color Emoji", "Segoe UI Emoji",
-	        "Segoe UI Symbol", system-ui, sans-serif;
-				font-weight: 700;
-				background: white;
-				color: black;
-				padding: 8px 14px;
-				border-radius: 1000px;
-			}
-		</style>
 	</div>
-	""")
+
+	<script>
+		const json_url = $(json_result.json_url |> string)
+		const jlpath_relative = $(json_result.jlpath_relative)
+
+		const json_data = await (await fetch(json_url)).json()
+		console.log(json_data)
+
+		const frontmatter = json_data.notebooks[jlpath_relative].frontmatter
+		console.log(frontmatter)
+
+		const q = sel => currentScript.parentElement.querySelector(".pe-card").querySelector(sel)
+
+		q("a img").src = frontmatter.image ?? $white_svg_uri
+		q(".pe-about h2").innerText = frontmatter.title ?? "Untitled"
+		q(".pe-about p").innerText = frontmatter.description ?? ""
+	</script>
+
+	<style>
+
+		.pe-container {
+			container-type: inline-size;
+		}
+		
+		.pe-card {
+			display: flex;
+			flex-direction: row;
+			max-width: 700px;
+
+			border-radius: 6px;
+			background: salmon;
+		background: linear-gradient(80deg, #e9dbe3, #ffdabe);
+	padding: 10px;
+	gap: 20px;
+	margin: 10px 0;
+	box-shadow: 0 2px 10px rgb(0 0 0 / 14%);
+
+		}
+
+		@container (max-width: 400px) {
+			.pe-card {
+				flex-direction: column;
+				gap: 0;
+			}
+		.pe-about {
+			margin: 0 10px 10px 10px;
+		}
+		}
+
+		.pe-card > a {
+			overflow: hidden;
+			border-radius: 5px;
+
+			flex: 0 0 35%;
+			aspect-ratio: 3 / 2;
+		}
+		
+		.pe-card > a > img {
+			height: 100%;
+			width: 100%;
+			
+			object-fit: cover;
+		}
+
+		div.pe-about :is(p, h2) {
+			color: black;
+			text-decoration: none;
+			border-bottom: none;
+			margin-block-end: 0;
+		}
+		div.pe-about h2 {
+		}
+
+		.pe-right {
+			flex: 1 1 auto;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+		}
+
+		.pe-nav {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+		}
+
+		.pe-nav a {
+			text-decoration: none;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Cantarell, "Apple Color Emoji", "Segoe UI Emoji",
+		"Segoe UI Symbol", system-ui, sans-serif;
+			font-weight: 700;
+			background: white;
+			color: black;
+			padding: 8px 14px;
+			border-radius: 1000px;
+		}
+	</style>
+	</div>""")
 end
 
 # ╔═╡ 5fc71edf-9959-43f0-b7ca-9eab85b80485
