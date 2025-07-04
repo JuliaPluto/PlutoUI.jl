@@ -280,13 +280,17 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == cos
 
     el = Radio(["asdf", "x"])
-    @test default(el) == nothing
+    @test isnothing(default(el))
     el = Radio(["asdf"])
-    @test default(el) == nothing
+    @test isnothing(default(el))
     el = Radio(["sin" => "asdf"])
-    @test default(el) == nothing
+    @test isnothing(default(el))
     el = Radio(["sin" => "asdf", "cos" => "cos"]; default = "cos")
     @test default(el) == "cos"
+    el = Radio([sin => "asdf", cos => "cos"])
+    @test isnothing(default(el))
+    el = Radio([sin => "asdf", cos => "cos"]; default = sin)
+    @test default(el) == sin
 
     hrd(x) = occursin("<details", repr(MIME"text/html"(), x))
 
