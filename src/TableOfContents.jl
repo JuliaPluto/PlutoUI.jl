@@ -195,11 +195,13 @@ const render = (elements) => {
 		title_el.id :
 		parent_cell.id
 	
+	const inner_html = title_el.innerHTML
+		
 	const a = html`<a 
 		class="\${className}" 
 		title="\${title_el.innerText}"
 		href="#\${id}"
-	>\${title_el.innerHTML}</a>`
+	>\${inner_html}</a>`
 	/* a.onmouseover=()=>{
 		parent_cell.firstElementChild.classList.add(
 			'highlight-pluto-cell-shoulder'
@@ -227,6 +229,15 @@ const render = (elements) => {
 			})
 	   )
 	}
+	   
+	// Remove any `id` attributes recursively, because they may interfere with linking-to-id using `#`
+	const removeIdAttributes = (el) => {
+		if (el && el.nodeType === 1) { // Element node
+			if (el.hasAttribute?.("id")) el.removeAttribute?.("id")
+			el.childNodes.forEach(removeIdAttributes)
+		}
+	}
+	removeIdAttributes(a)
 
 	const row =  html`<div class="toc-row \${className} after-\${last_level}">\${a}</div>`
 		intersection_observer_1.observe(title_el)
