@@ -301,6 +301,8 @@ begin
 			padding: 0em .2em;
 			border-radius: .3em;
 			font-weight: bold;">$(s.default)</span>
+			font-family: system-ui, sans-serif;
+    		font-variant-numeric: tabular-nums;
 			`
 
 
