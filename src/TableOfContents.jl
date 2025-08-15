@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.14
+# v0.20.15
 
 using Markdown
 using InteractiveUtils
@@ -216,6 +216,7 @@ const render = (elements) => {
 		
 	a.onclick=(e) => {
 		e.preventDefault();
+		history.replaceState(null, null, a.href)
 		last_toc_element_click_time.current = Date.now()
 		scrollIntoView(h, {
 			behavior: 'smooth', 
@@ -238,6 +239,9 @@ const render = (elements) => {
 		}
 	}
 	removeIdAttributes(a)
+
+	// Remove Click-To-Copy-Header-ID feature
+	a.querySelectorAll("pluto-header-id-copy-wrapper").forEach(el => el.remove())
 
 	const row =  html`<div class="toc-row \${className} after-\${last_level}">\${a}</div>`
 		intersection_observer_1.observe(title_el)
@@ -295,8 +299,11 @@ const bodyClassObserver = new MutationObserver(updateCallback)
 bodyClassObserver.observe(document.body, {attributeFilter: ["class"]})
 
 // Hide/show the ToC when the screen gets small
-let match_listener = () => 
-	tocNode.classList.toggle("hide", (tocNode.closest("pluto-editor") ?? document.body).scrollWidth < 1000)
+let match_listener = () => {
+	const small = (tocNode.closest("pluto-editor") ?? document.body).scrollWidth < 1000
+	tocNode.classList.toggle("smallscreen", small)
+	tocNode.classList.toggle("hide", small)
+}
 for(let s of [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]) {
 	let m = matchMedia(`(max-width: \${s}px)`)
 	m.addListener(match_listener)
@@ -391,7 +398,6 @@ const toc_css = @htl """
 	padding-top: 0em;
 	/* border: 3px solid rgba(0, 0, 0, 0.15); */
 	border-radius: 10px;
-	/* box-shadow: 0 0 11px 0px #00000010; */
 	max-height: calc(100vh - 5rem - 90px);
 	overflow: auto;
 	z-index: 40;
@@ -399,8 +405,13 @@ const toc_css = @htl """
 	transition: transform 300ms cubic-bezier(0.18, 0.89, 0.45, 1.12);
 }
 
+.plutoui-toc.smallscreen:not(.hide) {
+	box-shadow: 0 0 11px 0px #00000010;
+}
+
 .plutoui-toc.aside.hide {
 	transform: translateX(calc(100% - 28px));
+	color: transparent;
 }
 .plutoui-toc.aside.hide section {
 	display: none;
