@@ -494,12 +494,14 @@ begin
 		if t.dims === nothing || t.dims isa Integer
 			@htl("""<input $((
 				type="text",
+				dir="auto",
 				value=t.default,
 				placeholder=t.placeholder,
 				size=t.dims
 			))>""")
 		else
 			@htl("""<textarea $((
+				dir="auto",
 				cols=t.dims[1],
 				rows=t.dims[2],
 				placeholder=t.placeholder,
