@@ -4,10 +4,16 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ cec46184-6f17-4c74-9d01-ea21f1b276d3
-using HypertextLiteral,  Markdown
+# ╔═╡ 97bd5888-08fe-4498-b48e-dd4db0a2f590
+begin
+	using HypertextLiteral
+	using Markdown
+end
 
-# ╔═╡ 9abf5402-c506-4c8d-8cb2-4035cb179b85
+# ╔═╡ e24ebd7e-9caf-47a6-836d-b4e7ac56fd2b
+# reading_time(; wpm = 200, position=:top, style=:detailed)
+
+# ╔═╡ 47803bec-eca2-4c76-b1d4-c8951ee4ccda
 """
     reading_time(; wpm=200, position=:top, style=:minimal)
 
@@ -33,222 +39,901 @@ struct ReadingTimeEstimator
     style::Symbol
 end
 
-# ╔═╡ fe6b6374-1209-45f0-b593-f5efdb28e821
-const reading_time_js = (estimator) -> @htl("""
-<script>
-const wpm = $(estimator.wpm)
-const position = $(string(estimator.position))
-const style = $(string(estimator.style))
-
-// Create the reading time display element
-const readingTimeNode = html`<div class="pluto-reading-time \${position} \${style}">
-    <span class="reading-time-content">📖 Calculating...</span>
-</div>`
-
-// Function to strip markdown and count words
-function stripMarkdownAndCount(text) {
-    // Remove code blocks
-    text = text.replace(/```[\\s\\S]*?```/g, '')
-    text = text.replace(/`[^`]+`/g, '')
-    
-    // Remove headers
-    text = text.replace(/^#{1,6}\\s+/gm, '')
-    
-    // Remove links but keep text
-    text = text.replace(/\\[([^\\]]+)\\]\\([^)]+\\)/g, '\$1')
-    
-    // Remove bold/italic
-    text = text.replace(/\\*\\*([^*]+)\\*\\*/g, '\$1')
-    text = text.replace(/\\*([^*]+)\\*/g, '\$1')
-    
-    // Remove other markdown symbols
-    text = text.replace(/[#*_~`>\\-\\+]/g, '')
-    
-    // Clean up whitespace
-    text = text.replace(/\\s+/g, ' ').trim()
-    
-    // Count words
-    return text ? text.split(/\\s+/).length : 0
-}
-
-// Function to get markdown content from cells
-function getMarkdownContent() {
-    const markdownCells = Array.from(document.querySelectorAll('pluto-cell'))
-        .filter(cell => {
-            // Look for cells that contain markdown
-            const cellContent = cell.querySelector('.cm-editor, pluto-output')
-            if (!cellContent) return false
-            
-            // Check if it's a markdown cell by looking for md"" or markdown content
-            const text = cellContent.textContent || ''
-            return text.includes('md"') || text.includes('md\"""') || 
-                   cellContent.querySelector('.markdown, .pluto-output .htmloutput')
-        })
-    
-    let totalWords = 0
-    
-    markdownCells.forEach(cell => {
-        // Get the rendered markdown content
-        const markdownOutput = cell.querySelector('pluto-output .markdown, pluto-output .htmloutput')
-        if (markdownOutput) {
-            const text = markdownOutput.textContent || ''
-            totalWords += stripMarkdownAndCount(text)
-        } else {
-            // Fallback: parse from cell content
-            const cellText = cell.textContent || ''
-            const mdMatch = cellText.match(/md"([\\s\\S]*?)"/m) || cellText.match(/md\"""([\\s\\S]*?)\"""/m)
-            if (mdMatch) {
-                totalWords += stripMarkdownAndCount(mdMatch[1])
-            }
-        }
-    })
-    
-    return totalWords
-}
-
-// Function to calculate and display reading time
-function updateReadingTime() {
-    const wordCount = getMarkdownContent()
-    const minutes = Math.ceil(wordCount / wpm)
-    
-    let displayText = ''
-    
-    switch(style) {
-        case 'minimal':
-            displayText = `📖 \${minutes} min read`
-            break
-        case 'detailed':
-            displayText = `📖 Reading time: \${minutes} minute\${minutes !== 1 ? 's' : ''} (\${wordCount} words at \${wpm} wpm)`
-            break
-        default:
-            displayText = `📖 \${minutes} min read`
-    }
-    
-    readingTimeNode.querySelector('.reading-time-content').textContent = displayText
-}
-
-// Initial calculation
-updateReadingTime()
-
-// Set up observers similar to TableOfContents
-const notebook = document.querySelector("pluto-notebook")
-
-const mut_observers = { current: [] }
-
-const createCellObservers = () => {
-    mut_observers.current.forEach((o) => o.disconnect())
-    mut_observers.current = Array.from(notebook.querySelectorAll("pluto-cell")).map(el => {
-        const o = new MutationObserver(() => {
-            setTimeout(updateReadingTime, 100) // Small delay to let content render
-        })
-        o.observe(el, {
-            childList: true, 
-            subtree: true, 
-            characterData: true,
-            attributes: true,
-            attributeFilter: ["class"]
-        })
-        return o
-    })
-}
-
-createCellObservers()
-
-// Observer for new cells
-const notebookObserver = new MutationObserver(() => {
-    updateReadingTime()
-    createCellObservers()
-})
-notebookObserver.observe(notebook, {childList: true})
-
-// Cleanup on invalidation
-invalidation.then(() => {
-    notebookObserver.disconnect()
-    mut_observers.current.forEach((o) => o.disconnect())
-})
-
-return readingTimeNode
-</script>
-""")
-
-# ╔═╡ cd42ce90-6790-4d03-808e-7e4f206323ad
-const reading_time_css = @htl """
+# ╔═╡ b7afb360-f1ec-4eb4-8bd8-e82d71ad5171
+# Styles
+@htl """
 <style>
 .pluto-reading-time {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Cantarell, 
-                 "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", system-ui, sans-serif;
-    font-size: 0.9em;
-    color: #666;
-    z-index: 1000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
 }
 
+.pluto-reading-time .reading-time-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pluto-reading-time .reading-icon {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.pluto-reading-time .reading-text {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.025em;
+}
+
+/* Top position styling */
 .pluto-reading-time.top {
     position: sticky;
     top: 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid #eee;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px) saturate(1.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding: 0.75rem 1.5rem;
     text-align: center;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    color: rgba(0, 0, 0, 0.7);
 }
 
+.pluto-reading-time.top:hover {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Floating position styling */
 .pluto-reading-time.floating {
     position: fixed;
-    top: 1rem;
+    top: 4rem;
     right: 1rem;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 15px;
-    font-size: 0.8em;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 0.5rem 0.875rem;
+    border-radius: 1.5rem;
+    font-size: 0.8125rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 
+                0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.pluto-reading-time.floating:hover {
+    background: rgba(0, 0, 0, 0.85);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 
+                0 3px 6px rgba(0, 0, 0, 0.15);
+}
 
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
-    .pluto-reading-time.top,
-    .pluto-reading-time.bottom {
-        background: rgba(48, 48, 48, 0.95);
-        border-color: #444;
-        color: #ccc;
+    .pluto-reading-time.top {
+        background: rgba(24, 24, 27, 0.85);
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .pluto-reading-time.top:hover {
+        background: rgba(24, 24, 27, 0.95);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .pluto-reading-time.floating {
+        background: rgba(255, 255, 255, 0.85);
+        color: rgba(0, 0, 0, 0.85);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .pluto-reading-time.floating:hover {
+        background: rgba(255, 255, 255, 0.95);
     }
 }
 
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .pluto-reading-time.top {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+        margin-bottom: 1rem;
+    }
+    
+    .pluto-reading-time.floating {
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        padding: 0.375rem 0.625rem;
+        border-radius: 1.25rem;
+    }
+    
+    .pluto-reading-time .reading-time-content {
+        gap: 0.375rem;
+    }
+    
+    .pluto-reading-time .reading-icon {
+        font-size: 0.875rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .pluto-reading-time.top {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    
+    .pluto-reading-time.floating {
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.6875rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+    }
+}
+
+/* Print styles */
 @media print {
     .pluto-reading-time {
         display: none;
     }
 }
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .pluto-reading-time.top {
+        background: white;
+        border-bottom: 2px solid black;
+        color: black;
+        backdrop-filter: none;
+    }
+    
+    .pluto-reading-time.floating {
+        background: black;
+        color: white;
+        border: 2px solid white;
+        backdrop-filter: none;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .pluto-reading-time,
+    .pluto-reading-time:hover {
+        transition: none;
+        transform: none;
+    }
+}
 </style>
 """
 
-# ╔═╡ 3759fa8b-d992-451b-b57d-9898002627e6
-function reading_time(; wpm::Int=200, position::Symbol=:top, style::Symbol=:minimal)
+# ╔═╡ 4a42a543-4b91-4aa6-a67c-90862c6466f0
+# Global State Management
+@htl """
+<script>
+// Text processing utilities
+window.PlutoReadingTimeUtils = {
+    countWordsInText: function(text) {
+        if (!text || typeof text !== 'string') return 0;
+        
+        try {
+            const normalizedText = text
+                .replace(/\\s+/g, ' ')
+                .trim()
+                .toLowerCase();
+            
+            if (!normalizedText) return 0;
+            
+            const config = window.PlutoReadingTimeConfig;
+            const words = normalizedText
+                .split(/[\\s\\p{P}]+/u)
+                .filter(word => {
+                    return word.length >= config.MIN_WORD_LENGTH && 
+                           word.length <= config.MAX_WORD_LENGTH &&
+                           /[a-z]/i.test(word) &&
+                           !/^\\d+\$/.test(word);
+                });
+            
+            return words.length;
+            
+        } catch (error) {
+            console.warn('Advanced word counting failed, using simple fallback:', error);
+            return text.trim().split(/\\s+/).filter(word => word.length > 1).length;
+        }
+    },
+    
+    processMarkdownText: function(markdownText) {
+        if (!markdownText || typeof markdownText !== 'string') return 0;
+        
+        try {
+            let processedText = markdownText;
+            
+            // Remove code blocks
+            processedText = processedText.replace(/\`\`\`[\\w]*[\\s\\S]*?\`\`\`/g, ' ');
+            processedText = processedText.replace(/\`[^\`\\n]+\`/g, ' ');
+            processedText = processedText.replace(/~~~[\\s\\S]*?~~~/g, ' ');
+            
+            // Process headers
+            processedText = processedText.replace(/^#{1,6}\\s+(.+)\$/gm, '\$1 ');
+            processedText = processedText.replace(/^(.+)\\n[=-]+\$/gm, '\$1 ');
+            
+            // Process links
+            processedText = processedText.replace(/\\[([^\\]]+)\\]\\([^)]+\\)/g, '\$1 ');
+            processedText = processedText.replace(/\\[([^\\]]+)\\]\\[[^\\]]+\\]/g, '\$1 ');
+            
+            // Process images
+            processedText = processedText.replace(/!\\[([^\\]]*)\\]\\([^)]+\\)/g, '\$1 ');
+            
+            // Process emphasis
+            processedText = processedText.replace(/\\*\\*\\*([^*]+)\\*\\*\\*/g, '\$1 ');
+            processedText = processedText.replace(/\\*\\*([^*]+)\\*\\*/g, '\$1 ');
+            processedText = processedText.replace(/\\*([^*]+)\\*/g, '\$1 ');
+            processedText = processedText.replace(/___([^_]+)___/g, '\$1 ');
+            processedText = processedText.replace(/__([^_]+)__/g, '\$1 ');
+            processedText = processedText.replace(/_([^_]+)_/g, '\$1 ');
+            
+            // Process strikethrough
+            processedText = processedText.replace(/~~([^~]+)~~/g, '\$1 ');
+            
+            // Remove remaining markdown syntax
+            processedText = processedText.replace(/^\\s*[-*_]{3,}\\s*\$/gm, ' ');
+            processedText = processedText.replace(/^\\s*>+\\s*/gm, ' ');
+            processedText = processedText.replace(/^\\s*[*+-]\\s+/gm, ' ');
+            processedText = processedText.replace(/^\\s*\\d+\\.\\s+/gm, ' ');
+            processedText = processedText.replace(/\\|/g, ' ');
+            processedText = processedText.replace(/[\`~#\\[\\](){}]/g, ' ');
+            
+            return this.countWordsInText(processedText);
+            
+        } catch (error) {
+            console.warn('Markdown processing failed, using raw text:', error);
+            return this.countWordsInText(markdownText);
+        }
+    },
+    
+    extractTextFromHTML: function(htmlString) {
+        if (!htmlString || typeof htmlString !== 'string') return 0;
+        
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, 'text/html');
+            
+            const unwantedElements = doc.querySelectorAll('script, style, noscript');
+            unwantedElements.forEach(el => el.remove());
+            
+            const cleanText = doc.body.textContent || doc.documentElement.textContent || '';
+            return this.countWordsInText(cleanText);
+            
+        } catch (error) {
+            console.warn('HTML parsing failed, using regex fallback:', error);
+            const textOnly = htmlString
+                .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')
+                .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/&\\w+;/g, ' ');
+            
+            return this.countWordsInText(textOnly);
+        }
+    }
+};
+
+//console.log('PlutoReadingTime global state and utilities initialized');
+</script>
+"""
+
+# ╔═╡ 412b6d60-cbe6-4018-86eb-1c0825b08449
+# Content extraction functions
+@htl """
+<script>
+// Content extraction functions
+window.PlutoReadingTimeExtractor = {
+    extractNotebookContent: function() {
+        let totalWordCount = 0;
+        
+        try {
+            const notebook = document.querySelector('pluto-notebook');
+            if (!notebook) {
+                console.warn('Pluto notebook not found');
+                return 0;
+            }
+            
+            const cells = notebook.querySelectorAll('pluto-cell');
+            //console.log(\`Processing \${cells.length} Pluto cells\`);
+            
+            for (const cell of cells) {
+                try {
+                    const cellWordCount = this.extractCellContent(cell);
+                    totalWordCount += cellWordCount;
+                    
+                    if (cellWordCount > 0) {
+                        //console.log(\`Cell contributed \${cellWordCount} words\`);
+                    }
+                } catch (error) {
+                    console.warn('Error processing individual cell:', error);
+                }
+            }
+            
+        } catch (error) {
+            console.error('Critical error in notebook content extraction:', error);
+            return 0;
+        }
+        
+        //console.log(\`Total extracted words: \${totalWordCount}\`);
+        return totalWordCount;
+    },
+    
+    extractCellContent: function(cell) {
+        let cellContent = '';
+
+		// The original plan was to parse input codes to search for text and scripts 
+		// This currently doesnt work since Ppluto lazy loads some parts of the input code so the count is not accurate 
+
+        // Strategy 1: CodeMirror editor content
+        // const cmEditor = cell.querySelector('.cm-editor .cm-scroller .cm-content');
+        //if (cmEditor) {
+        //    cellContent += cmEditor.textContent || '';
+        //}
+        
+        // Strategy 2: Script tags containing cell source code
+        const codeScripts = cell.querySelectorAll('script[type="text/plain"]');
+        codeScripts.forEach(script => {
+            const scriptContent = script.textContent || '';
+            if (scriptContent && !cellContent.includes(scriptContent)) {
+                cellContent += ' ' + scriptContent;
+            }
+        });
+        
+        // Strategy 3: Data attributes
+        if (cell.dataset && cell.dataset.code) {
+            cellContent += ' ' + cell.dataset.code;
+        }
+        
+        // Strategy 4: Static markdown/HTML outputs
+        const staticOutputs = cell.querySelectorAll('.pluto-output, .markdown');
+        staticOutputs.forEach(output => {
+            const outputText = output.textContent || '';
+
+            if (outputText && !cellContent.includes(outputText)) {
+                cellContent += ' ' + outputText;
+            }
+        });
+        return cellContent ? this.processJuliaNotebookContent(cellContent) : 0;
+    },
+    
+    processJuliaNotebookContent: function(content) {
+        if (!content || typeof content !== 'string') return 0;
+        
+        let totalWordCount = 0;
+        const utils = window.PlutoReadingTimeUtils;
+        totalWordCount = utils.countWordsInText(content);
+
+		// Disabled for now, but maybe this can work later if we can get the notebook cells dirrectly from pluto but idk
+        //try {
+            // Extract Markdown content
+          //  totalWordCount += this.extractMarkdownContent(content);
+            
+            // Extract HTML content
+            //totalWordCount += this.extractHTMLContent(content);
+        
+            // Extract Julia docstrings
+            //totalWordCount += this.extractDocstrings(content);
+            
+            // Extract meaningful comments
+            //totalWordCount += this.extractComments(content);
+            
+            // Extract string literals
+            //totalWordCount += this.extractReadableStringLiterals(content);
+            
+        //} catch (error) {
+            //console.error('Error processing notebook content, falling back to simple counting:', error);
+            //totalWordCount = utils.countWordsInText(content);
+        //}
+      	
+        return totalWordCount;
+    },
+    
+    extractMarkdownContent: function(content) {
+        const markdownPatterns = [
+            /md"([^"]*?)"/g,
+            /md\"\"\\"([\\s\\S]*?)\"\"\"/g,
+            /Markdown\\.md"([^"]*?)"/g,
+            /Markdown\\.md\"\"\\"([\\s\\S]*?)\"\"\"/g
+        ];
+        
+        let wordCount = 0;
+        const utils = window.PlutoReadingTimeUtils;
+        
+        markdownPatterns.forEach(pattern => {
+            const matches = [...content.matchAll(pattern)];
+            matches.forEach(match => {
+                if (match[1] && match[1].trim()) {
+                    wordCount += utils.processMarkdownText(match[1]);
+                }
+            });
+        });
+        
+        return wordCount;
+    },
+    
+    extractHTMLContent: function(content) {
+        const htmlPatterns = [
+            /html"([\\s\\S]*?)"/g,
+            /html\"\"\\"([\\s\\S]*?)\"\"\"/g,
+            /@htl\\s*[\`"]?\\s*\"\"\\"([\\s\\S]*?)\\\"\\\"\\\"\\s*[\`"]?/g,
+            /@htl\\s+"([^"]*?)"/g
+        ];
+        
+        let wordCount = 0;
+        const utils = window.PlutoReadingTimeUtils;
+        
+        htmlPatterns.forEach(pattern => {
+            const matches = [...content.matchAll(pattern)];
+            matches.forEach(match => {
+                if (match[1] && match[1].trim()) {
+                    wordCount += utils.extractTextFromHTML(match[1]);
+                }
+            });
+        });
+        
+        return wordCount;
+    },
+    
+    extractDocstrings: function(content) {
+        const docstringPattern = /\"\"\\"([\\s\\S]*?)\"\"\"/g;
+        const matches = [...content.matchAll(docstringPattern)];
+        
+        let wordCount = 0;
+        const utils = window.PlutoReadingTimeUtils;
+        
+        matches.forEach(match => {
+            if (match[1] && match[1].trim()) {
+                wordCount += utils.processMarkdownText(match[1]);
+            }
+        });
+        
+        return wordCount;
+    },
+    
+    extractComments: function(content) {
+        const commentPattern = /^\\s*#\\s+(.+)\$/gm;
+        const matches = [...content.matchAll(commentPattern)];
+        
+        let wordCount = 0;
+        const utils = window.PlutoReadingTimeUtils;
+        
+        matches.forEach(match => {
+            const comment = match[1].trim();
+            
+            if (comment.length > 10 && 
+                !comment.includes('╔═╡') && 
+                !comment.match(/^[a-f0-9-]{8,}\$/)) {
+                wordCount += utils.countWordsInText(comment);
+            }
+        });
+        
+        return wordCount;
+    },
+    
+    extractReadableStringLiterals: function(content) {
+        const stringPattern = /"([^"\\\\]*(\\\\.[^"\\\\]*)*)"/g;
+        const matches = [...content.matchAll(stringPattern)];
+        
+        let wordCount = 0;
+        const utils = window.PlutoReadingTimeUtils;
+        
+        matches.forEach(match => {
+            const str = match[1];
+            if (str && str.length > 20 && !str.match(/^[\\s\\W]*\$/)) {
+                wordCount += utils.countWordsInText(str);
+            }
+        });
+        
+        return wordCount;
+    }
+};
+</script>
+"""
+
+# ╔═╡ 42c312db-e6c0-498f-87e4-4e099cee99c4
+# Update system and caching
+@htl """
+<script>
+// Update and caching system
+window.PlutoReadingTimeUpdater = {
+    getCachedWordCount: function() {
+        const globalState = window.PlutoReadingTime;
+        const config = window.PlutoReadingTimeConfig;
+        const currentTime = Date.now();
+        
+        if (globalState.notebookCache !== null && 
+            (currentTime - globalState.cacheValidTime) < config.CACHE_DURATION) {
+            return globalState.notebookCache;
+        }
+        
+        //console.log('Cache miss, recalculating word count...');
+        const wordCount = window.PlutoReadingTimeExtractor.extractNotebookContent();
+        
+        globalState.notebookCache = wordCount;
+        globalState.cacheValidTime = currentTime;
+        
+        return wordCount;
+    },
+    
+    invalidateCache: function() {
+        const globalState = window.PlutoReadingTime;
+        globalState.notebookCache = null;
+        globalState.cacheValidTime = 0;
+        //console.log('Cache invalidated');
+    },
+    
+    scheduleGlobalUpdate: function() {
+        const globalState = window.PlutoReadingTime;
+        const config = window.PlutoReadingTimeConfig;
+        
+        if (globalState.updateTimeout) {
+            clearTimeout(globalState.updateTimeout);
+        }
+        
+        if (globalState.isUpdating) {
+            //console.log('Update already in progress, skipping...');
+            return;
+        }
+        
+        globalState.updateTimeout = setTimeout(() => {
+            this.performGlobalUpdate();
+        }, config.UPDATE_DELAY);
+    },
+    
+    performGlobalUpdate: function() {
+        const globalState = window.PlutoReadingTime;
+        
+        if (globalState.isUpdating) return;
+        
+        globalState.isUpdating = true;
+        //console.log('Performing global reading time update...');
+
+        try {
+            const wordCount = this.getCachedWordCount();
+            
+            globalState.instances.forEach(instance => {
+                this.updateInstance(instance, wordCount);
+            });
+            
+            //console.log(\`Updated \${globalState.instances.size} instances with \${wordCount} words\`);
+            
+        } catch (error) {
+            console.error('Global update failed:', error);
+            
+            globalState.instances.forEach(instance => {
+                const textElement = instance.node.querySelector('.reading-text');
+                if (textElement) {
+                    textElement.textContent = 'Calculation error';
+                }
+            });
+        } finally {
+            globalState.isUpdating = false;
+        }
+    },
+    
+    updateInstance: function(instance, wordCount) {
+        try {
+            const readingMinutes = Math.max(1, Math.ceil(wordCount / instance.config.WPM));
+            
+            let displayText;
+            switch(instance.config.STYLE) {
+                case 'minimal':
+                    displayText = \`\${readingMinutes} min read\`;
+                    break;
+                case 'detailed':
+                    displayText = \`Reading time: \${readingMinutes} minute\${readingMinutes !== 1 ? 's' : ''} (\${wordCount} words at \${instance.config.WPM} wpm)\`;
+                    break;
+                default:
+                    displayText = \`\${readingMinutes} min read\`;
+            }
+            
+            const textElement = instance.node.querySelector('.reading-text');
+            if (textElement && textElement.textContent !== displayText) {
+                textElement.textContent = displayText;
+                //console.log(\`Updated instance: \${displayText}\`);
+            }
+            
+        } catch (error) {
+            console.error('Failed to update individual instance:', error);
+            const textElement = instance.node.querySelector('.reading-text');
+            if (textElement) {
+                textElement.textContent = 'Error';
+            }
+        }
+    }
+};
+</script>
+"""
+
+# ╔═╡ 59cf7340-8274-450a-b47b-2753a772602b
+# DOM observer system
+@htl """
+<script>
+// DOM observer system
+window.PlutoReadingTimeObserver = {
+    setupDOMObservers: function() {
+        const globalState = window.PlutoReadingTime;
+        
+        if (globalState.observers.size > 0) {
+            //console.log('DOM observers already set up');
+            return;
+        }
+        
+        try {
+            const notebook = document.querySelector("pluto-notebook");
+            if (!notebook) {
+                console.warn('Pluto notebook not found for observer setup');
+                return;
+            }
+            
+            this.setupNotebookObserver(notebook);
+            this.setupCellObservers(notebook);
+            
+            //console.log(\`Set up \${globalState.observers.size} DOM observers\`);
+            
+        } catch (error) {
+            console.error('Failed to set up DOM observers:', error);
+        }
+    },
+    
+    setupNotebookObserver: function(notebook) {
+        const globalState = window.PlutoReadingTime;
+        const updater = window.PlutoReadingTimeUpdater;
+        
+        const notebookObserver = new MutationObserver((mutations) => {
+            let requiresUpdate = false;
+            
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList') {
+                    const hasNewCells = Array.from(mutation.addedNodes).some(node => 
+                        node.nodeType === Node.ELEMENT_NODE && node.matches('pluto-cell')
+                    );
+                    const hasRemovedCells = Array.from(mutation.removedNodes).some(node => 
+                        node.nodeType === Node.ELEMENT_NODE && node.matches('pluto-cell')
+                    );
+                    
+                    if (hasNewCells || hasRemovedCells) {
+                        //console.log('Notebook structure changed: cells added/removed');
+                        requiresUpdate = true;
+                    }
+                }
+                
+                if (mutation.type === 'attributes' && 
+                    ['class', 'data-code'].includes(mutation.attributeName)) {
+                    //console.log(\`Notebook attribute changed: \${mutation.attributeName}\`);
+                    requiresUpdate = true;
+                }
+            });
+            
+            if (requiresUpdate) {
+                updater.invalidateCache();
+                updater.scheduleGlobalUpdate();
+            }
+        });
+        
+        notebookObserver.observe(notebook, { 
+            childList: true, 
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'data-code']
+        });
+        
+        globalState.observers.add(notebookObserver);
+        //console.log('Notebook structure observer activated');
+    },
+    
+    setupCellObservers: function(notebook) {
+        const globalState = window.PlutoReadingTime;
+        const updater = window.PlutoReadingTimeUpdater;
+        const cells = notebook.querySelectorAll("pluto-cell");
+        
+        cells.forEach((cell, index) => {
+            try {
+                const cellObserver = new MutationObserver(() => {
+                    //console.log(\`Cell \${index} content changed\`);
+                    updater.invalidateCache();
+                    updater.scheduleGlobalUpdate();
+                });
+                
+                const codeEditor = cell.querySelector('.cm-editor');
+                if (codeEditor) {
+                    cellObserver.observe(codeEditor, {
+                        childList: true,
+                        subtree: true,
+                        characterData: true
+                    });
+                    
+                    globalState.observers.add(cellObserver);
+                }
+                
+            } catch (error) {
+                console.warn(\`Failed to set up observer for cell \${index}:\`, error);
+            }
+        });
+        
+        //console.log(\`Set up observers for \${cells.length} cells\`);
+    }
+};
+</script>
+"""
+
+# ╔═╡ 6cd94790-0f9d-4c3b-9a73-edd4d2a292da
+# Reading time widget display
+# <div class="pluto-reading-time">
+#     <div class="reading-time-content">
+#         <span class="reading-icon" aria-hidden="true">📖</span>
+#         <span class="reading-text" role="status" aria-live="polite">Calculating...</span>
+#     </div>
+# </div>
+const reading_time_js = (estimator) -> @htl("""
+											
+<script>
+	// Initialize global singleton state
+if (!window.PlutoReadingTime) {
+    window.PlutoReadingTime = {
+        instances: new Set(),
+        observers: new Set(),
+        contentCache: new WeakMap(),
+        updateTimeout: null,
+        isUpdating: false,
+        lastUpdateTime: 0,
+        notebookCache: null,
+        cacheValidTime: 0
+    };
+}
+
+	
+
+	
+// Configuration - replace with actual values
+window.PlutoReadingTimeConfig = {
+    WPM: $(estimator.wpm),
+    POSITION: $(string(estimator.position)),
+    STYLE: $(string(estimator.style)),
+    UPDATE_DELAY: 10,
+    CACHE_DURATION: 1000,
+    MIN_WORD_LENGTH: 2,
+    MAX_WORD_LENGTH: 50
+};
+
+										
+function html(htmlString) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlString, 'text/html');
+  return doc.body.firstElementChild;
+}
+
+const readingTimeNode = html(`<div class="pluto-reading-time">
+<div class="reading-time-content">
+	<span class="reading-icon" aria-hidden="true">
+		📖
+	</span>
+	<span class="reading-text" role="status" aria-live="polite">
+		Calculating...
+	</span>
+	</div>
+</div>`)
+
+readingTimeNode.classList.add(window.PlutoReadingTimeConfig.POSITION)
+readingTimeNode.classList.add(window.PlutoReadingTimeConfig.STYLE)
+
+// Main reading time component
+(function() {
+    const globalState = window.PlutoReadingTime;
+    const config = window.PlutoReadingTimeConfig;
+    const updater = window.PlutoReadingTimeUpdater;
+    const observer = window.PlutoReadingTimeObserver;
+
+    
+    // Create instance identifier
+    const instanceId = Symbol('readingTimeInstance');
+    
+    // Register this instance
+    const instance = {
+        id: instanceId,
+        node: readingTimeNode,
+        config: config,
+        created: Date.now()
+    };
+    
+    globalState.instances.add(instance);
+    // Initialize the system
+    function initialize() {
+        //console.log('Initializing Pluto Reading Time Estimator...');
+        
+        // Perform initial calculation
+        updater.scheduleGlobalUpdate();
+        
+        // Set up DOM monitoring
+        observer.setupDOMObservers();
+        
+        //console.log('Reading time estimator initialized successfully');
+    }
+    
+    // Cleanup function for when cell is re-evaluated
+    function cleanup() {
+        //console.log('Cleaning up reading time estimator instance...');
+
+        // Remove this instance from global state
+        const remainingInstances = [...globalState.instances].filter(inst => inst.id !== instanceId);
+        globalState.instances = new Set(remainingInstances);
+        
+        // If no instances remain, clean up global resources
+        if (globalState.instances.size === 0) {
+            //console.log('Last instance removed, cleaning up global resources...');
+            
+            if (globalState.updateTimeout) {
+                clearTimeout(globalState.updateTimeout);
+                globalState.updateTimeout = null;
+            }
+            
+            globalState.observers.forEach(obs => {
+                try {
+                    obs.disconnect();
+                } catch (error) {
+                    console.warn('Error disconnecting observer:', error);
+                }
+            });
+            
+            globalState.observers.clear();
+            globalState.contentCache = new WeakMap();
+            globalState.notebookCache = null;
+            globalState.isUpdating = false;
+            
+            //console.log('Global cleanup completed');
+        }
+    }
+    
+    // Set up cleanup for when this cell is re-evaluated
+    if (typeof invalidation !== 'undefined') {
+        invalidation.then(cleanup);
+    } else {
+        // Fallback cleanup registration
+        window.addEventListener('beforeunload', cleanup);
+    }
+    
+    // Initialize the component
+    initialize();
+})();
+
+return readingTimeNode
+</script>
+""")
+
+# ╔═╡ 48e6d4fc-62f1-4842-a7b9-a0799712af63
+function reading_time(; wpm::Int=200, position::Symbol=:top, style::Symbol=:minimal) 
+	
+	allowed_positions = [:top, :floating]
+	
+	if position ∉ allowed_positions
+		throw(ArgumentError("Please select a position from the list of allowed positions :$allowed_positions. Got: `$position`
+							"))
+		
+	end
+
+	allowed_styles = [:minimal, :detailed]
+	if style ∉ allowed_styles
+		throw(ArgumentError("Please select a style from the list of allowed positions :$allowed_styles. Got: `$style`"))
+	end
+	
     estimator = ReadingTimeEstimator(wpm, position, style)
-    return estimator
+    return @htl("$(reading_time_js(estimator))")
 end
 
-# ╔═╡ d4a16be1-2dbc-4625-92d0-8e1897247b5e
-function Base.show(io::IO, m::MIME"text/html", estimator::ReadingTimeEstimator)
-    Base.show(io, m, @htl("$(reading_time_js(estimator))$(reading_time_css)"))
-end
-
-# ╔═╡ cb1e6a6f-1201-4fcd-a805-863c29938be2
-md"
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend nisi volutpat dui laoreet, nec fermentum elit convallis. Phasellus non tellus sed massa consequat consectetur. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Cras eros tellus, gravida in nunc a, auctor condimentum libero. Cras tellus neque, lacinia a lorem ut, accumsan accumsan risus. Integer in luctus tellus. Vivamus bibendum leo hendrerit enim consequat, at eleifend lectus tempor.
-
-Fusce eget tempus sem. Vivamus dictum rutrum consectetur. Morbi eu ante quis urna tincidunt blandit sit amet sed ex. Maecenas a vestibulum metus. Nunc malesuada dolor dui. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In et urna risus.
-
-Nunc vulputate quis odio a sagittis. Nam malesuada malesuada tellus, nec fermentum orci tincidunt ultricies. Praesent sit amet congue velit. Mauris dictum scelerisque mi vel euismod. Donec pulvinar, mauris eget placerat consectetur, est turpis sodales justo, non convallis turpis tortor vitae augue. Donec lobortis erat sit amet cursus tristique. Mauris vel tempus velit.
-
-In vitae tellus et elit hendrerit posuere. Nullam ac sagittis enim, et tristique mi. Proin laoreet augue quis orci rhoncus aliquam. Donec velit erat, sollicitudin ac arcu nec, fringilla facilisis dui. Vestibulum sed rutrum dolor. Sed maximus egestas odio eu suscipit. Fusce et bibendum ante. Duis dignissim tortor non lobortis tincidunt. Nullam vitae sagittis felis. Sed auctor imperdiet mauris. Sed mollis neque ut nisl feugiat rutrum. Donec sit amet diam et ante dapibus gravida. Nam viverra urna posuere eros feugiat, ut placerat massa dapibus. Aenean facilisis at mi vel commodo.
-
-Morbi elementum tellus ipsum. Curabitur commodo risus id augue tincidunt vestibulum. Morbi scelerisque nibh vel augue faucibus, in eleifend elit hendrerit. Donec consectetur, odio eget convallis consectetur, metus augue malesuada ante, quis condimentum lacus lorem non velit. Proin ut viverra turpis. Curabitur condimentum congue maximus. Sed congue purus eget rutrum congue. Aliquam bibendum augue arcu. Mauris vel volutpat nibh nibh. 
-"
-
-# ╔═╡ 8443dbc2-70aa-4ebf-b12a-052170106330
-reading_time(; style=:detailed)
+# ╔═╡ 89131e87-bd73-4cfa-a93c-2d45a46cd389
+md"""
+Nam vitae augue viverra, ullamcorper purus quis, egestas eros. Mauris congue ultrices interdum. Proin ut dictum odio, a blandit mi. Nullam porttitor odio eget mi porttitor dapibus. Ut in lacus nec eros tristique pellentesque. Curabitur quis quam sagittis quam tempus interdum et ut eros. Fusce non suscipit dui. Duis blandit turpis est, sit amet dictum quam luctus et. Praesent tempor, ex quis blandit consectetur, nisl nisl tincidunt lorem, ac molestie dolor nisi eget diam. Sed mollis, ligula id gravida gravida, sapien ante gravida quam, eu fermentum leo velit et magna. Mauris rutrum molestie sem sit amet finibus. 
+"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -290,13 +975,16 @@ version = "0.1.12"
 """
 
 # ╔═╡ Cell order:
-# ╠═cec46184-6f17-4c74-9d01-ea21f1b276d3
-# ╠═9abf5402-c506-4c8d-8cb2-4035cb179b85
-# ╠═fe6b6374-1209-45f0-b593-f5efdb28e821
-# ╠═cd42ce90-6790-4d03-808e-7e4f206323ad
-# ╠═3759fa8b-d992-451b-b57d-9898002627e6
-# ╠═d4a16be1-2dbc-4625-92d0-8e1897247b5e
-# ╟─cb1e6a6f-1201-4fcd-a805-863c29938be2
-# ╠═8443dbc2-70aa-4ebf-b12a-052170106330
+# ╠═97bd5888-08fe-4498-b48e-dd4db0a2f590
+# ╠═47803bec-eca2-4c76-b1d4-c8951ee4ccda
+# ╠═48e6d4fc-62f1-4842-a7b9-a0799712af63
+# ╠═b7afb360-f1ec-4eb4-8bd8-e82d71ad5171
+# ╠═4a42a543-4b91-4aa6-a67c-90862c6466f0
+# ╠═412b6d60-cbe6-4018-86eb-1c0825b08449
+# ╠═42c312db-e6c0-498f-87e4-4e099cee99c4
+# ╠═59cf7340-8274-450a-b47b-2753a772602b
+# ╠═6cd94790-0f9d-4c3b-9a73-edd4d2a292da
+# ╠═e24ebd7e-9caf-47a6-836d-b4e7ac56fd2b
+# ╠═89131e87-bd73-4cfa-a93c-2d45a46cd389
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
