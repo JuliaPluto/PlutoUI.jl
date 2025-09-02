@@ -10,9 +10,6 @@ begin
 	using Markdown
 end
 
-# ╔═╡ 48e6d4fc-62f1-4842-a7b9-a0799712af63
-
-
 # ╔═╡ b7afb360-f1ec-4eb4-8bd8-e82d71ad5171
 # Styles
 const reading_time_css = @htl """
@@ -187,9 +184,9 @@ const reading_time_css = @htl """
 </style>
 """
 
-# ╔═╡ 4a42a543-4b91-4aa6-a67c-90862c6466f0
-# Global State Management
-@htl """
+# ╔═╡ a2a3b8c6-2b45-4ab1-a631-1cb2cb9718b5
+const reading_time_js = (estimator) -> @htl("""
+											
 <script>
 // Text processing utilities
 window.PlutoReadingTimeUtils = {
@@ -296,13 +293,6 @@ window.PlutoReadingTimeUtils = {
         }
     }
 };
-</script>
-"""
-
-# ╔═╡ 412b6d60-cbe6-4018-86eb-1c0825b08449
-# Content extraction functions
-@htl """
-<script>
 // Content extraction functions
 window.PlutoReadingTimeExtractor = {
     extractNotebookContent: function() {
@@ -509,13 +499,6 @@ window.PlutoReadingTimeExtractor = {
         return wordCount;
     }
 };
-</script>
-"""
-
-# ╔═╡ 42c312db-e6c0-498f-87e4-4e099cee99c4
-# Update system and caching
-@htl """
-<script>
 // Update and caching system
 window.PlutoReadingTimeUpdater = {
     getCachedWordCount: function() {
@@ -623,13 +606,6 @@ window.PlutoReadingTimeUpdater = {
         }
     }
 };
-</script>
-"""
-
-# ╔═╡ 59cf7340-8274-450a-b47b-2753a772602b
-# DOM observer system
-@htl """
-<script>
 // DOM observer system
 window.PlutoReadingTimeObserver = {
     setupDOMObservers: function() {
@@ -735,13 +711,7 @@ window.PlutoReadingTimeObserver = {
         //console.log(\`Set up observers for \${cells.length} cells\`);
     }
 };
-</script>
-"""
-
-# ╔═╡ a2a3b8c6-2b45-4ab1-a631-1cb2cb9718b5
-const reading_time_js = (estimator) -> @htl("""
 											
-<script>
 	// Initialize global singleton state
 	if (!window.PlutoReadingTime) {
 	    window.PlutoReadingTime = {
@@ -971,12 +941,7 @@ version = "0.1.12"
 # ╔═╡ Cell order:
 # ╠═97bd5888-08fe-4498-b48e-dd4db0a2f590
 # ╠═47803bec-eca2-4c76-b1d4-c8951ee4ccda
-# ╠═48e6d4fc-62f1-4842-a7b9-a0799712af63
 # ╠═b7afb360-f1ec-4eb4-8bd8-e82d71ad5171
-# ╠═4a42a543-4b91-4aa6-a67c-90862c6466f0
-# ╠═412b6d60-cbe6-4018-86eb-1c0825b08449
-# ╠═42c312db-e6c0-498f-87e4-4e099cee99c4
-# ╠═59cf7340-8274-450a-b47b-2753a772602b
 # ╠═a2a3b8c6-2b45-4ab1-a631-1cb2cb9718b5
 # ╠═7ecea127-265b-4eac-8fa0-e25e344d7e2b
 # ╠═89131e87-bd73-4cfa-a93c-2d45a46cd389
