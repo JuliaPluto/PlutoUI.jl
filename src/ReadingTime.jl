@@ -10,38 +10,12 @@ begin
 	using Markdown
 end
 
-# ╔═╡ e24ebd7e-9caf-47a6-836d-b4e7ac56fd2b
-# reading_time(; wpm = 200, position=:top, style=:detailed)
+# ╔═╡ 48e6d4fc-62f1-4842-a7b9-a0799712af63
 
-# ╔═╡ 47803bec-eca2-4c76-b1d4-c8951ee4ccda
-"""
-    reading_time(; wpm=200, position=:top, style=:minimal)
-
-Add a reading time estimate to your Pluto notebook based on markdown content.
-
-# Arguments
-- `wpm::Int=200`: Words per minute reading speed (typical range: 150-300)
-- `position::Symbol=:top`: Where to display (`:top` or `:floating`)
-- `style::Symbol=:minimal`: Display style (`:minimal` or `:detailed`)
-
-# Examples
-```julia
-reading_time()  # Simple "📖 5 min read"
-
-reading_time(wpm=250, style=:detailed)  # "📖 Reading time: 4 minutes (850 words at 250 wpm)"
-
-reading_time(position=:floating)  # Floating in corner
-```
-"""
-struct ReadingTimeEstimator
-    wpm::Int
-    position::Symbol
-    style::Symbol
-end
 
 # ╔═╡ b7afb360-f1ec-4eb4-8bd8-e82d71ad5171
 # Styles
-@htl """
+const reading_time_css = @htl """
 <style>
 .pluto-reading-time {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -322,8 +296,6 @@ window.PlutoReadingTimeUtils = {
         }
     }
 };
-
-//console.log('PlutoReadingTime global state and utilities initialized');
 </script>
 """
 
@@ -605,7 +577,6 @@ window.PlutoReadingTimeUpdater = {
                 this.updateInstance(instance, wordCount);
             });
             
-            //console.log(\`Updated \${globalState.instances.size} instances with \${wordCount} words\`);
             
         } catch (error) {
             console.error('Global update failed:', error);
@@ -767,173 +738,196 @@ window.PlutoReadingTimeObserver = {
 </script>
 """
 
-# ╔═╡ 6cd94790-0f9d-4c3b-9a73-edd4d2a292da
-# Reading time widget display
-# <div class="pluto-reading-time">
-#     <div class="reading-time-content">
-#         <span class="reading-icon" aria-hidden="true">📖</span>
-#         <span class="reading-text" role="status" aria-live="polite">Calculating...</span>
-#     </div>
-# </div>
+# ╔═╡ a2a3b8c6-2b45-4ab1-a631-1cb2cb9718b5
 const reading_time_js = (estimator) -> @htl("""
 											
 <script>
 	// Initialize global singleton state
-if (!window.PlutoReadingTime) {
-    window.PlutoReadingTime = {
-        instances: new Set(),
-        observers: new Set(),
-        contentCache: new WeakMap(),
-        updateTimeout: null,
-        isUpdating: false,
-        lastUpdateTime: 0,
-        notebookCache: null,
-        cacheValidTime: 0
-    };
-}
+	if (!window.PlutoReadingTime) {
+	    window.PlutoReadingTime = {
+	        instances: new Set(),
+	        observers: new Set(),
+	        contentCache: new WeakMap(),
+	        updateTimeout: null,
+	        isUpdating: false,
+	        lastUpdateTime: 0,
+	        notebookCache: null,
+	        cacheValidTime: 0
+	    };
+	}
+	
+	// Configuration - replace with actual values
+	window.PlutoReadingTimeConfig = {
+	    WPM: $(estimator.wpm),
+	    POSITION: $(string(estimator.position)),
+	    STYLE: $(string(estimator.style)),
+	    UPDATE_DELAY: 10,
+	    CACHE_DURATION: 1000,
+	    MIN_WORD_LENGTH: 2,
+	    MAX_WORD_LENGTH: 50
+	};
+								
+	function html(htmlString) {
+	  const parser = new DOMParser();
+	  const doc = parser.parseFromString(htmlString, 'text/html');
+	  return doc.body.firstElementChild;
+	}
+
+	const readingTimeNode = html(`<div class="pluto-reading-time">
+	<div class="reading-time-content">
+		<span class="reading-icon" aria-hidden="true">
+			📖
+		</span>
+		<span class="reading-text" role="status" aria-live="polite">
+			Calculating...
+		</span>
+		</div>
+	</div>`)
 
 	
-
+	readingTimeNode.classList.add(window.PlutoReadingTimeConfig.POSITION);
+	readingTimeNode.classList.add(window.PlutoReadingTimeConfig.STYLE);
 	
-// Configuration - replace with actual values
-window.PlutoReadingTimeConfig = {
-    WPM: $(estimator.wpm),
-    POSITION: $(string(estimator.position)),
-    STYLE: $(string(estimator.style)),
-    UPDATE_DELAY: 10,
-    CACHE_DURATION: 1000,
-    MIN_WORD_LENGTH: 2,
-    MAX_WORD_LENGTH: 50
-};
-
-										
-function html(htmlString) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlString, 'text/html');
-  return doc.body.firstElementChild;
-}
-
-const readingTimeNode = html(`<div class="pluto-reading-time">
-<div class="reading-time-content">
-	<span class="reading-icon" aria-hidden="true">
-		📖
-	</span>
-	<span class="reading-text" role="status" aria-live="polite">
-		Calculating...
-	</span>
-	</div>
-</div>`)
-
-readingTimeNode.classList.add(window.PlutoReadingTimeConfig.POSITION)
-readingTimeNode.classList.add(window.PlutoReadingTimeConfig.STYLE)
-
-// Main reading time component
-(function() {
-    const globalState = window.PlutoReadingTime;
-    const config = window.PlutoReadingTimeConfig;
-    const updater = window.PlutoReadingTimeUpdater;
-    const observer = window.PlutoReadingTimeObserver;
-
+	(function() {
+    	const globalState = window.PlutoReadingTime;
+	    const config = window.PlutoReadingTimeConfig;
+	    const updater = window.PlutoReadingTimeUpdater;
+	    const observer = window.PlutoReadingTimeObserver;
+	    // Create instance identifier
+	    const instanceId = Symbol('readingTimeInstance');
     
-    // Create instance identifier
-    const instanceId = Symbol('readingTimeInstance');
+	    // Register this instance
+	    const instance = {
+	        id: instanceId,
+	        node: readingTimeNode,
+	        config: config,
+	        created: Date.now()
+	    };
     
-    // Register this instance
-    const instance = {
-        id: instanceId,
-        node: readingTimeNode,
-        config: config,
-        created: Date.now()
-    };
-    
-    globalState.instances.add(instance);
-    // Initialize the system
-    function initialize() {
-        //console.log('Initializing Pluto Reading Time Estimator...');
-        
-        // Perform initial calculation
-        updater.scheduleGlobalUpdate();
-        
-        // Set up DOM monitoring
-        observer.setupDOMObservers();
-        
-        //console.log('Reading time estimator initialized successfully');
-    }
-    
-    // Cleanup function for when cell is re-evaluated
-    function cleanup() {
-        //console.log('Cleaning up reading time estimator instance...');
+	    globalState.instances.add(instance);
+	    // Initialize the system
+	    function initialize() {
+	        // console.log('Initializing Pluto Reading Time Estimator...');
+	        
+	        // Perform initial calculation
+	        updater.scheduleGlobalUpdate();
+	        
+	        // Set up DOM monitoring
+	        observer.setupDOMObservers();
+	        
+	        // console.log('Reading time estimator initialized successfully');
+	    }
+	    
+	    // Cleanup function for when cell is re-evaluated
+	    function cleanup() {
+	        // Remove this instance from global state
+	        const remainingInstances = [...globalState.instances].filter(inst => inst.id !== instanceId);
+	        globalState.instances = new Set(remainingInstances);
+	        
+	        // If no instances remain, clean up global resources
+	        if (globalState.instances.size === 0) {
+	            if (globalState.updateTimeout) {
+	                clearTimeout(globalState.updateTimeout);
+	                globalState.updateTimeout = null;
+	            }
+	            
+	            globalState.observers.forEach(obs => {
+	                try {
+	                    obs.disconnect();
+	                } catch (error) {
+	                    console.warn('Error disconnecting observer:', error);
+	                }
+	            });
+	            
+	            globalState.observers.clear();
+	            globalState.contentCache = new WeakMap();
+	            globalState.notebookCache = null;
+	            globalState.isUpdating = false;
+	            
+	            // console.log('Global cleanup completed');
+	        }
+	    }
+	    
+	    // Set up cleanup for when this cell is re-evaluated
+	    if (typeof invalidation !== 'undefined') {
+	        invalidation.then(cleanup);
+	    } else {
+	        // Fallback cleanup registration
+	        window.addEventListener('beforeunload', cleanup);
+	    }
+	    
+	    // Initialize the component
+		initialize();
+	})();
 
-        // Remove this instance from global state
-        const remainingInstances = [...globalState.instances].filter(inst => inst.id !== instanceId);
-        globalState.instances = new Set(remainingInstances);
-        
-        // If no instances remain, clean up global resources
-        if (globalState.instances.size === 0) {
-            //console.log('Last instance removed, cleaning up global resources...');
-            
-            if (globalState.updateTimeout) {
-                clearTimeout(globalState.updateTimeout);
-                globalState.updateTimeout = null;
-            }
-            
-            globalState.observers.forEach(obs => {
-                try {
-                    obs.disconnect();
-                } catch (error) {
-                    console.warn('Error disconnecting observer:', error);
-                }
-            });
-            
-            globalState.observers.clear();
-            globalState.contentCache = new WeakMap();
-            globalState.notebookCache = null;
-            globalState.isUpdating = false;
-            
-            //console.log('Global cleanup completed');
-        }
-    }
-    
-    // Set up cleanup for when this cell is re-evaluated
-    if (typeof invalidation !== 'undefined') {
-        invalidation.then(cleanup);
-    } else {
-        // Fallback cleanup registration
-        window.addEventListener('beforeunload', cleanup);
-    }
-    
-    // Initialize the component
-    initialize();
-})();
-
-return readingTimeNode
+	return readingTimeNode
 </script>
 """)
 
-# ╔═╡ 48e6d4fc-62f1-4842-a7b9-a0799712af63
-function reading_time(; wpm::Int=200, position::Symbol=:top, style::Symbol=:minimal) 
-	
-	allowed_positions = [:top, :floating]
-	
-	if position ∉ allowed_positions
-		throw(ArgumentError("Please select a position from the list of allowed positions :$allowed_positions. Got: `$position`
-							"))
-		
-	end
+# ╔═╡ 47803bec-eca2-4c76-b1d4-c8951ee4ccda
+begin
+	local result = begin
+	struct ReadingTimeEstimator
+    wpm::Int
+    position::Symbol
+    style::Symbol
 
-	allowed_styles = [:minimal, :detailed]
-	if style ∉ allowed_styles
-		throw(ArgumentError("Please select a style from the list of allowed positions :$allowed_styles. Got: `$style`"))
+	function ReadingTimeEstimator(; wpm::Int=200, position::Symbol=:top, style::Symbol=:minimal) 
+	
+		allowed_positions = [:top, :floating]
+		
+		if position ∉ allowed_positions
+			throw(ArgumentError("Please select a position from the list of allowed positions :$allowed_positions. Got: `$position`
+								"))
+			
+		end
+	
+		allowed_styles = [:minimal, :detailed]
+		if style ∉ allowed_styles
+			throw(ArgumentError("Please select a style from the list of allowed positions :$allowed_styles. Got: `$style`"))
+		end
+		
+	    new(wpm, position, style)
+	end
+	end
+	@doc """
+	Add a reading time estimate to your Pluto notebook based on markdown content.
+	
+	# Arguments
+	- `wpm::Int=200`: Words per minute reading speed (typical range: 150-300)
+	- `position::Symbol=:top`: Where to display (`:top` or `:floating`)
+	- `style::Symbol=:minimal`: Display style (`:minimal` or `:detailed`)
+	
+	# Examples
+	```julia
+	reading_time()  # Simple "📖 5 min read"
+	
+	reading_time(wpm=250, style=:detailed)  # "📖 Reading time: 4 minutes (850 words at 250 wpm)"
+	
+	reading_time(position=:floating)  # Floating in corner
+	```
+	"""
+
+
+	end
+	function Base.show(io::IO, m::MIME"text/html", estimator::ReadingTimeEstimator)
+		Base.show(io, m, @htl("$(reading_time_js(estimator))$(reading_time_css)"))
 	end
 	
-    estimator = ReadingTimeEstimator(wpm, position, style)
-    return @htl("$(reading_time_js(estimator))")
+
+	result 
 end
+
+# ╔═╡ 7ecea127-265b-4eac-8fa0-e25e344d7e2b
+ReadingTimeEstimator()
 
 # ╔═╡ 89131e87-bd73-4cfa-a93c-2d45a46cd389
 md"""
 Nam vitae augue viverra, ullamcorper purus quis, egestas eros. Mauris congue ultrices interdum. Proin ut dictum odio, a blandit mi. Nullam porttitor odio eget mi porttitor dapibus. Ut in lacus nec eros tristique pellentesque. Curabitur quis quam sagittis quam tempus interdum et ut eros. Fusce non suscipit dui. Duis blandit turpis est, sit amet dictum quam luctus et. Praesent tempor, ex quis blandit consectetur, nisl nisl tincidunt lorem, ac molestie dolor nisi eget diam. Sed mollis, ligula id gravida gravida, sapien ante gravida quam, eu fermentum leo velit et magna. Mauris rutrum molestie sem sit amet finibus. 
 """
+
+# ╔═╡ 1873d61f-a021-4919-9542-d91e019f9b59
+export ReadingTimeEstimator
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -983,8 +977,9 @@ version = "0.1.12"
 # ╠═412b6d60-cbe6-4018-86eb-1c0825b08449
 # ╠═42c312db-e6c0-498f-87e4-4e099cee99c4
 # ╠═59cf7340-8274-450a-b47b-2753a772602b
-# ╠═6cd94790-0f9d-4c3b-9a73-edd4d2a292da
-# ╠═e24ebd7e-9caf-47a6-836d-b4e7ac56fd2b
+# ╠═a2a3b8c6-2b45-4ab1-a631-1cb2cb9718b5
+# ╠═7ecea127-265b-4eac-8fa0-e25e344d7e2b
 # ╠═89131e87-bd73-4cfa-a93c-2d45a46cd389
+# ╠═1873d61f-a021-4919-9542-d91e019f9b59
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
