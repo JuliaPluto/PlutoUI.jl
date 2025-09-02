@@ -42,6 +42,11 @@ end # ? second
 @reexport module ConfirmNotebook
     include("./Confirm.jl")
 end # 0 second
+
+@reexport module ReadingTimeNotebook
+    include("./ReadingTime.jl")
+end # ? second
+
 module CombineNotebook
     include("./Combine.jl")
 end # 0.06 second
