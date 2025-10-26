@@ -300,7 +300,10 @@ begin
 			color: black;
 			padding: 0em .2em;
 			border-radius: .3em;
-			font-weight: bold;">$(s.default)</span>
+			font-weight: bold;
+			font-family: system-ui, sans-serif;
+    		font-variant-numeric: tabular-nums;
+			">$(s.default)</span>
 			`
 
 

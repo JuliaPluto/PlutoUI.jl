@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.41
+# v0.20.15
 
 using Markdown
 using InteractiveUtils
@@ -110,7 +110,7 @@ const getHeaders = () => {
 	].join(",")
 	return Array.from(document.querySelectorAll(selector)).filter(el => 
 		// exclude headers inside of a pluto-docs-binding block
-		!(el.nodeName.startsWith("H") && el.closest(".pluto-docs-binding"))
+		!(el.nodeName.startsWith("H") && el.closest(".pluto-docs-binding")) && !el.classList.contains("no-toc")
 	)
 }
 
@@ -189,11 +189,19 @@ const render = (elements) => {
 
 		let [className, title_el] = h.matches(`.pluto-docs-binding`) ? ["pluto-docs-binding-el", h.firstElementChild] : [h.nodeName, h]
 
+	const id = title_el.matches("assignee") ?
+		title_el.innerText.replace(/^const /, "") :
+		title_el.id ?
+		title_el.id :
+		parent_cell.id
+	
+	const inner_html = title_el.innerHTML
+		
 	const a = html`<a 
 		class="\${className}" 
 		title="\${title_el.innerText}"
-		href="#\${parent_cell.id}"
-	>\${title_el.innerHTML}</a>`
+		href="#\${id}"
+	>\${inner_html}</a>`
 	/* a.onmouseover=()=>{
 		parent_cell.firstElementChild.classList.add(
 			'highlight-pluto-cell-shoulder'
@@ -208,6 +216,7 @@ const render = (elements) => {
 		
 	a.onclick=(e) => {
 		e.preventDefault();
+		history.replaceState(null, null, a.href)
 		last_toc_element_click_time.current = Date.now()
 		scrollIntoView(h, {
 			behavior: 'smooth', 
@@ -221,6 +230,18 @@ const render = (elements) => {
 			})
 	   )
 	}
+	   
+	// Remove any `id` attributes recursively, because they may interfere with linking-to-id using `#`
+	const removeIdAttributes = (el) => {
+		if (el && el.nodeType === 1) { // Element node
+			if (el.hasAttribute?.("id")) el.removeAttribute?.("id")
+			el.childNodes.forEach(removeIdAttributes)
+		}
+	}
+	removeIdAttributes(a)
+
+	// Remove Click-To-Copy-Header-ID feature
+	a.querySelectorAll("pluto-header-id-copy-wrapper").forEach(el => el.remove())
 
 	const row =  html`<div class="toc-row \${className} after-\${last_level}">\${a}</div>`
 		intersection_observer_1.observe(title_el)
@@ -278,8 +299,11 @@ const bodyClassObserver = new MutationObserver(updateCallback)
 bodyClassObserver.observe(document.body, {attributeFilter: ["class"]})
 
 // Hide/show the ToC when the screen gets small
-let match_listener = () => 
-	tocNode.classList.toggle("hide", (tocNode.closest("pluto-editor") ?? document.body).scrollWidth < 1000)
+let match_listener = () => {
+	const small = (tocNode.closest("pluto-editor") ?? document.body).scrollWidth < 1000
+	tocNode.classList.toggle("smallscreen", small)
+	tocNode.classList.toggle("hide", small)
+}
 for(let s of [1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]) {
 	let m = matchMedia(`(max-width: \${s}px)`)
 	m.addListener(match_listener)
@@ -374,7 +398,6 @@ const toc_css = @htl """
 	padding-top: 0em;
 	/* border: 3px solid rgba(0, 0, 0, 0.15); */
 	border-radius: 10px;
-	/* box-shadow: 0 0 11px 0px #00000010; */
 	max-height: calc(100vh - 5rem - 90px);
 	overflow: auto;
 	z-index: 40;
@@ -382,8 +405,13 @@ const toc_css = @htl """
 	transition: transform 300ms cubic-bezier(0.18, 0.89, 0.45, 1.12);
 }
 
+.plutoui-toc.smallscreen:not(.hide) {
+	box-shadow: 0 0 11px 0px #00000010;
+}
+
 .plutoui-toc.aside.hide {
 	transform: translateX(calc(100% - 28px));
+	color: transparent;
 }
 .plutoui-toc.aside.hide section {
 	display: none;
