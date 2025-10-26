@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.20
 
 using Markdown
 using InteractiveUtils
@@ -439,11 +439,11 @@ end
 
 # ╔═╡ bb2d8230-ec07-4c61-9013-b0261e612541
 floatasidetxt=md"""
-`floataside(stuff; top=1 )` allows to place material on the right plane.
+`floataside(stuff; top=1 )` allows to place material on the right pane such that it is always visible, very much like with `TableOfContents(aside=true)`.
 There are two interesting patterns how this can be used:
 - Put interactive material into the main pane and show the results in a floating aside box
-- Have interactivre control in the floating aside box and show the results in the main pane	
-	"""
+- Have interactive control (PlutoUI widgets) in the floating aside box and show the results in the main pane	
+"""
 
 # ╔═╡ cc4244b7-a91b-485b-9593-c654066e3bb8
 begin
@@ -451,40 +451,32 @@ begin
         uuid = uuid1()
         @htl("""
        		<style>
-
-
        		@media (min-width: calc(700px + 30px + 300px)) {
        			aside.plutoui-aside-wrapper-$(uuid) {
-
-       	color: var(--pluto-output-color);
-       	position:fixed;
-       	right: 1rem;
-       	top: $(top)px;
-       	width: 400px;
-       	padding: 10px;
-       	border: 3px solid rgba(0, 0, 0, 0.15);
-       	border-radius: 10px;
-       	box-shadow: 0 0 11px 0px #00000010;
-       	/* That is, viewport minus top minus Live Docs */
-       	max-height: calc(100vh - 5rem - 56px);
-       	overflow: auto;
-       	z-index: 40;
-       	background-color: var(--main-bg-color);
-       	transition: transform 300ms cubic-bezier(0.18, 0.89, 0.45, 1.12);
-
-       			}
-       			aside.plutoui-aside-wrapper > div {
-       #				width: 300px;
-       			}
+			       	color: var(--pluto-output-color);
+       				position:fixed;
+       				right: 1rem;
+       				top: $(top)px;
+       				width: 400px;
+       				padding: 10px;
+       				border: 3px solid rgba(0, 0, 0, 0.15);
+       				border-radius: 10px;
+       				box-shadow: 0 0 11px 0px #00000010;
+       				/* That is, viewport minus top minus Live Docs */
+       				max-height: calc(100vh - 5rem - 56px);
+       				overflow: auto;
+       				z-index: 40;
+       				background-color: var(--main-bg-color);
+       				transition: transform 300ms cubic-bezier(0.18, 0.89, 0.45, 1.12);
+					}
+       			aside.plutoui-aside-wrapper > div {}
        		}
        		</style>
-
        		<aside class="plutoui-aside-wrapper-$(uuid)">
        		<div>
        		$(text)
        		</div>
        		</aside>
-
        		""")
     end
     floataside(stuff; kwargs...) = floataside(md"""$(stuff)"""; kwargs...)
@@ -635,7 +627,7 @@ aside(embed_display(p))
 
 # ╔═╡ e06f3b17-a831-469d-905a-57a2a929a063
 #=╠═╡
-floataside(embed_display(p), top=400)
+floataside(embed_display(p), top=420)
   ╠═╡ =#
 
 # ╔═╡ Cell order:
@@ -698,7 +690,7 @@ floataside(embed_display(p), top=400)
 # ╠═d24dfd97-5100-45f4-be12-ad30f98cc519
 # ╠═18cc9fbe-a37a-11eb-082b-e99673bd677d
 # ╠═636c641b-2de5-49ad-b2a8-e5ba38c325e4
-# ╠═bb2d8230-ec07-4c61-9013-b0261e612541
+# ╟─bb2d8230-ec07-4c61-9013-b0261e612541
 # ╠═e06f3b17-a831-469d-905a-57a2a929a063
 # ╠═cc4244b7-a91b-485b-9593-c654066e3bb8
 # ╠═9a166646-75c2-4711-9fad-665b01731759
