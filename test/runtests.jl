@@ -179,6 +179,8 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == true
     el = Toggle(default = true)
     @test default(el) == true
+    # test that it can render
+    hr(Toggle())
 
     el = Clock(2.0, max_value = 123)
     @test default(el) == 1

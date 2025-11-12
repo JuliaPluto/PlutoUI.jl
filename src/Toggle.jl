@@ -16,50 +16,44 @@ begin
 	Toggle(;default::Bool=false) = Toggle(default)
 	
 	function Base.show(io::IO, ::MIME"text/html", button::Toggle)
-		print(io, """
-			  
-				<input type="checkbox" $(button.default ? "checked" : "") class=pui-toggle>
+		print(io, """<input type="checkbox" $(button.default ? "checked" : "") class=pui-toggle><style>
+		.pui-toggle {
+			--width: 2.2em;
+			--height: 1em;
+			font-size: inherit;
+			appearance: none;
+			width: var(--width);
+			height: var(--height);
+			margin: 0;
+			background: #ccc;
+			border-radius: calc(var(--height) / 2);
+			position: relative;
+			cursor: pointer;
+			transition: background 0.3s;
+			vertical-align: -.1em;
+		}
+		.pui-toggle:checked {
+			background: #4caf50;
+		}
+		.pui-toggle::before {
+			content: "";
+			position: absolute;
+			--inset: .2em;
+			top: var(--inset);
+			left: var(--inset);
 
-			  <style>
-				.pui-toggle {
-			      --width: 2.2em;
-			  	  --height: 1em;
-			  	  font-size: inherit;
-				  appearance: none;
-				  width: var(--width);
-				  height: var(--height);
-			  	  margin: 0;
-				  background: #ccc;
-				  border-radius: calc(var(--height) / 2);
-				  position: relative;
-				  cursor: pointer;
-				  transition: background 0.3s;
-			      vertical-align: -.1em;
-				}
-				.pui-toggle:checked {
-				  background: #4caf50;
-				}
-				.pui-toggle::before {
-				  content: "";
-				  position: absolute;
-			  	  --inset: .2em;
-				  top: var(--inset);
-				  left: var(--inset);
-			      
-				  width: calc(var(--height) - var(--inset) - var(--inset));
-				  height: calc(var(--height) - var(--inset) - var(--inset));
-				  background: white;
-				  border-radius: 50%;
-				  transition: transform 0.3s;
-				}
-				.pui-toggle:checked::before {
-				  transform: translateX(calc(var(--width) - var(--height)));
-				}
-				</style>
-			  """)
+			width: calc(var(--height) - var(--inset) - var(--inset));
+			height: calc(var(--height) - var(--inset) - var(--inset));
+			background: white;
+			border-radius: 50%;
+			transition: transform 0.3s;
+		}
+		.pui-toggle:checked::before {
+			transform: translateX(calc(var(--width) - var(--height)));
+		}
+		</style>""")
 	end
 	
-	Base.get(checkbox::Toggle) = checkbox.default
 	Bonds.initial_value(b::Toggle) = b.default
 	Bonds.possible_values(b::Toggle) = [false, true]
 	function Bonds.validate_value(b::Toggle, val)
@@ -116,18 +110,7 @@ toggle
 # ╔═╡ 4af02c27-4707-4618-9676-02897ea53ae0
 # ╠═╡ skip_as_script = true
 #=╠═╡
-md"""
-It's implemented using a `<input type=checkbox>` with CSS, that's super good!! That means that a lot of web features like `<label>`, input events, keyboard accessibility etc all work automatically.
 
-I used a class `pui-toggle` instead of just `toggle` to avoid conflicts with other components that people might import.
-
-The AbstractPlutoDingetjes code is all correct 👍
-
-For keyboard accessiblity (tab navigation), we should show an outline when the element is focused. This is there by default, but overridden using `outline: none;`. The solution was to just remove `outline: none`.
-
-I made the checkbox a bit smaller by default (about 1 line height), and I made the size dependent on the font size. So if you embed the checkbox in a header, it will be bigger. I did this by using the CSS unit `em` instead of `px`, and using `calc` to calculate relative sizes. I made some more checkboxes inside markdown to test it.
-
-"""
   ╠═╡ =#
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
