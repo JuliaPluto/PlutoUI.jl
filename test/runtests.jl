@@ -172,15 +172,15 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = CheckBox(default = true)
     @test default(el) == true
 
-    # Toggle UI Element
-    el = Toggle()
+    # Switch UI Element
+    el = Switch()
     @test default(el) == false
-    el = Toggle(true)
+    el = Switch(true)
     @test default(el) == true
-    el = Toggle(default = true)
+    el = Switch(default = true)
     @test default(el) == true
     # test that it can render
-    hr(Toggle())
+    hr(Switch())
 
     el = Clock(2.0, max_value = 123)
     @test default(el) == 1
