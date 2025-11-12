@@ -1,8 +1,19 @@
 ### A Pluto.jl notebook ###
-# v0.20.17
+# v0.20.20
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ 304b8b51-986a-4125-b3b1-acb38d3f90b5
+# ╠═╡ skip_as_script = true
+#=╠═╡
+begin
+	import Pkg
+	Pkg.activate(Base.current_project(@__DIR__))
+	Pkg.instantiate()
+	Text("Project env active")
+end
+  ╠═╡ =#
 
 # ╔═╡ 97bd5888-08fe-4498-b48e-dd4db0a2f590
 begin
@@ -837,54 +848,55 @@ window.PlutoReadingTimeObserver = {
 # ╔═╡ 47803bec-eca2-4c76-b1d4-c8951ee4ccda
 begin
 	local result = begin
-	struct ReadingTimeEstimator
-    wpm::Int
-    position::Symbol
-    style::Symbol
-
-	function ReadingTimeEstimator(; wpm::Int=200, position::Symbol=:top, style::Symbol=:minimal) 
-	
-		allowed_positions = [:top, :floating]
 		
-		if position ∉ allowed_positions
-			throw(ArgumentError("Please select a position from the list of allowed positions :$allowed_positions. Got: `$position`
-								"))
+		struct ReadingTimeEstimator
+		    wpm::Int
+		    position::Symbol
+		    style::Symbol
 			
+			function ReadingTimeEstimator(; wpm::Int=200, position::Symbol=:top, style::Symbol=:minimal) 
+			
+				allowed_positions = [:top, :floating]
+				
+				if position ∉ allowed_positions
+					throw(ArgumentError("Please select a position from the list of allowed positions :$allowed_positions. Got: `$position`
+										"))
+					
+				end
+			
+				allowed_styles = [:minimal, :detailed]
+				if style ∉ allowed_styles
+					throw(ArgumentError("Please select a style from the list of allowed positions :$allowed_styles. Got: `$style`"))
+				end
+				
+				new(wpm, position, style)
+			end
 		end
-	
-		allowed_styles = [:minimal, :detailed]
-		if style ∉ allowed_styles
-			throw(ArgumentError("Please select a style from the list of allowed positions :$allowed_styles. Got: `$style`"))
-		end
+
+		@doc """
+		Add a reading time estimate to your Pluto notebook based on markdown content.
 		
-	    new(wpm, position, style)
+		# Arguments
+		- `wpm::Int=200`: Words per minute reading speed (typical range: 150-300)
+		- `position::Symbol=:top`: Where to display (`:top` or `:floating`)
+		- `style::Symbol=:minimal`: Display style (`:minimal` or `:detailed`)
+		
+		# Examples
+		```julia
+		reading_time()  # Simple "📖 5 min read"
+		
+		reading_time(wpm=250, style=:detailed)  # "📖 Reading time: 4 minutes (850 words at 250 wpm)"
+		
+		reading_time(position=:floating)  # Floating in corner
+		```
+		"""
+		ReadingTimeEstimator
 	end
-	end
-	@doc """
-	Add a reading time estimate to your Pluto notebook based on markdown content.
 	
-	# Arguments
-	- `wpm::Int=200`: Words per minute reading speed (typical range: 150-300)
-	- `position::Symbol=:top`: Where to display (`:top` or `:floating`)
-	- `style::Symbol=:minimal`: Display style (`:minimal` or `:detailed`)
-	
-	# Examples
-	```julia
-	reading_time()  # Simple "📖 5 min read"
-	
-	reading_time(wpm=250, style=:detailed)  # "📖 Reading time: 4 minutes (850 words at 250 wpm)"
-	
-	reading_time(position=:floating)  # Floating in corner
-	```
-	"""
-
-
-	end
 	function Base.show(io::IO, m::MIME"text/html", estimator::ReadingTimeEstimator)
 		Base.show(io, m, @htl("$(reading_time_js(estimator))$(reading_time_css)"))
 	end
 	
-
 	result 
 end
 
@@ -899,46 +911,8 @@ Nam vitae augue viverra, ullamcorper purus quis, egestas eros. Mauris congue ult
 # ╔═╡ 1873d61f-a021-4919-9542-d91e019f9b59
 export ReadingTimeEstimator
 
-# ╔═╡ 00000000-0000-0000-0000-000000000001
-PLUTO_PROJECT_TOML_CONTENTS = """
-[deps]
-HypertextLiteral = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
-
-[compat]
-HypertextLiteral = "~0.9.5"
-"""
-
-# ╔═╡ 00000000-0000-0000-0000-000000000002
-PLUTO_MANIFEST_TOML_CONTENTS = """
-# This file is machine-generated - editing it directly is not advised
-
-julia_version = "1.11.6"
-manifest_format = "2.0"
-project_hash = "7cfac8617422d64721b91bd687def76a3688061f"
-
-[[deps.Base64]]
-uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
-version = "1.11.0"
-
-[[deps.HypertextLiteral]]
-deps = ["Tricks"]
-git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
-uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
-version = "0.9.5"
-
-[[deps.Markdown]]
-deps = ["Base64"]
-uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
-version = "1.11.0"
-
-[[deps.Tricks]]
-git-tree-sha1 = "372b90fe551c019541fafc6ff034199dc19c8436"
-uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
-version = "0.1.12"
-"""
-
 # ╔═╡ Cell order:
+# ╠═304b8b51-986a-4125-b3b1-acb38d3f90b5
 # ╠═97bd5888-08fe-4498-b48e-dd4db0a2f590
 # ╠═47803bec-eca2-4c76-b1d4-c8951ee4ccda
 # ╠═b7afb360-f1ec-4eb4-8bd8-e82d71ad5171
@@ -946,5 +920,3 @@ version = "0.1.12"
 # ╠═7ecea127-265b-4eac-8fa0-e25e344d7e2b
 # ╠═89131e87-bd73-4cfa-a93c-2d45a46cd389
 # ╠═1873d61f-a021-4919-9542-d91e019f9b59
-# ╟─00000000-0000-0000-0000-000000000001
-# ╟─00000000-0000-0000-0000-000000000002
