@@ -172,6 +172,14 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = CheckBox(default = true)
     @test default(el) == true
 
+    # Toggle UI Element
+    el = Toggle()
+    @test default(el) == false
+    el = Toggle(true)
+    @test default(el) == true
+    el = Toggle(default = true)
+    @test default(el) == true
+
     el = Clock(2.0, max_value = 123)
     @test default(el) == 1
     Clock(3.0)
@@ -311,7 +319,6 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == sin
     el = Slider([sin, cos, tan]; default = tan)
     @test default(el) == tan
-
 
 
     # Downsampling Slider ranges
@@ -517,4 +524,5 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     NotebookCard("https://plutojl.org/en/docs/expressionexplorer/") |> hr
     NotebookCard("https://plutojl.org/en/docs/ExpressionExplorer/index.html"; link_text="asdfasdf" ) |> hr
     NotebookCard("https://featured.plutojl.org/basic/basic%20mathematics"; link_text="Yes I want pizzaaa") |> hr
+    
 end
