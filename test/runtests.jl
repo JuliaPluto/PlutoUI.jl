@@ -517,4 +517,7 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     NotebookCard("https://plutojl.org/en/docs/expressionexplorer/") |> hr
     NotebookCard("https://plutojl.org/en/docs/ExpressionExplorer/index.html"; link_text="asdfasdf" ) |> hr
     NotebookCard("https://featured.plutojl.org/basic/basic%20mathematics"; link_text="Yes I want pizzaaa") |> hr
+    
+    ReadingTimeEstimator() |> hr
+    ReadingTimeEstimator(wpm=2, position=:floating, style=:detailed) |> hr
 end
