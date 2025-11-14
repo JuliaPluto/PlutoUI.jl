@@ -42,6 +42,9 @@ end # ? second
 @reexport module ConfirmNotebook
     include("./Confirm.jl")
 end # 0 second
+@reexport module MicrophoneNotebook
+    include("./Microphone.jl")
+end # ? second
 module CombineNotebook
     include("./Combine.jl")
 end # 0.06 second
