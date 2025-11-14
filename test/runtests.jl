@@ -172,6 +172,16 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = CheckBox(default = true)
     @test default(el) == true
 
+    # Switch UI Element
+    el = Switch()
+    @test default(el) == false
+    el = Switch(true)
+    @test default(el) == true
+    el = Switch(default = true)
+    @test default(el) == true
+    # test that it can render
+    hr(Switch())
+
     el = Clock(2.0, max_value = 123)
     @test default(el) == 1
     Clock(3.0)
@@ -311,7 +321,6 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     @test default(el) == sin
     el = Slider([sin, cos, tan]; default = tan)
     @test default(el) == tan
-
 
 
     # Downsampling Slider ranges

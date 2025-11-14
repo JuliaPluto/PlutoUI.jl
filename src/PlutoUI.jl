@@ -50,6 +50,9 @@ end # ? second
 module CombineNotebook
     include("./Combine.jl")
 end # 0.06 second
+@reexport module ToggleNotebook
+    include("./Switch.jl")
+end
 # not exporting to avoid clash with DataFrames.combine
 const combine = CombineNotebook.combine
 
