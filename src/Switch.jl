@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.20
+# v0.20.21
 
 using Markdown
 using InteractiveUtils
@@ -51,7 +51,7 @@ begin
 			width: var(--width);
 			height: var(--height);
 			margin: 0;
-			background: #ccc;
+			background: #707070;
 			border-radius: calc(var(--height) / 2);
 			position: relative;
 			cursor: pointer;
