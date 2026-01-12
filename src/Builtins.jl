@@ -254,7 +254,7 @@ HTML(repr(MIME"text/html"(), Slider([sin, cos])))
 # ╔═╡ f59eef32-4732-46db-87b0-3564433ce43e
 begin
 	local result = begin
-	"""A box where you can type in a number, within a specific range.
+	"""A box where you can type in a number, optionally within a specific range.
 
 	## Examples
 	`@bind x NumberField(1:10)`
@@ -263,9 +263,15 @@ begin
 
 	`@bind x NumberField(1:10; default=8)`
 
+	Without a predefined range:
+	
+	`@bind x NumberField()`
+	
+	`@bind x NumberField(default=37)`
+
 	"""
 	struct NumberField
-		range::AbstractRange
+		range::Union{AbstractRange, Nothing}
 		default::Number
 	end
 	end
@@ -275,22 +281,42 @@ begin
 		d ∈ range ? convert(T, d) : closest(range, d)
 	end)
 	
+	# Constructor without range
+	NumberField(; default::Number=0) = NumberField(nothing, default)
+	
 	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
-		show(io, m, @htl("""<input $((
-				type="number",
-				min=first(numberfield.range),
-				step=step(numberfield.range),
-				max=last(numberfield.range),
-				value=numberfield.default
-			))>"""))
+		if numberfield.range === nothing
+			show(io, m, @htl("""<input $((
+					type="number",
+					value=numberfield.default
+				))>"""))
+		else
+			show(io, m, @htl("""<input $((
+					type="number",
+					min=first(numberfield.range),
+					step=step(numberfield.range),
+					max=last(numberfield.range),
+					value=numberfield.default
+				))>"""))
+		end
 	end
 	
 	Base.get(numberfield::NumberField) = numberfield.default
 	Bonds.initial_value(nf::NumberField) = nf.default
-	Bonds.possible_values(nf::NumberField) = nf.range
-	Bonds.transform_value(nf::NumberField, val) = Base.convert(eltype(nf.range), val)
+	Bonds.possible_values(nf::NumberField) = nf.range === nothing ? Bonds.InfinitePossibilities() : nf.range
+	function Bonds.transform_value(nf::NumberField, val) 
+		if nf.range === nothing
+			val
+		else
+			Base.convert(eltype(nf.range), val)
+		end
+	end
 	function Bonds.validate_value(nf::NumberField, val)
-		val isa Real && (minimum(nf.range) - 0.0001 <= val <= maximum(nf.range) + 0.0001)
+		if nf.range === nothing
+			val isa Real
+		else
+			val isa Real && (minimum(nf.range) - 0.0001 <= val <= maximum(nf.range) + 0.0001)
+		end
 	end
 
 	result

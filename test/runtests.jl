@@ -387,6 +387,26 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = NumberField(0.0:π:20; default = π)
     @test default(el) == Float64(π) # should have been converted to Float64 because our range has been
 
+    # NumberField without predefined range
+    el = NumberField()
+    @test default(el) == 0
+    @test el.range === nothing
+    el = NumberField(default=37)
+    @test default(el) == 37
+    @test el.range === nothing
+    el = NumberField(default=3.14)
+    @test default(el) == 3.14
+    @test el.range === nothing
+    # Test that rendering works for range-less NumberField
+    @test occursin("type", hr(NumberField()))
+    @test occursin("number", hr(NumberField()))
+    @test occursin("37", hr(NumberField(default=37)))
+    # Test validate_value for range-less NumberField
+    @test AbstractPlutoDingetjes.Bonds.validate_value(NumberField(), 42)
+    @test AbstractPlutoDingetjes.Bonds.validate_value(NumberField(), 3.14)
+    @test !AbstractPlutoDingetjes.Bonds.validate_value(NumberField(), "not a number")
+    # Test possible_values for range-less NumberField
+    @test AbstractPlutoDingetjes.Bonds.possible_values(NumberField()) isa AbstractPlutoDingetjes.Bonds.InfinitePossibilities
 
     el = TextField()
     @test default(el) == ""
