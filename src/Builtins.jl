@@ -215,6 +215,7 @@ begin
 					})
 					</script><output style='
 						font-family: system-ui;
+						font-variant-numeric: tabular-nums;
     					font-size: 15px;
     					margin-left: 3px;
     					transform: translateY(-4px);
