@@ -282,7 +282,7 @@ begin
 	end)
 	
 	# Constructor without range
-	NumberField(; default::Number=0) = NumberField(nothing, default)
+	NumberField(; default::Number=NaN) = NumberField(nothing, default)
 	
 	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
 		if numberfield.range === nothing
