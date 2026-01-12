@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.21
 
 using Markdown
 using InteractiveUtils
@@ -254,7 +254,7 @@ HTML(repr(MIME"text/html"(), Slider([sin, cos])))
 # ╔═╡ f59eef32-4732-46db-87b0-3564433ce43e
 begin
 	local result = begin
-	"""A box where you can type in a number, within a specific range.
+	"""A box where you can type in a number, optionally within a specific range.
 
 	## Examples
 	`@bind x NumberField(1:10)`
@@ -263,9 +263,15 @@ begin
 
 	`@bind x NumberField(1:10; default=8)`
 
+	Without a predefined range:
+	
+	`@bind x NumberField()`
+	
+	`@bind x NumberField(default=37)`
+
 	"""
 	struct NumberField
-		range::AbstractRange
+		range::Union{AbstractRange, Nothing}
 		default::Number
 	end
 	end
@@ -275,22 +281,42 @@ begin
 		d ∈ range ? convert(T, d) : closest(range, d)
 	end)
 	
+	# Constructor without range
+	NumberField(; default::Number=NaN) = NumberField(nothing, default)
+	
 	function Base.show(io::IO, m::MIME"text/html", numberfield::NumberField)
-		show(io, m, @htl("""<input $((
-				type="number",
-				min=first(numberfield.range),
-				step=step(numberfield.range),
-				max=last(numberfield.range),
-				value=numberfield.default
-			))>"""))
+		if numberfield.range === nothing
+			show(io, m, @htl("""<input $((
+					type="number",
+					value=numberfield.default
+				))>"""))
+		else
+			show(io, m, @htl("""<input $((
+					type="number",
+					min=first(numberfield.range),
+					step=step(numberfield.range),
+					max=last(numberfield.range),
+					value=numberfield.default
+				))>"""))
+		end
 	end
 	
 	Base.get(numberfield::NumberField) = numberfield.default
 	Bonds.initial_value(nf::NumberField) = nf.default
-	Bonds.possible_values(nf::NumberField) = nf.range
-	Bonds.transform_value(nf::NumberField, val) = Base.convert(eltype(nf.range), val)
+	Bonds.possible_values(nf::NumberField) = nf.range === nothing ? Bonds.InfinitePossibilities() : nf.range
+	function Bonds.transform_value(nf::NumberField, val) 
+		if nf.range === nothing
+			val
+		else
+			Base.convert(eltype(nf.range), val)
+		end
+	end
 	function Bonds.validate_value(nf::NumberField, val)
-		val isa Real && (minimum(nf.range) - 0.0001 <= val <= maximum(nf.range) + 0.0001)
+		if nf.range === nothing
+			val isa Real
+		else
+			val isa Real && (minimum(nf.range) - 0.0001 <= val <= maximum(nf.range) + 0.0001)
+		end
 	end
 
 	result
@@ -1588,6 +1614,17 @@ nf2b
 nf2
   ╠═╡ =#
 
+# ╔═╡ c517a6a4-2d6a-4a78-9a00-56c30b8d989e
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind nf3 NumberField()
+  ╠═╡ =#
+
+# ╔═╡ 6c22da2a-b95b-454a-9957-033dd6295818
+#=╠═╡
+nf3
+  ╠═╡ =#
+
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
 #=╠═╡
 @bind b1 Button(teststr)
@@ -2093,6 +2130,8 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═c32f42ee-0e7f-4648-99f7-21eff7b45cec
 # ╠═efc0d77c-93d5-4634-9c0b-aa16d00ec007
 # ╠═89e05f4b-c720-4ca5-a7fe-ceee0bcef9d9
+# ╠═c517a6a4-2d6a-4a78-9a00-56c30b8d989e
+# ╠═6c22da2a-b95b-454a-9957-033dd6295818
 # ╟─b7c21c22-17f5-44b8-98de-a261d5c7192b
 # ╠═7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
 # ╠═c6d68308-53e7-4c60-8649-8f0161f28d70

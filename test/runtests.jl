@@ -387,6 +387,12 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = NumberField(0.0:π:20; default = π)
     @test default(el) == Float64(π) # should have been converted to Float64 because our range has been
 
+    # NumberField without predefined range
+    el = NumberField()
+    @test isnan(AbstractPlutoDingetjes.Bonds.initial_value(el))
+    @test el.range === nothing
+    el = NumberField(default=37)
+    @test default(el) == 37
 
     el = TextField()
     @test default(el) == ""
