@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.8
+# v0.20.21
 
 using Markdown
 using InteractiveUtils
@@ -1614,6 +1614,17 @@ nf2b
 nf2
   ╠═╡ =#
 
+# ╔═╡ c517a6a4-2d6a-4a78-9a00-56c30b8d989e
+# ╠═╡ skip_as_script = true
+#=╠═╡
+@bind nf3 NumberField()
+  ╠═╡ =#
+
+# ╔═╡ 6c22da2a-b95b-454a-9957-033dd6295818
+#=╠═╡
+nf3
+  ╠═╡ =#
+
 # ╔═╡ c6d68308-53e7-4c60-8649-8f0161f28d70
 #=╠═╡
 @bind b1 Button(teststr)
@@ -2119,6 +2130,8 @@ export Slider, NumberField, Button, LabelButton, CounterButton, CheckBox, TextFi
 # ╠═c32f42ee-0e7f-4648-99f7-21eff7b45cec
 # ╠═efc0d77c-93d5-4634-9c0b-aa16d00ec007
 # ╠═89e05f4b-c720-4ca5-a7fe-ceee0bcef9d9
+# ╠═c517a6a4-2d6a-4a78-9a00-56c30b8d989e
+# ╠═6c22da2a-b95b-454a-9957-033dd6295818
 # ╟─b7c21c22-17f5-44b8-98de-a261d5c7192b
 # ╠═7f8e4abf-e7e7-47bc-b1cc-514fa1af106c
 # ╠═c6d68308-53e7-4c60-8649-8f0161f28d70
