@@ -11,7 +11,7 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: "1.16.1"
-      - uses: actions/github-script@v5
+      - uses: actions/github-script@v8
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
@@ -25,7 +25,7 @@ jobs:
           import { generate_comment } from "https://cdn.jsdelivr.net/gh/fonsp/action-try-pr-test@0.1.2/generate.mjs";
           await Deno.writeTextFile("comment.txt", await generate_comment(context));
           '
-      - uses: actions/github-script@v5
+      - uses: actions/github-script@v8
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
