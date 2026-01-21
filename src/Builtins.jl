@@ -669,6 +669,14 @@ begin
 
 	f(0.5)
 	```
+	
+	If a generator is given, it is automatically turned into a vector:
+	
+	```julia
+	@bind f Select(i for i in 1:10)
+	# is equivalent to
+	@bind f Select([i for i in 1:10])
+	```
 	"""
 	struct Select
 		options::AbstractVector{Pair}
@@ -679,6 +687,8 @@ begin
 	Select(options::AbstractVector; default=missing) = Select([o => o for o in options], default)
 	
 	Select(options::AbstractVector{<:Pair}; default=missing) = Select(options, default)
+	
+	Select(options::Base.Generator; default=missing) = Select([options...]; default)
 	
 	function Base.show(io::IO, m::MIME"text/html", select::Select)
 
