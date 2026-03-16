@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.21
+# v0.20.24
 
 using Markdown
 using InteractiveUtils
@@ -71,22 +71,23 @@ function NotebookCard(notebook_url; link_text = "Read article")
 		const notebook_html_url = $(href)
 		const white_svg_uri = $white_svg_uri
 
-		const html_data = await fetch(notebook_html_url).then(r => r.text()).catch(e => "")
-		const doc = new DOMParser().parseFromString(html_data, "text/html");
-		const head = doc.head
-
-		console.log({doc, notebook_html_url})
-		const q = sel => currentScript.parentElement.querySelector(".pe-card").querySelector(sel)
-
-		q("a img").src = head.querySelector('meta[property="og:image"]')?.content ??
-			white_svg_uri
-		
-		q(".pe-about h2").innerText = (doc.title == "" ? null : doc.title) ?? 
-			new URL(notebook_html_url).pathname.split("/").map(decodeURIComponent).toReversed().find(s => s) ??
-			"Notebook"
-		
-		q(".pe-about p").innerText = head.querySelector('meta[name="description"]')?.content ?? 
-			""
+		fetch(notebook_html_url).then(r => r.text()).catch(e => "").then(html_data => {
+			const doc = new DOMParser().parseFromString(html_data, "text/html");
+			const head = doc.head
+	
+			console.log({doc, notebook_html_url})
+			const q = sel => currentScript.parentElement.querySelector(".pe-card").querySelector(sel)
+	
+			q("a img").src = head.querySelector('meta[property="og:image"]')?.content ??
+				white_svg_uri
+			
+			q(".pe-about h2").innerText = (doc.title == "" ? null : doc.title) ?? 
+				new URL(notebook_html_url).pathname.split("/").map(decodeURIComponent).toReversed().find(s => s) ??
+				"Notebook"
+			
+			q(".pe-about p").innerText = head.querySelector('meta[name="description"]')?.content ?? 
+				""
+		})
 	</script>
 
 	<style>
@@ -224,7 +225,7 @@ HypertextLiteral = "~0.9.5"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.12.2"
+julia_version = "1.12.5"
 manifest_format = "2.0"
 project_hash = "de8c559f3dd69bd823c8bc954861ad3089248731"
 
