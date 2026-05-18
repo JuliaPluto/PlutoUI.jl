@@ -1,17 +1,19 @@
 ### A Pluto.jl notebook ###
-# v0.19.40
+# v0.20.26
 
 using Markdown
 using InteractiveUtils
 
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
-    quote
+    #! format: off
+    return quote
         local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
     end
+    #! format: on
 end
 
 # ╔═╡ 81f5b495-76c4-4c54-93ab-b49c5ecb810a
@@ -26,7 +28,10 @@ end
   ╠═╡ =#
 
 # ╔═╡ b7b18a54-afd7-4467-83ed-cc4f07c321fb
-using HypertextLiteral
+begin
+	using HypertextLiteral, AbstractPlutoDingetjes
+	import AbstractPlutoDingetjes.Display: @embed
+end
 
 # ╔═╡ b3732e34-d331-4dd2-b4fb-11b2f397d7c1
 # ╠═╡ skip_as_script = true
@@ -65,6 +70,24 @@ const Iterable = Union{AbstractVector, Tuple, Base.Generator}
 
 # ╔═╡ 46521e2b-ea06-491a-9842-13dff7dc8299
 begin
+	struct _SafeEmbed
+		x
+	end
+	
+	function Base.show(io::IO, m::MIME"text/html", d::_SafeEmbed)		
+		if AbstractPlutoDingetjes.is_inside_pluto(io)
+			if AbstractPlutoDingetjes.is_supported_by_display(io, var"@embed")
+				Base.show(io, m, @embed(d.x))
+				return
+			elseif isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
+				Base.show(io, m, Main.PlutoRunner.embed_display(d.x))
+				return
+			end
+		end
+		Base.show(io, m, d.x)
+		return
+	end
+	
 	embed_summary(summary) = @htl("""
 		<div class='summary-title-outer'>
 			<div class='summary-title-inner'>
@@ -74,9 +97,7 @@ begin
 		""")
 	embed_summary(summary::AbstractString) = summary
 
-	embed_detail(detail) = isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display) ?
-		Main.PlutoRunner.embed_display(detail) :
-		detail
+	embed_detail(detail) = _SafeEmbed(detail)
 	embed_detail(detail::AbstractString) = detail
 	
 	function details(summary, contents::Iterable; open::Bool=false)
@@ -266,7 +287,7 @@ details(htl"<em>I'm</em> <b>going</b> <em>to</em> <b>take</b> <em>over</em> <b>t
   ╠═╡ =#
 
 # ╔═╡ Cell order:
-# ╠═81f5b495-76c4-4c54-93ab-b49c5ecb810a
+# ╟─81f5b495-76c4-4c54-93ab-b49c5ecb810a
 # ╠═b7b18a54-afd7-4467-83ed-cc4f07c321fb
 # ╠═da0fb772-9a70-4616-a540-5770a8d48476
 # ╠═b8434c11-2bb5-47ba-8562-e1176cba0af7
