@@ -522,12 +522,14 @@ transform(el, x) = AbstractPlutoDingetjes.Bonds.transform_value(el, x)
     el = Scrubbable(A)
     @test default(el) == A
     
-    # warn log message because it'ss not running inside Pluto
-    @test_logs (:warn,) WideCell(Base.HTML("asdf"))
-    @test 1 == @test_logs (:warn,) WideCell(1)
-    @test 1 == @test_logs (:warn,) WideCell(1; max_width=123)
+    WideCell(Base.HTML("asdf"))
+    WideCell(1; max_width=123)
     wc1 = WideCell(; max_width=123)
-    @test 1 == @test_logs (:warn,) wc1(1)
+    wc1(1)
+    # warn log message because it'ss not running inside Pluto
+    @test_logs (:warn,) hr(WideCell(Base.HTML("asdf")))
+    h = hr(WideCell(Base.HTML("asdf")))
+    @test occursin("<script", h)
     
     NotebookCard("https://plutojl.org/en/docs/expressionexplorer/") |> hr
     NotebookCard("https://plutojl.org/en/docs/ExpressionExplorer/index.html"; link_text="asdfasdf" ) |> hr
