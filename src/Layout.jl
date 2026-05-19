@@ -616,6 +616,7 @@ begin
 			if AbstractPlutoDingetjes.is_supported_by_display(io, var"@embed")
 				Base.show(io, m, @embed(d.x))
 				return
+			# fallback for old Pluto versions < 0.20.26
 			elseif isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
 				Base.show(io, m, Main.PlutoRunner.embed_display(d.x))
 				return
