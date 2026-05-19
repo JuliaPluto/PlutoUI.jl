@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.20.26
 
 using Markdown
 using InteractiveUtils
@@ -21,7 +21,11 @@ import IOCapture
 import UUIDs: UUID
 
 # ╔═╡ 8f1483c0-49f0-4882-92d8-780d84e63d8d
-import HypertextLiteral: @htl, @htl_str
+begin
+	import AbstractPlutoDingetjes
+	import AbstractPlutoDingetjes.Display: @embed
+	import HypertextLiteral: @htl, @htl_str
+end
 
 # ╔═╡ e3975303-9295-489a-b0a5-cb6624eab890
 md"## Library"
@@ -85,8 +89,8 @@ function Base.show(io::IO, ::MIME"text/html", terminal_output::WithTerminalOutpu
 		terminal_output.show_value &&
 		terminal_output.value !== nothing
 	)
-        if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
-            Main.PlutoRunner.embed_display(terminal_output.value)
+		if AbstractPlutoDingetjes.is_supported_by_display(io, var"@embed")
+			@embed(terminal_output.value)
         else
             htl"<span>$(value)</span>"
         end
