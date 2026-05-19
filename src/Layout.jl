@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.12
+# v0.20.26
 
 using Markdown
 using InteractiveUtils
@@ -19,6 +19,12 @@ using HypertextLiteral
 
 # ╔═╡ a1c603fc-2c9e-47bd-9c51-b25f7104deb5
 using Hyperscript
+
+# ╔═╡ a612a45f-50c5-458e-be65-d534eadadf11
+using AbstractPlutoDingetjes
+
+# ╔═╡ 32bd507c-a042-4ca7-9cca-d28c738dcc45
+using AbstractPlutoDingetjes.Display: @embed
 
 # ╔═╡ b1e7e95f-d6af-47e5-b6d4-1252804331d9
 md"""
@@ -197,216 +203,6 @@ svg {
 data = rand(3)
   ╠═╡ =#
 
-# ╔═╡ 916f95ff-f568-48cc-91c3-ef2d2c9e397a
-embed_display(x) = if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
-	Main.PlutoRunner.embed_display(x)
-else
-	@htl("$(x)")
-end
-
-# ╔═╡ ca2a5bce-6565-4678-baea-535ac8ca3ca9
-Div(x::Iterable; style::CSS="", class::Union{Nothing,String}=nothing) = 
-	if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :DivElement)
-		Main.PlutoRunner.DivElement(; 
-			children=maybecollect(x), 
-			style=to_css_string(style),
-			class=class,
-		)
-	else
-		HTLDiv(;
-			children=[embed_display(i) for i in x], 
-			style=style,
-			class=class,
-		)
-	end
-
-# ╔═╡ d720ae98-f34f-4870-b09a-06499e2c936d
-hbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
-	contents;
-	style=Dict(
-		"display" => "flex",
-		"flex-direction" => "row",
-		style...,
-	),
-	class=class
-)
-
-# ╔═╡ 06a2b4f2-056c-458e-9107-870ea7a25e2f
-# ╠═╡ skip_as_script = true
-#=╠═╡
-hbox([
-	"sfd", "asdf", [1,2,3]
-])
-  ╠═╡ =#
-
-# ╔═╡ f363e639-3799-4507-869c-b63c777988f5
-# ╠═╡ skip_as_script = true
-#=╠═╡
-hbox([
-	Div("left"; style="flex-grow: 1"), Div("on the right")
-])
-  ╠═╡ =#
-
-# ╔═╡ 762c27a1-c71b-4354-8794-621bd0020397
-vbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
-	contents;
-	style=Dict(
-		"display" => "flex",
-		"flex-direction" => "column",
-		style...,
-	),
-	class=class
-)
-
-# ╔═╡ da22938c-ab2c-4a9a-9df3-c69000a33d78
-export hbox, vbox
-
-# ╔═╡ 13b03bde-3dec-4c56-8b8a-c484b2f644aa
-# ╠═╡ skip_as_script = true
-#=╠═╡
-vbox([
-	"sfd", "asdf"
-])
-  ╠═╡ =#
-
-# ╔═╡ a3599e04-eaff-4be7-9ee0-a792274002b2
-export Div
-
-# ╔═╡ 05865376-f0ad-4d16-a9eb-336791315f75
-# ╠═╡ skip_as_script = true
-#=╠═╡
-Div(
-	"hello";
-	
-	style=Dict(
-		"background" => "pink",
-		"padding" => 20px,
-		"border-radius" => 1em,
-	),
-	class="coolbeans",
-)
-  ╠═╡ =#
-
-# ╔═╡ af48dde2-221b-4900-9719-df67dd5ae537
-# ╠═╡ skip_as_script = true
-#=╠═╡
-Div(
-	["hello", "world"];
-	
-	style=Dict(
-		"display" => "flex",
-		"flex-direction" => "column",
-		
-		"background" => "pink",
-		"padding" => 20px,
-		"border-radius" => 1em,
-	),
-	class="coolbeans",
-)
-  ╠═╡ =#
-
-# ╔═╡ 6e1d6a42-51e5-4dad-b149-78c805b90afa
-function flex(args::Iterable; kwargs...)
-	Div(args;
-		style=Dict("display" => "flex", ("flex-" * String(k) => string(v) for (k,v) in kwargs)...)
-		)
-end
-
-# ╔═╡ 6eeec9ed-49bf-45dd-ae73-5cac8ca276f7
-# ╠═╡ skip_as_script = true
-#=╠═╡
-flex(rand(UInt8, 3))
-  ╠═╡ =#
-
-# ╔═╡ cf9c83c6-ee74-4fd4-ade4-5cd3d409f13f
-# ╠═╡ skip_as_script = true
-#=╠═╡
-let
-	p = pascal(5)
-	
-	padder = Div([], style=Dict("flex" => "1 1 auto"))
-	
-	rows = map(p) do row
-		
-		items = map(row) do item
-			Div([item], style=Dict("margin" => "0px 5px"))
-		end
-		
-		flex(
-			[padder, items..., padder]
-		)
-	end
-	flex(rows;
-		direction="column"
-	)
-end
-  ╠═╡ =#
-
-# ╔═╡ a8f02660-32d8-428f-a0aa-d8eb06efabda
-# ╠═╡ skip_as_script = true
-#=╠═╡
-repr(
-	MIME"text/html"(),
-	Div([], style=Dict("a" => 2))
-) |> Text
-  ╠═╡ =#
-
-# ╔═╡ 8fbd9087-c932-4a01-bd44-69007e9f6656
-function grid(items::AbstractMatrix; 
-		fill_width::Bool=true,
-		column_gap::Union{String,Hyperscript.Unit}=1em,
-		row_gap::Union{String,Hyperscript.Unit}=0em,
-		class::Union{Nothing,String}=nothing,
-		style::Dict=Dict()
-	)
-	Div(
-		Div.(vec(permutedims(items, [2,1])));
-		style=Dict(
-			"display" => fill_width ? "grid" : "inline-grid", 
-			"grid-template-columns" => "repeat($(size(items,2)), auto)",
-			"column-gap" => string(column_gap),
-			"row-gap" => string(row_gap),
-			style...
-		),
-		class=class
-	)
-end
-
-# ╔═╡ 306ee9a7-152f-4c4a-867d-a4303f4ddd6c
-export grid
-
-# ╔═╡ 574ef2ab-6438-49f5-ba63-12e0b4f69c7a
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid([
-	md"a" md"b"
-	md"c" md"d"
-	md"e" md"f"
-]; fill_width=false)
-  ╠═╡ =#
-
-# ╔═╡ ba3bd054-a615-4c0e-9675-33f791f3faac
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid([
-	md"a" md"b"
-	md"c" md"d"
-	md"e" md"f"
-]; fill_width=false, column_gap=4em)
-  ╠═╡ =#
-
-# ╔═╡ 59c3941b-7377-4dbd-b0d2-75bf3bc7a8d1
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid(rand(UInt8, 10,8))
-  ╠═╡ =#
-
-# ╔═╡ 4726f3fe-a761-4a58-a177-a2ef79663a90
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid(rand(UInt8, 10,10); fill_width=false)
-  ╠═╡ =#
-
 # ╔═╡ 18cc9fbe-a37a-11eb-082b-e99673bd677d
 function aside(x)
 	@htl("""
@@ -504,12 +300,6 @@ its elements.
 """
   ╠═╡ =#
 
-# ╔═╡ 32aea35b-7b19-4568-a569-7fe5ecb23d00
-# ╠═╡ skip_as_script = true
-#=╠═╡
-flex([smid, ssmall, ssmall]; direction="row")
-  ╠═╡ =#
-
 # ╔═╡ b2aa64b7-8bbc-4dd6-86a6-731a7a2e9c14
 #=╠═╡
 md"""
@@ -548,6 +338,256 @@ begin
 end
   ╠═╡ =#
 
+# ╔═╡ 916f95ff-f568-48cc-91c3-ef2d2c9e397a
+#=╠═╡
+begin
+	struct _SafeEmbed
+		x
+	end
+	
+	function Base.show(io::IO, m::MIME"text/html", d::_SafeEmbed)		
+		if AbstractPlutoDingetjes.is_inside_pluto(io)
+			if AbstractPlutoDingetjes.is_supported_by_display(io, var"@embed")
+				Base.show(io, m, @embed(d.x))
+				return
+			elseif isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :embed_display)
+				Base.show(io, m, Main.PlutoRunner.embed_display(d.x))
+				return
+			end
+		end
+		Base.show(io, m, @htl("$(d.x)"))
+		return
+	end
+	
+	embed_display(x) = _SafeEmbed(x)
+end
+  ╠═╡ =#
+
+# ╔═╡ ca2a5bce-6565-4678-baea-535ac8ca3ca9
+#=╠═╡
+Div(x::Iterable; style::CSS="", class::Union{Nothing,String}=nothing) = 
+	if isdefined(Main, :PlutoRunner) && isdefined(Main.PlutoRunner, :DivElement)
+		Main.PlutoRunner.DivElement(; 
+			children=maybecollect(x), 
+			style=to_css_string(style),
+			class=class,
+		)
+	else
+		HTLDiv(;
+			children=[embed_display(i) for i in x], 
+			style=style,
+			class=class,
+		)
+	end
+  ╠═╡ =#
+
+# ╔═╡ d720ae98-f34f-4870-b09a-06499e2c936d
+#=╠═╡
+hbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
+	contents;
+	style=Dict(
+		"display" => "flex",
+		"flex-direction" => "row",
+		style...,
+	),
+	class=class
+)
+  ╠═╡ =#
+
+# ╔═╡ 06a2b4f2-056c-458e-9107-870ea7a25e2f
+# ╠═╡ skip_as_script = true
+#=╠═╡
+hbox([
+	"sfd", "asdf", [1,2,3]
+])
+  ╠═╡ =#
+
+# ╔═╡ f363e639-3799-4507-869c-b63c777988f5
+# ╠═╡ skip_as_script = true
+#=╠═╡
+hbox([
+	Div("left"; style="flex-grow: 1"), Div("on the right")
+])
+  ╠═╡ =#
+
+# ╔═╡ 762c27a1-c71b-4354-8794-621bd0020397
+#=╠═╡
+vbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
+	contents;
+	style=Dict(
+		"display" => "flex",
+		"flex-direction" => "column",
+		style...,
+	),
+	class=class
+)
+  ╠═╡ =#
+
+# ╔═╡ da22938c-ab2c-4a9a-9df3-c69000a33d78
+#=╠═╡
+export hbox, vbox
+  ╠═╡ =#
+
+# ╔═╡ 13b03bde-3dec-4c56-8b8a-c484b2f644aa
+# ╠═╡ skip_as_script = true
+#=╠═╡
+vbox([
+	"sfd", "asdf"
+])
+  ╠═╡ =#
+
+# ╔═╡ a3599e04-eaff-4be7-9ee0-a792274002b2
+#=╠═╡
+export Div
+  ╠═╡ =#
+
+# ╔═╡ 05865376-f0ad-4d16-a9eb-336791315f75
+# ╠═╡ skip_as_script = true
+#=╠═╡
+Div(
+	"hello";
+	
+	style=Dict(
+		"background" => "pink",
+		"padding" => 20px,
+		"border-radius" => 1em,
+	),
+	class="coolbeans",
+)
+  ╠═╡ =#
+
+# ╔═╡ af48dde2-221b-4900-9719-df67dd5ae537
+# ╠═╡ skip_as_script = true
+#=╠═╡
+Div(
+	["hello", "world"];
+	
+	style=Dict(
+		"display" => "flex",
+		"flex-direction" => "column",
+		
+		"background" => "pink",
+		"padding" => 20px,
+		"border-radius" => 1em,
+	),
+	class="coolbeans",
+)
+  ╠═╡ =#
+
+# ╔═╡ 6e1d6a42-51e5-4dad-b149-78c805b90afa
+#=╠═╡
+function flex(args::Iterable; kwargs...)
+	Div(args;
+		style=Dict("display" => "flex", ("flex-" * String(k) => string(v) for (k,v) in kwargs)...)
+		)
+end
+  ╠═╡ =#
+
+# ╔═╡ 32aea35b-7b19-4568-a569-7fe5ecb23d00
+# ╠═╡ skip_as_script = true
+#=╠═╡
+flex([smid, ssmall, ssmall]; direction="row")
+  ╠═╡ =#
+
+# ╔═╡ 6eeec9ed-49bf-45dd-ae73-5cac8ca276f7
+# ╠═╡ skip_as_script = true
+#=╠═╡
+flex(rand(UInt8, 3))
+  ╠═╡ =#
+
+# ╔═╡ cf9c83c6-ee74-4fd4-ade4-5cd3d409f13f
+# ╠═╡ skip_as_script = true
+#=╠═╡
+let
+	p = pascal(5)
+	
+	padder = Div([], style=Dict("flex" => "1 1 auto"))
+	
+	rows = map(p) do row
+		
+		items = map(row) do item
+			Div([item], style=Dict("margin" => "0px 5px"))
+		end
+		
+		flex(
+			[padder, items..., padder]
+		)
+	end
+	flex(rows;
+		direction="column"
+	)
+end
+  ╠═╡ =#
+
+# ╔═╡ a8f02660-32d8-428f-a0aa-d8eb06efabda
+# ╠═╡ skip_as_script = true
+#=╠═╡
+repr(
+	MIME"text/html"(),
+	Div([], style=Dict("a" => 2))
+) |> Text
+  ╠═╡ =#
+
+# ╔═╡ 8fbd9087-c932-4a01-bd44-69007e9f6656
+#=╠═╡
+function grid(items::AbstractMatrix; 
+		fill_width::Bool=true,
+		column_gap::Union{String,Hyperscript.Unit}=1em,
+		row_gap::Union{String,Hyperscript.Unit}=0em,
+		class::Union{Nothing,String}=nothing,
+		style::Dict=Dict()
+	)
+	Div(
+		Div.(vec(permutedims(items, [2,1])));
+		style=Dict(
+			"display" => fill_width ? "grid" : "inline-grid", 
+			"grid-template-columns" => "repeat($(size(items,2)), auto)",
+			"column-gap" => string(column_gap),
+			"row-gap" => string(row_gap),
+			style...
+		),
+		class=class
+	)
+end
+  ╠═╡ =#
+
+# ╔═╡ 306ee9a7-152f-4c4a-867d-a4303f4ddd6c
+#=╠═╡
+export grid
+  ╠═╡ =#
+
+# ╔═╡ 574ef2ab-6438-49f5-ba63-12e0b4f69c7a
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid([
+	md"a" md"b"
+	md"c" md"d"
+	md"e" md"f"
+]; fill_width=false)
+  ╠═╡ =#
+
+# ╔═╡ ba3bd054-a615-4c0e-9675-33f791f3faac
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid([
+	md"a" md"b"
+	md"c" md"d"
+	md"e" md"f"
+]; fill_width=false, column_gap=4em)
+  ╠═╡ =#
+
+# ╔═╡ 59c3941b-7377-4dbd-b0d2-75bf3bc7a8d1
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid(rand(UInt8, 10,8))
+  ╠═╡ =#
+
+# ╔═╡ 4726f3fe-a761-4a58-a177-a2ef79663a90
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid(rand(UInt8, 10,10); fill_width=false)
+  ╠═╡ =#
+
 # ╔═╡ 9d82ca2b-664d-461e-a93f-61c467bd983a
 # ╠═╡ skip_as_script = true
 #=╠═╡
@@ -575,6 +615,8 @@ aside(embed_display(p))
 # ╠═9113b5a3-d1a6-4594-bb84-33f9ae56c9e5
 # ╠═dd45b118-7a4d-45b3-8961-0c4fb337841b
 # ╠═a1c603fc-2c9e-47bd-9c51-b25f7104deb5
+# ╠═a612a45f-50c5-458e-be65-d534eadadf11
+# ╠═32bd507c-a042-4ca7-9cca-d28c738dcc45
 # ╟─b1e7e95f-d6af-47e5-b6d4-1252804331d9
 # ╠═306ee9a7-152f-4c4a-867d-a4303f4ddd6c
 # ╠═574ef2ab-6438-49f5-ba63-12e0b4f69c7a
