@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.26
+# v0.20.25
 
 using Markdown
 using InteractiveUtils
@@ -85,222 +85,6 @@ maybecollect(x::AbstractVector) = x
 # ╔═╡ d801dd15-9f0a-4448-9ab4-7786e4279547
 Div(x; kwargs...) = Div([x]; kwargs...)
 
-# ╔═╡ 40c161b9-139d-4839-99b5-91d506a5f782
-begin
-	"""
-	```julia
-	DOMElement(; tag="div", attributes=Dict(), children=[])
-	```
-	
-	A lightweight DOM element that renders as a Preact DOM node inside Pluto, and falls back to plain HTML everywhere else (static export, Documenter, the REPL, other notebook frontends, …).
-	
-	# Fields
-	- `tag::String` — HTML/SVG tag name (`"div"`, `"span"`, `"svg"`, …).
-	- `attributes::AbstractDict` — applied to the element. Use `"class"`, `"style"`, `"id"`, `"data-*"`, `"key"`, etc.
-	- `children::AbstractVector` — child displayables. Each child is rendered through the host's display pipeline, so other `DOMElement`s, HTML strings, images, tables, … all work, and you can freely nest.
-	
-	# Example
-	
-	```julia
-	DOMElement(;
-		tag = "ul",
-		attributes = Dict("class" => "shopping-list"),
-		children = [
-			DOMElement(; tag = "li", children = [HTML("Milk")]),
-			DOMElement(; tag = "li", children = [HTML("Eggs")]),
-			DOMElement(; tag = "li", children = [HTML("Bread")]),
-		],
-	)
-	```
-	
-	# How it renders
-	
-	`DOMElement` has two `Base.show` methods, and the renderer picks whichever it supports:
-	
-	1. **Inside a recent Pluto** — it is shown as an [`AbstractPlutoDingetjes.Display.ReactDOMElement`](https://plutojl.org/en/docs/abstractplutodingetjes/#AbstractPlutoDingetjes.Display.ReactDOMElement), a Preact-like virtual-DOM element that Pluto's frontend mounts directly as a DOM node — no HTML-string round-trip. This means children are rendered through Pluto's full display pipeline (so you can drop a `DataFrame`, an image, or another widget straight into `children`), and the special `"key"` attribute participates in Preact's reconciliation.
-	2. **Everywhere else** — including older Pluto versions, static HTML export, Documenter, Jupyter, plain `text/html` consumers — it falls back to a regular HTML element built with HypertextLiteral, with the same `tag`, `attributes`, and `children`.
-	
-	You normally don't have to think about which path is taken: write your widget once with `DOMElement`, and it will pick the richest renderer the viewer supports.
-	
-	# Styling: the `style` attribute
-	
-	Set inline CSS via the `"style"` attribute, as a single CSS string:
-	
-	```julia
-	DOMElement(;
-		tag = "div",
-		attributes = Dict(
-			"style" => "display: flex; gap: .5em; padding: 1em; background: #fee;",
-		),
-		children = ["Hello!"],
-	)
-	```
-	
-	# The `key` attribute
-	
-	In the rich Pluto rendering, the special `"key"` attribute is forwarded to Preact as the [reconciliation key](https://preactjs.com/tutorial/08-keys/). When you render a list of children that may be reordered, inserted, or removed across re-renders, giving each child a stable, unique `"key"` lets Preact match up the old and new children correctly — preserving DOM state (focus, input values, animations) instead of recreating nodes.
-	
-	```julia
-	DOMElement(;
-		tag = "ul",
-		children = [
-			DOMElement(;
-				tag = "li",
-				attributes = Dict("key" => item.id),
-				children = [item.name],
-			)
-			for item in items
-		],
-	)
-	```
-	
-	In the HTML fallback the `"key"` attribute is harmless (it's emitted as a regular attribute and ignored by the browser).
-	"""
-	Base.@kwdef struct DOMElement
-		tag::String = "div"
-		attributes::AbstractDict = Dict{String,Any}()
-		children::AbstractVector = Any[]
-	end
-
-	# This one will take preference, if supported.
-	function Base.show(io::IO, m::MIME"application/vnd.pluto.reactdomelement+object", s::DOMElement)
-		return AbstractPlutoDingetjes.Display.ReactDOMElement(
-			tag=s.tag,
-			children=s.children,
-			attributes=s.attributes,
-		)
-	end
-
-	# The fallback
-	function Base.show(io::IO, m::MIME"text/html", d::DOMElement)
-		show(io, m, @htl """<$(d.tag) $(d.attributes)...>$(d.children)</$(d.tag)>""")
-	end
-end
-
-# ╔═╡ ca2a5bce-6565-4678-baea-535ac8ca3ca9
-function Div(x::Iterable; style::CSS="", class::Union{Nothing,String}=nothing)
-	DOMElement(
-		"div",
-		Dict(
-			:style => to_css_string(style),
-			:class => class,
-		),
-		maybecollect(x),
-	)
-end
-
-# ╔═╡ d720ae98-f34f-4870-b09a-06499e2c936d
-hbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
-	contents;
-	style=Dict(
-		"display" => "flex",
-		"flex-direction" => "row",
-		style...,
-	),
-	class=class
-)
-
-# ╔═╡ 06a2b4f2-056c-458e-9107-870ea7a25e2f
-# ╠═╡ skip_as_script = true
-#=╠═╡
-hbox([
-	"sfd", "asdf", [1,2,3]
-])
-  ╠═╡ =#
-
-# ╔═╡ f363e639-3799-4507-869c-b63c777988f5
-# ╠═╡ skip_as_script = true
-#=╠═╡
-hbox([
-	Div("left"; style="flex-grow: 1"), Div("on the right")
-])
-  ╠═╡ =#
-
-# ╔═╡ 762c27a1-c71b-4354-8794-621bd0020397
-vbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
-	contents;
-	style=Dict(
-		"display" => "flex",
-		"flex-direction" => "column",
-		style...,
-	),
-	class=class
-)
-
-# ╔═╡ da22938c-ab2c-4a9a-9df3-c69000a33d78
-export hbox, vbox
-
-# ╔═╡ 13b03bde-3dec-4c56-8b8a-c484b2f644aa
-# ╠═╡ skip_as_script = true
-#=╠═╡
-vbox([
-	"sfd", "asdf"
-])
-  ╠═╡ =#
-
-# ╔═╡ a3599e04-eaff-4be7-9ee0-a792274002b2
-export Div, DOMElement
-
-# ╔═╡ 05865376-f0ad-4d16-a9eb-336791315f75
-# ╠═╡ skip_as_script = true
-#=╠═╡
-Div(
-	"hello";
-	
-	style=Dict(
-		"background" => "pink",
-		"padding" => 20px,
-		"border-radius" => 1em,
-	),
-	class="coolbeans",
-)
-  ╠═╡ =#
-
-# ╔═╡ af48dde2-221b-4900-9719-df67dd5ae537
-# ╠═╡ skip_as_script = true
-#=╠═╡
-Div(
-	["hello", "world"];
-	
-	style=Dict(
-		"display" => "flex",
-		"flex-direction" => "column",
-		
-		"background" => "pink",
-		"padding" => 20px,
-		"border-radius" => 1em,
-	),
-	class="coolbeans",
-)
-  ╠═╡ =#
-
-# ╔═╡ 6e1d6a42-51e5-4dad-b149-78c805b90afa
-function flex(args::Iterable; kwargs...)
-	Div(args;
-		style=Dict("display" => "flex", ("flex-" * String(k) => string(v) for (k,v) in kwargs)...)
-		)
-end
-
-# ╔═╡ 6eeec9ed-49bf-45dd-ae73-5cac8ca276f7
-# ╠═╡ skip_as_script = true
-#=╠═╡
-flex(rand(UInt8, 3))
-  ╠═╡ =#
-
-# ╔═╡ 72cc368a-2ee2-4279-8a14-27815f202e33
-# ╠═╡ skip_as_script = true
-#=╠═╡
-DOMElement(;
-		tag = "ul",
-		attributes = Dict("class" => "shopping-list"),
-		children = [
-			DOMElement(; tag = "li", children = [HTML("Milk")]),
-			DOMElement(; tag = "li", children = [HTML("Eggs")]),
-			DOMElement(; tag = "li", children = [HTML("Bread")]),
-		],
-	)
-  ╠═╡ =#
-
 # ╔═╡ f24c4b3e-5155-46d5-a328-932719617ca6
 md"""
 ## Triangle
@@ -336,30 +120,6 @@ pascal(n) = pascal_row.(1:n)
 pascal(5)
   ╠═╡ =#
 
-# ╔═╡ cf9c83c6-ee74-4fd4-ade4-5cd3d409f13f
-# ╠═╡ skip_as_script = true
-#=╠═╡
-let
-	p = pascal(5)
-	
-	padder = Div([], style=Dict("flex" => "1 1 auto"))
-	
-	rows = map(p) do row
-		
-		items = map(row) do item
-			Div([item], style=Dict("margin" => "0px 5px"))
-		end
-		
-		flex(
-			[padder, items..., padder]
-		)
-	end
-	flex(rows;
-		direction="column"
-	)
-end
-  ╠═╡ =#
-
 # ╔═╡ 0c5b1f00-57a6-494e-a508-cbac8b23b72e
 # ╠═╡ skip_as_script = true
 #=╠═╡
@@ -380,15 +140,6 @@ repr(
 ) |> Text
   ╠═╡ =#
 
-# ╔═╡ a8f02660-32d8-428f-a0aa-d8eb06efabda
-# ╠═╡ skip_as_script = true
-#=╠═╡
-repr(
-	MIME"text/html"(),
-	Div([], style=Dict("a" => 2))
-) |> Text
-  ╠═╡ =#
-
 # ╔═╡ 3666dc17-2e67-483c-9400-242453ce0ea1
 # ╠═╡ skip_as_script = true
 #=╠═╡
@@ -399,62 +150,6 @@ Hyperscript.Calc(:(1px + 2px))
 # ╠═╡ skip_as_script = true
 #=╠═╡
 123px |> string
-  ╠═╡ =#
-
-# ╔═╡ 8fbd9087-c932-4a01-bd44-69007e9f6656
-function grid(items::AbstractMatrix; 
-		fill_width::Bool=true,
-		column_gap::Union{String,Hyperscript.Unit}=1em,
-		row_gap::Union{String,Hyperscript.Unit}=0em,
-		class::Union{Nothing,String}=nothing,
-		style::Dict=Dict()
-	)
-	Div(
-		Div.(vec(permutedims(items, [2,1])));
-		style=Dict(
-			"display" => fill_width ? "grid" : "inline-grid", 
-			"grid-template-columns" => "repeat($(size(items,2)), auto)",
-			"column-gap" => string(column_gap),
-			"row-gap" => string(row_gap),
-			style...
-		),
-		class=class
-	)
-end
-
-# ╔═╡ 306ee9a7-152f-4c4a-867d-a4303f4ddd6c
-export grid
-
-# ╔═╡ 574ef2ab-6438-49f5-ba63-12e0b4f69c7a
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid([
-	md"a" md"b"
-	md"c" md"d"
-	md"e" md"f"
-]; fill_width=false)
-  ╠═╡ =#
-
-# ╔═╡ ba3bd054-a615-4c0e-9675-33f791f3faac
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid([
-	md"a" md"b"
-	md"c" md"d"
-	md"e" md"f"
-]; fill_width=false, column_gap=4em)
-  ╠═╡ =#
-
-# ╔═╡ 59c3941b-7377-4dbd-b0d2-75bf3bc7a8d1
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid(rand(UInt8, 10,8))
-  ╠═╡ =#
-
-# ╔═╡ 4726f3fe-a761-4a58-a177-a2ef79663a90
-# ╠═╡ skip_as_script = true
-#=╠═╡
-grid(rand(UInt8, 10,10); fill_width=false)
   ╠═╡ =#
 
 # ╔═╡ 8eef743b-bea0-4a97-b539-0723a231441b
@@ -589,12 +284,6 @@ its elements.
 """
   ╠═╡ =#
 
-# ╔═╡ 32aea35b-7b19-4568-a569-7fe5ecb23d00
-# ╠═╡ skip_as_script = true
-#=╠═╡
-flex([smid, ssmall, ssmall]; direction="row")
-  ╠═╡ =#
-
 # ╔═╡ cecc1f1c-0512-4d77-877a-283089aa5058
 begin
 	struct _Show{M <: MIME}
@@ -628,6 +317,319 @@ begin
 	
 	embed_display(x) = _SafeEmbed(x)
 end
+
+# ╔═╡ 40c161b9-139d-4839-99b5-91d506a5f782
+begin
+	"""
+	```julia
+	DOMElement(; tag="div", attributes=Dict(), children=[])
+	```
+	
+	A lightweight DOM element that renders as a Preact DOM node inside Pluto, and falls back to plain HTML everywhere else (static export, Documenter, the REPL, other notebook frontends, …).
+	
+	# Fields
+	- `tag::String` — HTML/SVG tag name (`"div"`, `"span"`, `"svg"`, …).
+	- `attributes::AbstractDict` — applied to the element. Use `"class"`, `"style"`, `"id"`, `"data-*"`, `"key"`, etc.
+	- `children::AbstractVector` — child displayables. Each child is rendered through the host's display pipeline, so other `DOMElement`s, HTML strings, images, tables, … all work, and you can freely nest.
+	
+	# Example
+	
+	```julia
+	DOMElement(;
+		tag = "ul",
+		attributes = Dict("class" => "shopping-list"),
+		children = [
+			DOMElement(; tag = "li", children = [HTML("Milk")]),
+			DOMElement(; tag = "li", children = [HTML("Eggs")]),
+			DOMElement(; tag = "li", children = [HTML("Bread")]),
+		],
+	)
+	```
+	
+	# How it renders
+	
+	`DOMElement` has two `Base.show` methods, and the renderer picks whichever it supports:
+	
+	1. **Inside a recent Pluto** — it is shown as an [`AbstractPlutoDingetjes.Display.ReactDOMElement`](https://plutojl.org/en/docs/abstractplutodingetjes/#AbstractPlutoDingetjes.Display.ReactDOMElement), a Preact-like virtual-DOM element that Pluto's frontend mounts directly as a DOM node — no HTML-string round-trip. This means children are rendered through Pluto's full display pipeline (so you can drop a `DataFrame`, an image, or another widget straight into `children`), and the special `"key"` attribute participates in Preact's reconciliation.
+	2. **Everywhere else** — including older Pluto versions, static HTML export, Documenter, Jupyter, plain `text/html` consumers — it falls back to a regular HTML element built with HypertextLiteral, with the same `tag`, `attributes`, and `children`.
+	
+	You normally don't have to think about which path is taken: write your widget once with `DOMElement`, and it will pick the richest renderer the viewer supports.
+	
+	# Styling: the `style` attribute
+	
+	Set inline CSS via the `"style"` attribute, as a single CSS string:
+	
+	```julia
+	DOMElement(;
+		tag = "div",
+		attributes = Dict(
+			"style" => "display: flex; gap: .5em; padding: 1em; background: #fee;",
+		),
+		children = ["Hello!"],
+	)
+	```
+	
+	# The `key` attribute
+	
+	In the rich Pluto rendering, the special `"key"` attribute is forwarded to Preact as the [reconciliation key](https://preactjs.com/tutorial/08-keys/). When you render a list of children that may be reordered, inserted, or removed across re-renders, giving each child a stable, unique `"key"` lets Preact match up the old and new children correctly — preserving DOM state (focus, input values, animations) instead of recreating nodes.
+	
+	```julia
+	DOMElement(;
+		tag = "ul",
+		children = [
+			DOMElement(;
+				tag = "li",
+				attributes = Dict("key" => item.id),
+				children = [item.name],
+			)
+			for item in items
+		],
+	)
+	```
+	
+	In the HTML fallback the `"key"` attribute is harmless (it's emitted as a regular attribute and ignored by the browser).
+	"""
+	Base.@kwdef struct DOMElement
+		tag::String = "div"
+		attributes::AbstractDict = Dict{String,Any}()
+		children::AbstractVector = Any[]
+	end
+
+	# This one will take preference, if supported.
+	function Base.show(io::IO, m::MIME"application/vnd.pluto.reactdomelement+object", s::DOMElement)
+		return AbstractPlutoDingetjes.Display.ReactDOMElement(
+			tag=s.tag,
+			children=s.children,
+			attributes=s.attributes,
+		)
+	end
+
+	# The fallback
+	function Base.show(io::IO, m::MIME"text/html", d::DOMElement)
+		show(io, m, @htl """<$(d.tag) $(d.attributes)...>$((
+			_SafeEmbed(x) for x in d.children
+		))</$(d.tag)>""")
+	end
+end
+
+# ╔═╡ ca2a5bce-6565-4678-baea-535ac8ca3ca9
+function Div(x::Iterable; style::CSS="", class::Union{Nothing,String}=nothing)
+	DOMElement(
+		"div",
+		Dict(
+			:style => to_css_string(style),
+			:class => class,
+		),
+		maybecollect(x),
+	)
+end
+
+# ╔═╡ d720ae98-f34f-4870-b09a-06499e2c936d
+hbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
+	contents;
+	style=Dict(
+		"display" => "flex",
+		"flex-direction" => "row",
+		style...,
+	),
+	class=class
+)
+
+# ╔═╡ 06a2b4f2-056c-458e-9107-870ea7a25e2f
+# ╠═╡ skip_as_script = true
+#=╠═╡
+hbox([
+	"sfd", "asdf", [1,2,3]
+])
+  ╠═╡ =#
+
+# ╔═╡ f363e639-3799-4507-869c-b63c777988f5
+# ╠═╡ skip_as_script = true
+#=╠═╡
+hbox([
+	Div("left"; style="flex-grow: 1"), Div("on the right")
+])
+  ╠═╡ =#
+
+# ╔═╡ 762c27a1-c71b-4354-8794-621bd0020397
+vbox(contents::Iterable; style::Dict=Dict(), class::Union{String,Nothing}=nothing) = Div(
+	contents;
+	style=Dict(
+		"display" => "flex",
+		"flex-direction" => "column",
+		style...,
+	),
+	class=class
+)
+
+# ╔═╡ da22938c-ab2c-4a9a-9df3-c69000a33d78
+export hbox, vbox
+
+# ╔═╡ 13b03bde-3dec-4c56-8b8a-c484b2f644aa
+# ╠═╡ skip_as_script = true
+#=╠═╡
+vbox([
+	"sfd", "asdf"
+])
+  ╠═╡ =#
+
+# ╔═╡ a3599e04-eaff-4be7-9ee0-a792274002b2
+export Div, DOMElement
+
+# ╔═╡ 05865376-f0ad-4d16-a9eb-336791315f75
+# ╠═╡ skip_as_script = true
+#=╠═╡
+Div(
+	"hello";
+	
+	style=Dict(
+		"background" => "pink",
+		"padding" => 20px,
+		"border-radius" => 1em,
+	),
+	class="coolbeans",
+)
+  ╠═╡ =#
+
+# ╔═╡ af48dde2-221b-4900-9719-df67dd5ae537
+# ╠═╡ skip_as_script = true
+#=╠═╡
+Div(
+	["hello", "world"];
+	
+	style=Dict(
+		"display" => "flex",
+		"flex-direction" => "column",
+		
+		"background" => "pink",
+		"padding" => 20px,
+		"border-radius" => 1em,
+	),
+	class="coolbeans",
+)
+  ╠═╡ =#
+
+# ╔═╡ 6e1d6a42-51e5-4dad-b149-78c805b90afa
+function flex(args::Iterable; kwargs...)
+	Div(args;
+		style=Dict("display" => "flex", ("flex-" * String(k) => string(v) for (k,v) in kwargs)...)
+		)
+end
+
+# ╔═╡ 32aea35b-7b19-4568-a569-7fe5ecb23d00
+# ╠═╡ skip_as_script = true
+#=╠═╡
+flex([smid, ssmall, ssmall]; direction="row")
+  ╠═╡ =#
+
+# ╔═╡ 6eeec9ed-49bf-45dd-ae73-5cac8ca276f7
+# ╠═╡ skip_as_script = true
+#=╠═╡
+flex(rand(UInt8, 3))
+  ╠═╡ =#
+
+# ╔═╡ cf9c83c6-ee74-4fd4-ade4-5cd3d409f13f
+# ╠═╡ skip_as_script = true
+#=╠═╡
+let
+	p = pascal(5)
+	
+	padder = Div([], style=Dict("flex" => "1 1 auto"))
+	
+	rows = map(p) do row
+		
+		items = map(row) do item
+			Div([item], style=Dict("margin" => "0px 5px"))
+		end
+		
+		flex(
+			[padder, items..., padder]
+		)
+	end
+	flex(rows;
+		direction="column"
+	)
+end
+  ╠═╡ =#
+
+# ╔═╡ a8f02660-32d8-428f-a0aa-d8eb06efabda
+# ╠═╡ skip_as_script = true
+#=╠═╡
+repr(
+	MIME"text/html"(),
+	Div([], style=Dict("a" => 2))
+) |> Text
+  ╠═╡ =#
+
+# ╔═╡ 8fbd9087-c932-4a01-bd44-69007e9f6656
+function grid(items::AbstractMatrix; 
+		fill_width::Bool=true,
+		column_gap::Union{String,Hyperscript.Unit}=1em,
+		row_gap::Union{String,Hyperscript.Unit}=0em,
+		class::Union{Nothing,String}=nothing,
+		style::Dict=Dict()
+	)
+	Div(
+		Div.(vec(permutedims(items, [2,1])));
+		style=Dict(
+			"display" => fill_width ? "grid" : "inline-grid", 
+			"grid-template-columns" => "repeat($(size(items,2)), auto)",
+			"column-gap" => string(column_gap),
+			"row-gap" => string(row_gap),
+			style...
+		),
+		class=class
+	)
+end
+
+# ╔═╡ 306ee9a7-152f-4c4a-867d-a4303f4ddd6c
+export grid
+
+# ╔═╡ 574ef2ab-6438-49f5-ba63-12e0b4f69c7a
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid([
+	md"a" md"b"
+	md"c" md"d"
+	md"e" md"f"
+]; fill_width=false)
+  ╠═╡ =#
+
+# ╔═╡ ba3bd054-a615-4c0e-9675-33f791f3faac
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid([
+	md"a" md"b"
+	md"c" md"d"
+	md"e" md"f"
+]; fill_width=false, column_gap=4em)
+  ╠═╡ =#
+
+# ╔═╡ 59c3941b-7377-4dbd-b0d2-75bf3bc7a8d1
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid(rand(UInt8, 10,8))
+  ╠═╡ =#
+
+# ╔═╡ 4726f3fe-a761-4a58-a177-a2ef79663a90
+# ╠═╡ skip_as_script = true
+#=╠═╡
+grid(rand(UInt8, 10,10); fill_width=false)
+  ╠═╡ =#
+
+# ╔═╡ 72cc368a-2ee2-4279-8a14-27815f202e33
+# ╠═╡ skip_as_script = true
+#=╠═╡
+DOMElement(;
+		tag = "ul",
+		attributes = Dict("class" => "shopping-list"),
+		children = [
+			DOMElement(; tag = "li", children = [HTML("Milk")]),
+			DOMElement(; tag = "li", children = [HTML("Eggs")]),
+			DOMElement(; tag = "li", children = [HTML("Bread")]),
+		],
+	)
+  ╠═╡ =#
 
 # ╔═╡ 64c0b4e8-e3d1-4dbb-8042-89023a73e376
 # ╠═╡ skip_as_script = true
