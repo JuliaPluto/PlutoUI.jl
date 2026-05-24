@@ -94,6 +94,10 @@ const wrapped = WrappedNotebook.wrapped
 
 end
 
+@reexport module DateRangePickerNotebook
+    import ...PlutoUI
+    include("./DateRangePicker.jl")
+end
 
 include("./ScrubbableMatrix.jl")
 include("./bindname.jl")
