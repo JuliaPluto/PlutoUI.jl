@@ -76,7 +76,7 @@ function NotebookCard(notebook_url; link_text = "Read article")
 			const head = doc.head
 	
 			console.log({doc, notebook_html_url})
-			const q = sel => currentScript.parentElement.querySelector(".pe-card").querySelector(sel)
+			const q = sel => (typeof currentScript !== 'undefined' ? currentScript : document.currentScript).parentElement.querySelector(".pe-card").querySelector(sel)
 	
 			q("a img").src = head.querySelector('meta[property="og:image"]')?.content ??
 				white_svg_uri
