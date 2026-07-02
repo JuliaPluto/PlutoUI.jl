@@ -1,0 +1,99 @@
+plutoui-clock {
+    display: flex;
+    flex-direction: row;
+}
+
+plutoui-clock > * {
+    align-self: center;
+    margin-right: 0.3rem;
+}
+
+plutoui-analog {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    width: 20px;
+    height: 20px;
+}
+@media (prefers-color-scheme: dark) {
+    plutoui-analog {
+        filter: invert(1) hue-rotate(180deg);
+    }
+}
+
+plutoui-analog > * {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+plutoui-analog > * > svg {
+    width: 100%;
+    height: 100%;
+}
+
+plutoui-clock plutoui-analog plutoui-front,
+plutoui-clock plutoui-analog plutoui-zoof {
+    position: absolute;
+    left: 0;
+    top: 0;
+    animation: 1s linear 🔁 infinite;
+}
+
+plutoui-clock.stopped plutoui-analog plutoui-front {
+    animation-play-state: paused;
+}
+
+plutoui-clock.stopped plutoui-analog plutoui-zoof {
+    display: none;
+}
+
+plutoui-clock input {
+    width: 3rem;
+}
+
+plutoui-clock span {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.75rem;
+    word-spacing: -0.2rem;
+}
+
+plutoui-clock span#unit {
+    font-style: italic;
+    cursor: pointer;
+}
+
+plutoui-clock span#unit::after {
+    content: 'secs / tick';
+}
+
+plutoui-clock.inverted span#unit::after {
+    content: 'ticks / sec';
+}
+
+plutoui-clock button {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+plutoui-clock button::after {
+    content: 'Stop';
+}
+
+plutoui-clock.stopped button::after {
+    content: 'Start';
+}
+
+plutoui-clock.fixed span,
+plutoui-clock.fixed input {
+    display: none;
+}
+
+@keyframes 🔁 {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
