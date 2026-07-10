@@ -101,6 +101,8 @@ function LocalResource(path::AbstractString, html_attributes::Pair...)
 	Resource(src, mime, html_attributes)
 end
 
+Vector{UInt8}(r::PlutoUI.Resource) = Base64.base64decode(split(r.src, ',', limit=2) |> last)
+
 ###
 # DOWNLOAD BUTTON
 ###
