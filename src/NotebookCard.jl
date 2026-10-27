@@ -82,7 +82,7 @@ function NotebookCard(notebook_url; link_text = "Read article")
 				white_svg_uri
 			
 			q(".pe-about h2").innerText = (doc.title == "" ? null : doc.title) ?? 
-				new URL(notebook_html_url).pathname.split("/").map(decodeURIComponent).toReversed().find(s => s) ??
+				new URL(notebook_html_url).pathname.replace(/\.html$/,"").split("/").map(decodeURIComponent).toReversed().find(s => s) ??
 				"Notebook"
 			
 			q(".pe-about p").innerText = head.querySelector('meta[name="description"]')?.content ?? 
