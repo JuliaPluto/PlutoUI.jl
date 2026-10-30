@@ -26,6 +26,9 @@ end # 0.1 second
 @reexport module TableOfContentsNotebook
     include("./TableOfContents.jl")
 end # 0.1 second
+@reexport module SidebarNotebook
+    include("./Sidebar.jl")
+end
 @reexport module ClockNotebook
     include("./Clock.jl")
 end # 0.04 second
